@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>RapiTaxi - Despacho</title>
+
+  <style>
+    :root {
+      --purple: #5b2bd8;
+      --purple-dark: #4320ad;
+      --green: #14b956;
+      --soft: #f5f3fb;
+      --text: #16132e;
+      --muted: #77738a;
+      --yellow: #fff214;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      min-height: 100vh;
+
+      background:
+        linear-gradient(
+          160deg,
+          var(--purple),
+          var(--purple-dark)
+        );
+
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: auto;
+    }
+
+    .brand {
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .brand span {
+      color: var(--yellow);
+    }
+
+    .brand p {
+      margin-top: 6px;
+      opacity: .8;
+    }
+
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 26px;
+
+      box-shadow:
+        0 25px 60px rgba(20, 5, 75, .3);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--text);
+    }
+
+    .campo {
+      margin-bottom: 17px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+
+      font-size: 12px;
+      font-weight: 900;
+
+      color: var(--muted);
+
+      letter-spacing: .7px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+
+      border: 1px solid #dedbe8;
+
+      border-radius: 13px;
+
+      padding: 13px 14px;
+
+      font: inherit;
+
+      outline: none;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--purple);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 95px;
+    }
+
+    button,
+    .btn {
+      width: 100%;
+
+      border: none;
+
+      min-height: 54px;
+
+      border-radius: 15px;
+
+      font-size: 15px;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      text-decoration: none;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      margin-top: 10px;
+    }
+
+    .crear {
+      background: var(--purple);
+      color: white;
+    }
+
+    .whatsapp {
+      background: var(--green);
+      color: white;
+    }
+
+    .copiar {
+      background: #ece9f6;
+      color: var(--purple);
+    }
+
+    .resultado {
+      margin-top: 25px;
+      display: none;
+    }
+
+    .numero {
+      font-size: 34px;
+      font-weight: 950;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+
+    .mensaje {
+      background: var(--soft);
+
+      border-radius: 16px;
+
+      padding: 17px;
+
+      white-space: pre-wrap;
+
+      font-family: inherit;
+
+      line-height: 1.55;
+
+      margin: 14px 0;
+    }
+
+    .success {
+      color: var(--green);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .error {
+      color: #d43737;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="brand">
+    <h1>Rapi<span>Taxi</span></h1>
+    <p>Panel provisional de despacho</p>
+  </div>
+
+  <div class="card">
+
+    <h2>Nueva carrera</h2>
+
+    <form id="formCarrera">
+
+      <div class="campo">
+        <label>NOMBRE DEL CLIENTE</label>
+
+        <input
+          id="nombre"
+          required
+          placeholder="Ej. Xavier"
+        >
+      </div>
+
+
+      <div class="campo">
+        <label>WHATSAPP DEL CLIENTE</label>
+
+        <input
+          id="whatsapp"
+          required
+          placeholder="Ej. 593999999999"
+        >
+      </div>
+
+
+      <div class="campo">
+        <label>LATITUD</label>
+
+        <input
+          id="latitud"
+          type="number"
+          step="any"
+          required
+          placeholder="-2.1894"
+        >
+      </div>
+
+
+      <div class="campo">
+        <label>LONGITUD</label>
+
+        <input
+          id="longitud"
+          type="number"
+          step="any"
+          required
+          placeholder="-79.8891"
+        >
+      </div>
+
+
+      <div class="campo">
+        <label>REFERENCIA</label>
+
+        <textarea
+          id="referencia"
+          required
+          placeholder="Av. Eloy Alfaro, sector Parque de las Madres"
+        ></textarea>
+      </div>
+
+
+      <div class="campo">
+        <label>FORMA DE PAGO</label>
+
+        <select id="formaPago" required>
+
+          <option value="Efectivo">
+            Efectivo
+          </option>
+
+          <option value="Transferencia Banco Pichincha">
+            Transferencia Banco Pichincha
+          </option>
+
+          <option value="Transferencia Banco Guayaquil">
+            Transferencia Banco Guayaquil
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <button
+        id="crearBtn"
+        class="crear"
+        type="submit"
+      >
+        CREAR CARRERA
+      </button>
+
+    </form>
+
+
+    <div
+      id="error"
+      class="error"
+    ></div>
+
+
+    <div
+      id="resultado"
+      class="resultado"
+    >
+
+      <div class="success">
+        ✓ Carrera creada correctamente
+      </div>
+
+      <div
+        id="numero"
+        class="numero"
+      ></div>
+
+      <div
+        id="mensaje"
+        class="mensaje"
+      ></div>
+
+      <button
+        id="copiarBtn"
+        class="copiar"
+        type="button"
+      >
+        COPIAR MENSAJE
+      </button>
+
+      <a
+        id="whatsappBtn"
+        class="btn whatsapp"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        ENVIAR POR WHATSAPP
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="/despacho.js"></script>
+
+</body>
+</html>

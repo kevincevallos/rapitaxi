@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>RapiTaxi Administración</title>
+
+<style>
+:root {
+  --purple:#5b2bd8;
+  --purple-dark:#4320ad;
+  --green:#14b956;
+  --red:#e5484d;
+  --yellow:#fff214;
+  --soft:#f5f3fb;
+  --text:#16132e;
+  --muted:#77738a;
+  --border:#e5e1ef;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background:#f5f4f9;
+  color:var(--text);
+}
+
+header {
+  background:
+    linear-gradient(
+      135deg,
+      var(--purple),
+      var(--purple-dark)
+    );
+
+  color:white;
+  padding:22px;
+}
+
+.header-inner {
+  max-width:1200px;
+  margin:auto;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  gap:20px;
+}
+
+.logo {
+  font-size:30px;
+  font-weight:950;
+}
+
+.logo span {
+  color:var(--yellow);
+}
+
+.subtitle {
+  font-size:13px;
+  opacity:.75;
+  margin-top:3px;
+}
+
+.container {
+  max-width:1200px;
+  margin:26px auto;
+  padding:0 18px;
+}
+
+.tabs {
+  display:flex;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.tab {
+  border:0;
+  background:white;
+
+  padding:12px 20px;
+
+  border-radius:12px;
+
+  font-weight:850;
+  cursor:pointer;
+}
+
+.tab.active {
+  background:var(--purple);
+  color:white;
+}
+
+.panel {
+  display:none;
+}
+
+.panel.active {
+  display:block;
+}
+
+.toolbar {
+  display:flex;
+
+  justify-content:space-between;
+  align-items:center;
+
+  gap:15px;
+
+  margin-bottom:15px;
+}
+
+.toolbar h2 {
+  margin:0;
+}
+
+.btn {
+  border:0;
+
+  border-radius:12px;
+
+  padding:12px 18px;
+
+  font-weight:850;
+
+  cursor:pointer;
+}
+
+.btn-purple {
+  background:var(--purple);
+  color:white;
+}
+
+.btn-green {
+  background:var(--green);
+  color:white;
+}
+
+.card {
+  background:white;
+
+  border-radius:20px;
+
+  box-shadow:
+    0 8px 30px rgba(41, 28, 92, .08);
+
+  overflow:hidden;
+}
+
+.table-wrap {
+  overflow-x:auto;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td {
+  padding:15px;
+
+  border-bottom:
+    1px solid var(--border);
+
+  text-align:left;
+
+  white-space:nowrap;
+}
+
+th {
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:.5px;
+}
+
+td {
+  font-size:14px;
+}
+
+.badge {
+  display:inline-block;
+
+  padding:6px 10px;
+
+  border-radius:999px;
+
+  font-size:11px;
+  font-weight:900;
+}
+
+.buscando {
+  background:#fff4d8;
+  color:#8a6400;
+}
+
+.asignada {
+  background:#e7f8ee;
+  color:#0b8940;
+}
+
+.activo {
+  background:#e7f8ee;
+  color:#0b8940;
+}
+
+.vacio {
+  padding:30px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.overlay {
+  position:fixed;
+
+  inset:0;
+
+  background:
+    rgba(17, 9, 44, .55);
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  z-index:1000;
+}
+
+.overlay.active {
+  display:flex;
+}
+
+.modal {
+  background:white;
+
+  width:100%;
+  max-width:480px;
+
+  border-radius:24px;
+
+  padding:25px;
+
+  max-height:95vh;
+  overflow-y:auto;
+}
+
+.modal-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:20px;
+}
+
+.modal-header h2 {
+  margin:0;
+}
+
+.cerrar {
+  border:0;
+  background:#eeeaf7;
+
+  width:38px;
+  height:38px;
+
+  border-radius:50%;
+
+  font-size:20px;
+  cursor:pointer;
+}
+
+.campo {
+  margin-bottom:15px;
+}
+
+label {
+  display:block;
+
+  font-size:12px;
+  font-weight:900;
+
+  color:var(--muted);
+
+  margin-bottom:6px;
+}
+
+input {
+  width:100%;
+
+  padding:13px;
+
+  border:
+    1px solid var(--border);
+
+  border-radius:12px;
+
+  font:inherit;
+
+  outline:none;
+}
+
+input:focus {
+  border-color:var(--purple);
+}
+
+.codigo-preview {
+  font-size:32px;
+  font-weight:950;
+
+  color:var(--purple);
+
+  text-align:center;
+
+  padding:12px;
+
+  background:var(--soft);
+
+  border-radius:14px;
+
+  margin-bottom:18px;
+}
+
+.error {
+  color:var(--red);
+
+  font-size:13px;
+  font-weight:700;
+
+  margin-bottom:10px;
+}
+
+.success {
+  color:var(--green);
+
+  font-size:13px;
+  font-weight:800;
+
+  margin-bottom:10px;
+}
+
+@media(max-width:600px) {
+  .header-inner {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .toolbar {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .btn {
+    width:100%;
+  }
+}
+.btn-small {
+  border:0;
+  border-radius:9px;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:850;
+  cursor:pointer;
+  margin-right:5px;
+}
+
+.btn-edit {
+  background:#eeeaf7;
+  color:var(--purple);
+}
+
+.btn-toggle {
+  background:#fff1d6;
+  color:#8a6400;
+}
+
+.inactivo {
+  background:#fdeaea;
+  color:#b63030;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+
+    <div>
+      <div class="logo">
+        Rapi<span>Taxi</span>
+      </div>
+
+      <div class="subtitle">
+        Panel de administración
+      </div>
+    </div>
+
+    <div>
+      Sistema operativo
+    </div>
+
+  </div>
+</header>
+
+
+<div class="container">
+
+  <div class="tabs">
+
+    <button
+      id="tabCarreras"
+      class="tab active"
+    >
+      Carreras
+    </button>
+
+    <button
+      id="tabTaxistas"
+      class="tab"
+    >
+      Taxistas
+    </button>
+
+  </div>
+
+
+  <section
+    id="panelCarreras"
+    class="panel active"
+  >
+
+    <div class="toolbar">
+
+      <h2>
+        Carreras
+      </h2>
+
+      <button
+        id="actualizarCarreras"
+        class="btn btn-purple"
+      >
+        ACTUALIZAR
+      </button>
+
+    </div>
+
+
+    <div class="card">
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>CARRERA</th>
+              <th>ESTADO</th>
+              <th>REFERENCIA</th>
+              <th>PAGO</th>
+              <th>TAXISTA</th>
+              <th>PLACA</th>
+              <th>FECHA</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaCarreras">
+          </tbody>
+
+        </table>
+
+      </div>
+    </div>
+
+  </section>
+
+
+  <section
+    id="panelTaxistas"
+    class="panel"
+  >
+
+    <div class="toolbar">
+
+      <h2>
+        Taxistas registrados
+      </h2>
+
+      <button
+        id="abrirRegistro"
+        class="btn btn-green"
+      >
+        + REGISTRAR TAXISTA
+      </button>
+
+    </div>
+
+
+    <div class="card">
+      <div class="table-wrap">
+
+        <table>
+
+          <thead>
+            <tr>
+            <th>CÓDIGO</th>
+            <th>NOMBRE</th>
+            <th>PLACA</th>
+            <th>VEHÍCULO</th>
+            <th>TELÉFONO</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaTaxistas">
+          </tbody>
+
+        </table>
+
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+
+<div
+  id="overlay"
+  class="overlay"
+>
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>
+        Registrar taxista
+      </h2>
+
+      <button
+        id="cerrarRegistro"
+        class="cerrar"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <form id="formTaxista">
+
+      <div class="campo">
+
+        <label>
+          CÓDIGO ÚNICO
+        </label>
+
+        <input
+          id="codigo"
+          inputmode="numeric"
+          maxlength="3"
+          required
+          placeholder="Ej. 354"
+        >
+
+      </div>
+
+
+      <div
+        id="codigoPreview"
+        class="codigo-preview"
+      >
+        ---
+      </div>
+
+
+      <div class="campo">
+
+        <label>
+          NOMBRE COMPLETO
+        </label>
+
+        <input
+          id="nombre"
+          required
+        >
+
+      </div>
+
+
+      <div class="campo">
+
+        <label>
+          PLACA
+        </label>
+
+        <input
+          id="placa"
+          required
+          placeholder="ABC-1234"
+        >
+
+      </div>
+
+
+      <div class="campo">
+
+        <label>
+          VEHÍCULO
+        </label>
+
+        <input
+          id="vehiculo"
+          required
+          placeholder="Kia Picanto"
+        >
+
+      </div>
+
+
+      <div class="campo">
+
+        <label>
+          TELÉFONO
+        </label>
+
+        <input
+          id="telefono"
+          placeholder="593..."
+        >
+
+      </div>
+
+
+      <div
+        id="mensajeFormulario"
+      ></div>
+
+
+      <button
+        id="guardarTaxista"
+        class="btn btn-green"
+        type="submit"
+      >
+        GUARDAR TAXISTA
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+<div
+  id="overlayEditar"
+  class="overlay"
+>
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h2>
+        Editar taxista
+      </h2>
+
+      <button
+        id="cerrarEdicion"
+        class="cerrar"
+      >
+        ×
+      </button>
+
+    </div>
+
+    <form id="formEditarTaxista">
+
+      <input
+        id="editarId"
+        type="hidden"
+      >
+
+      <div class="campo">
+        <label>CÓDIGO</label>
+
+        <input
+          id="editarCodigo"
+          disabled
+        >
+      </div>
+
+      <div class="campo">
+        <label>NOMBRE COMPLETO</label>
+
+        <input
+          id="editarNombre"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label>PLACA</label>
+
+        <input
+          id="editarPlaca"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label>VEHÍCULO</label>
+
+        <input
+          id="editarVehiculo"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label>TELÉFONO</label>
+
+        <input
+          id="editarTelefono"
+        >
+      </div>
+
+      <div
+        id="mensajeEdicion"
+      ></div>
+
+      <button
+        id="guardarEdicion"
+        class="btn btn-green"
+        type="submit"
+      >
+        GUARDAR CAMBIOS
+      </button>
+
+    </form>
+
+  </div>
+</div>
+<script src="/admin.js"></script>
+
+</body>
+</html>

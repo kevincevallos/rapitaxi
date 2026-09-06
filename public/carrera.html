@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>RapiTaxi - Carrera</title>
+
+  <style>
+    :root {
+      --purple: #5b2bd8;
+      --purple-dark: #4320ad;
+      --green: #14b956;
+      --green-dark: #0d9845;
+      --soft: #f5f3fb;
+      --text: #16132e;
+      --muted: #77738a;
+      --yellow: #fff214;
+      --danger: #e5484d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      min-height: 100vh;
+
+      background:
+        linear-gradient(
+          160deg,
+          var(--purple) 0%,
+          var(--purple-dark) 100%
+        );
+
+      color: var(--text);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      padding: 24px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .brand {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .brand h1 {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .brand span {
+      color: var(--yellow);
+    }
+
+    .card {
+      background: white;
+
+      border-radius: 28px;
+
+      padding: 30px 24px;
+
+      box-shadow:
+        0 24px 60px rgba(24, 8, 80, 0.28);
+
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--purple);
+
+      font-size: 14px;
+
+      font-weight: 900;
+
+      letter-spacing: 1.7px;
+
+      margin-bottom: 8px;
+    }
+
+    .numero {
+      font-size: 52px;
+
+      font-weight: 950;
+
+      line-height: 1;
+
+      margin-bottom: 15px;
+    }
+
+    .estado {
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      background: #eefaf3;
+
+      color: var(--green-dark);
+
+      padding: 8px 13px;
+
+      border-radius: 999px;
+
+      font-size: 13px;
+
+      font-weight: 800;
+
+      margin-bottom: 25px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+
+      background: var(--green);
+
+      border-radius: 50%;
+    }
+
+    .info {
+      text-align: left;
+
+      background: var(--soft);
+
+      border-radius: 20px;
+
+      padding: 20px;
+
+      margin-bottom: 22px;
+    }
+
+    .info-item + .info-item {
+      margin-top: 20px;
+    }
+
+    .label {
+      font-size: 12px;
+
+      font-weight: 900;
+
+      letter-spacing: 1px;
+
+      color: var(--muted);
+
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 17px;
+
+      font-weight: 800;
+
+      line-height: 1.4;
+    }
+
+    button,
+    .whatsapp {
+      width: 100%;
+
+      min-height: 58px;
+
+      border: none;
+
+      border-radius: 17px;
+
+      font-size: 16px;
+
+      font-weight: 900;
+
+      cursor: pointer;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      text-decoration: none;
+
+      transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+    }
+
+    button:active,
+    .whatsapp:active {
+      transform: scale(0.98);
+    }
+
+    #aceptarBtn {
+      background: var(--green);
+      color: white;
+    }
+
+    #aceptarBtn:disabled {
+      cursor: default;
+      opacity: 0.65;
+    }
+
+    .whatsapp {
+      background: var(--green);
+      color: white;
+    }
+
+    .icon-circle {
+      width: 76px;
+      height: 76px;
+
+      border-radius: 50%;
+
+      margin: 0 auto 20px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 38px;
+
+      font-weight: 900;
+    }
+
+    .success-circle {
+      background: #e8f9ef;
+      color: var(--green);
+    }
+
+    .error-circle {
+      background: #fdeeee;
+      color: var(--danger);
+    }
+
+    .result-title {
+      font-size: 27px;
+
+      line-height: 1.15;
+
+      margin-bottom: 10px;
+    }
+
+    .result-subtitle {
+      color: var(--muted);
+
+      font-size: 15px;
+
+      line-height: 1.55;
+
+      margin-bottom: 24px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading {
+      color: white;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .error-general {
+      color: white;
+
+      text-align: center;
+
+      background: rgba(255, 255, 255, 0.12);
+
+      border-radius: 20px;
+
+      padding: 24px;
+    }
+
+    .footer {
+      color: rgba(255,255,255,.72);
+
+      font-size: 12px;
+
+      text-align: center;
+
+      margin-top: 18px;
+    }
+    .codigo-box {
+  background: var(--soft);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.codigo-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.codigo-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.codigo-help {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.codigo-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.codigo-input {
+  width: 78px;
+  height: 82px;
+
+  border: 2px solid #d9d2f4;
+  border-radius: 16px;
+
+  text-align: center;
+
+  font-size: 34px;
+  font-weight: 800;
+
+  color: var(--text);
+
+  outline: none;
+
+  background: white;
+}
+
+.codigo-input:focus {
+  border-color: var(--purple);
+  box-shadow:
+    0 0 0 3px rgba(91, 43, 216, .12);
+}
+
+.codigo-error {
+  color: #d43737;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 12px;
+}
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <div class="brand">
+      <h1>Rapi<span>Taxi</span></h1>
+    </div>
+
+    <!-- CARGANDO -->
+
+    <div id="loading" class="loading">
+      Cargando carrera...
+    </div>
+
+
+    <!-- CARRERA DISPONIBLE -->
+
+    <section id="pantallaCarrera" class="card hidden">
+
+      <div class="eyebrow">
+        NUEVA CARRERA
+      </div>
+
+      <div
+        id="numeroCarrera"
+        class="numero"
+      >
+        #---
+      </div>
+
+      <div class="estado">
+        <span class="pulse"></span>
+        DISPONIBLE
+      </div>
+
+      <div class="info">
+
+        <div class="info-item">
+
+          <div class="label">
+            📍 REFERENCIA
+          </div>
+
+          <div
+            id="referencia"
+            class="value"
+          >
+            Cargando...
+          </div>
+
+        </div>
+
+        <div class="info-item">
+
+          <div class="label">
+            💳 FORMA DE PAGO
+          </div>
+
+          <div
+            id="formaPago"
+            class="value"
+          >
+            Cargando...
+          </div>
+
+        </div>
+
+      </div>
+<div class="codigo-box">
+
+  <div class="codigo-header">
+
+    <div class="codigo-icon">
+      🔒
+    </div>
+
+    <div>
+      <div class="label">
+        CÓDIGO DE CONDUCTOR
+      </div>
+
+      <div class="codigo-help">
+        Ingresa tu código de 3 dígitos para identificarte.
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="codigo-inputs">
+
+    <input
+      id="codigo1"
+      class="codigo-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="1"
+      autocomplete="off"
+    >
+
+    <input
+      id="codigo2"
+      class="codigo-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="1"
+      autocomplete="off"
+    >
+
+    <input
+      id="codigo3"
+      class="codigo-input"
+      type="text"
+      inputmode="numeric"
+      maxlength="1"
+      autocomplete="off"
+    >
+
+  </div>
+
+
+  <div
+    id="codigoError"
+    class="codigo-error hidden"
+  ></div>
+
+</div>
+      <button id="aceptarBtn">
+        ACEPTAR CARRERA →
+      </button>
+
+    </section>
+
+
+    <!-- GANADOR -->
+
+    <section id="pantallaGanador" class="card hidden">
+
+      <div class="icon-circle success-circle">
+        ✓
+      </div>
+
+      <h2 class="result-title">
+        ¡Carrera asignada!
+      </h2>
+
+      <p
+        id="mensajeGanador"
+        class="result-subtitle"
+      >
+        Has tomado la carrera.
+      </p>
+
+      <div class="info">
+
+        <div class="info-item">
+
+          <div class="label">
+            📍 REFERENCIA
+          </div>
+
+          <div
+            id="referenciaGanador"
+            class="value"
+          ></div>
+
+        </div>
+
+        <div class="info-item">
+
+          <div class="label">
+            💳 FORMA DE PAGO
+          </div>
+
+          <div
+            id="pagoGanador"
+            class="value"
+          ></div>
+
+        </div>
+
+      </div>
+
+      <a
+        id="whatsappBtn"
+        class="whatsapp"
+        href="#"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        ESCRIBIR AL CLIENTE
+      </a>
+
+    </section>
+
+
+    <!-- YA ASIGNADA -->
+
+    <section id="pantallaAsignada" class="card hidden">
+
+      <div class="icon-circle error-circle">
+        ×
+      </div>
+
+      <h2 class="result-title">
+        Esta carrera ya fue asignada
+      </h2>
+
+      <p class="result-subtitle">
+        Otro taxista la tomó hace unos segundos.
+      </p>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      id="pantallaError"
+      class="error-general hidden"
+    >
+      No se pudo cargar esta carrera.
+    </section>
+
+
+    <div class="footer">
+      RapiTaxi · Servicio de asignación de carreras
+    </div>
+
+  </main>
+  <script src="/carrera.js"></script>
+</body>
+</html>

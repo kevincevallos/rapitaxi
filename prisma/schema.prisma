@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Carrera {
+  id              Int           @id @default(autoincrement())
+  numero          Int           @unique
+  token           String        @unique
+  nombreCliente   String
+  whatsappCliente String
+  latitud         Float
+  longitud        Float
+  referencia      String
+  formaPago       String
+  estado          EstadoCarrera @default(BUSCANDO)
+  fechaCreacion   DateTime      @default(now())
+  fechaAceptacion DateTime?
+
+  taxistaId       Int?
+  taxista         Taxista?      @relation(fields: [taxistaId], references: [id])
+}
+
+model Taxista {
+  id            Int      @id @default(autoincrement())
+  codigo        String   @unique
+  nombre        String
+  placa         String   @unique
+  vehiculo      String
+  telefono      String?
+  activo        Boolean  @default(true)
+  fechaRegistro DateTime @default(now())
+
+  carreras Carrera[]
+}
+
+model ConversacionWhatsApp {
+  id                 Int                @id @default(autoincrement())
+  telefono           String             @unique
+  nombre             String?
+  estado             EstadoConversacion @default(NUEVO)
+  latitud            Float?
+  longitud           Float?
+  referencia         String?
+  fechaCreacion      DateTime           @default(now())
+  fechaActualizacion DateTime           @updatedAt
+}
+
+enum EstadoCarrera {
+  BUSCANDO
+  ASIGNADA
+}
+
+enum EstadoConversacion {
+  NUEVO
+  ESPERANDO_UBICACION
+  ESPERANDO_PAGO
+  CARRERA_CREADA
+}
