@@ -11,7 +11,12 @@
 
 export const EstadoCarrera = {
   BUSCANDO: 'BUSCANDO',
-  ASIGNADA: 'ASIGNADA'
+  ASIGNADA: 'ASIGNADA',
+  EN_CAMINO: 'EN_CAMINO',
+  CERCA: 'CERCA',
+  LLEGO: 'LLEGO',
+  COMPLETADA: 'COMPLETADA',
+  CANCELADA: 'CANCELADA'
 } as const
 
 export type EstadoCarrera = (typeof EstadoCarrera)[keyof typeof EstadoCarrera]
@@ -19,9 +24,12 @@ export type EstadoCarrera = (typeof EstadoCarrera)[keyof typeof EstadoCarrera]
 
 export const EstadoConversacion = {
   NUEVO: 'NUEVO',
+  ESPERANDO_NOMBRE: 'ESPERANDO_NOMBRE',
   ESPERANDO_UBICACION: 'ESPERANDO_UBICACION',
   ESPERANDO_PAGO: 'ESPERANDO_PAGO',
-  CARRERA_CREADA: 'CARRERA_CREADA'
+  BUSCANDO_TAXI: 'BUSCANDO_TAXI',
+  CARRERA_ACTIVA: 'CARRERA_ACTIVA',
+  ESPERANDO_CALIFICACION: 'ESPERANDO_CALIFICACION'
 } as const
 
 export type EstadoConversacion = (typeof EstadoConversacion)[keyof typeof EstadoConversacion]

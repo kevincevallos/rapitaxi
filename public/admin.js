@@ -1,14 +1,11 @@
 let taxistasActuales = [];
-const tablaCarreras =
-  document.getElementById(
-    "tablaCarreras"
-  );
 
-const tablaTaxistas =
-  document.getElementById(
-    "tablaTaxistas"
-  );
 
+/*
+  ========================================
+  ELEMENTOS GENERALES
+  ========================================
+*/
 
 const tabCarreras =
   document.getElementById(
@@ -30,538 +27,642 @@ const panelTaxistas =
     "panelTaxistas"
   );
 
-
-const overlay =
+const btnNuevoTaxista =
   document.getElementById(
-    "overlay"
+    "btnNuevoTaxista"
   );
 
-const abrirRegistro =
+const mensajeGeneral =
   document.getElementById(
-    "abrirRegistro"
-  );
-
-const cerrarRegistro =
-  document.getElementById(
-    "cerrarRegistro"
-  );
-
-const formTaxista =
-  document.getElementById(
-    "formTaxista"
-  );
-
-const codigoInput =
-  document.getElementById(
-    "codigo"
-  );
-
-const codigoPreview =
-  document.getElementById(
-    "codigoPreview"
-  );
-
-const mensajeFormulario =
-  document.getElementById(
-    "mensajeFormulario"
+    "mensajeGeneral"
   );
 
 
-function cambiarTab(tipo) {
+function mostrarMensaje(
+  mensaje,
+  tipo = "ok"
+) {
+  mensajeGeneral.textContent =
+    mensaje;
 
-  tabCarreras.classList.remove(
-    "active"
+  mensajeGeneral.className =
+    `mensaje visible ${tipo}`;
+
+
+  setTimeout(() => {
+    mensajeGeneral.className =
+      "mensaje";
+  }, 4500);
+}
+
+
+/*
+  ========================================
+  TABS
+  ========================================
+*/
+
+function mostrarCarreras() {
+  tabCarreras.classList.add(
+    "activo"
   );
 
   tabTaxistas.classList.remove(
-    "active"
+    "activo"
   );
 
-  panelCarreras.classList.remove(
-    "active"
+  panelCarreras.classList.add(
+    "activo"
   );
 
   panelTaxistas.classList.remove(
-    "active"
+    "activo"
+  );
+}
+
+
+function mostrarTaxistas() {
+  tabTaxistas.classList.add(
+    "activo"
+  );
+
+  tabCarreras.classList.remove(
+    "activo"
+  );
+
+  panelTaxistas.classList.add(
+    "activo"
+  );
+
+  panelCarreras.classList.remove(
+    "activo"
   );
 
 
-  if (tipo === "carreras") {
-
-    tabCarreras.classList.add(
-      "active"
-    );
-
-    panelCarreras.classList.add(
-      "active"
-    );
-
-    cargarCarreras();
-
-  } else {
-
-    tabTaxistas.classList.add(
-      "active"
-    );
-
-    panelTaxistas.classList.add(
-      "active"
-    );
-
-    cargarTaxistas();
-
-  }
+  cargarTaxistas();
 }
 
 
 tabCarreras.addEventListener(
   "click",
-  () => cambiarTab("carreras")
+  mostrarCarreras
 );
 
 
 tabTaxistas.addEventListener(
   "click",
-  () => cambiarTab("taxistas")
+  mostrarTaxistas
 );
 
 
-document
-  .getElementById(
-    "actualizarCarreras"
-  )
-  .addEventListener(
-    "click",
-    cargarCarreras
-  );
+/*
+  ========================================
+  UTILIDADES
+  ========================================
+*/
 
+function escaparHtml(valor) {
+  return String(
+    valor ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+}
+
+
+function formatearFecha(fecha) {
+  if (!fecha) {
+    return "-";
+  }
+
+
+  const d =
+    new Date(fecha);
+
+
+  return d.toLocaleString(
+    "es-EC",
+    {
+      dateStyle:
+        "short",
+
+      timeStyle:
+        "short",
+    }
+  );
+}
+
+
+function claseEstadoCarrera(
+  estado
+) {
+  return (
+    "estado-" +
+    String(estado)
+      .toLowerCase()
+  );
+}
+
+
+/*
+  ========================================
+  CARRERAS
+  ========================================
+*/
 
 async function cargarCarreras() {
-
-  tablaCarreras.innerHTML =
-    `<tr>
-      <td colspan="7">
-        Cargando...
-      </td>
-    </tr>`;
-
-
   try {
-
     const response =
       await fetch(
         "/api/carreras/admin/listado"
       );
 
+
     const data =
       await response.json();
 
 
-    if (!data.success) {
-      throw new Error();
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "No se pudieron cargar las carreras."
+      );
     }
 
 
+    const tbody =
+      document.getElementById(
+        "tablaCarreras"
+      );
+
+
+    tbody.innerHTML = "";
+
+
     if (
+      !Array.isArray(
+        data.carreras
+      ) ||
       data.carreras.length === 0
     ) {
-
-      tablaCarreras.innerHTML =
-        `<tr>
+      tbody.innerHTML = `
+        <tr>
           <td
-            colspan="7"
+            colspan="8"
             class="vacio"
           >
-            No existen carreras.
+            No hay carreras registradas.
           </td>
-        </tr>`;
+        </tr>
+      `;
 
       return;
     }
 
 
-    tablaCarreras.innerHTML =
-      data.carreras
-        .map(carrera => {
-
-          const estado =
-            carrera.estado ===
-            "BUSCANDO"
-              ? `<span class="badge buscando">
-                   BUSCANDO
-                 </span>`
-              : `<span class="badge asignada">
-                   ASIGNADA
-                 </span>`;
+    for (
+      const carrera
+      of data.carreras
+    ) {
+      const taxista =
+        carrera.taxista;
 
 
-          const taxista =
-            carrera.taxista
-              ? `${carrera.taxista.codigo} - ${carrera.taxista.nombre}`
-              : "—";
+      const cliente =
+        carrera.cliente;
 
 
-          const placa =
-            carrera.taxista
-              ? carrera.taxista.placa
-              : "—";
+      const fila =
+        document.createElement(
+          "tr"
+        );
 
 
-          const fecha =
-            new Date(
-              carrera.fechaCreacion
-            ).toLocaleString();
+      fila.innerHTML = `
+        <td>
+          <strong>
+            #${escaparHtml(
+              carrera.numero
+            )}
+          </strong>
+        </td>
+
+        <td>
+          <span
+            class="estado ${claseEstadoCarrera(
+              carrera.estado
+            )}"
+          >
+            ${escaparHtml(
+              carrera.estado
+            )}
+          </span>
+        </td>
+
+        <td>
+          ${
+            escaparHtml(
+              cliente?.nombre ||
+              carrera.nombreCliente ||
+              "-"
+            )
+          }
+        </td>
+
+        <td>
+          ${escaparHtml(
+            carrera.referencia ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${escaparHtml(
+            carrera.formaPago ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${
+            taxista
+              ? `${escaparHtml(
+                  taxista.codigo
+                )} - ${escaparHtml(
+                  taxista.nombre
+                )}`
+              : "-"
+          }
+        </td>
+
+        <td>
+          ${
+            taxista
+              ? escaparHtml(
+                  taxista.placa
+                )
+              : "-"
+          }
+        </td>
+
+        <td>
+          ${formatearFecha(
+            carrera.fechaCreacion
+          )}
+        </td>
+      `;
 
 
-          return `
-            <tr>
-
-              <td>
-                <strong>
-                  #${carrera.numero}
-                </strong>
-              </td>
-
-              <td>
-                ${estado}
-              </td>
-
-              <td>
-                ${carrera.referencia}
-              </td>
-
-              <td>
-                ${carrera.formaPago}
-              </td>
-
-              <td>
-                ${taxista}
-              </td>
-
-              <td>
-                ${placa}
-              </td>
-
-              <td>
-                ${fecha}
-              </td>
-
-            </tr>
-          `;
-
-        })
-        .join("");
-
+      tbody.appendChild(
+        fila
+      );
+    }
 
   } catch (error) {
 
-    console.error(error);
-
-    tablaCarreras.innerHTML =
-      `<tr>
-        <td
-          colspan="7"
-          class="vacio"
-        >
-          Error cargando carreras.
-        </td>
-      </tr>`;
+    console.error(
+      error
+    );
   }
 }
 
 
+/*
+  ========================================
+  TAXISTAS
+  ========================================
+*/
+
 async function cargarTaxistas() {
-
-  tablaTaxistas.innerHTML =
-    `<tr>
-      <td colspan="6">
-        Cargando...
-      </td>
-    </tr>`;
-
-
   try {
-
     const response =
       await fetch(
         "/api/taxistas"
       );
 
+
     const data =
       await response.json();
 
 
-    if (!data.success) {
-      throw new Error();
-    }
-    taxistasActuales = data.taxistas;
-
     if (
-      data.taxistas.length === 0
+      !response.ok ||
+      !data.success
     ) {
-
-      tablaTaxistas.innerHTML =
-        `<tr>
-          <td
-            colspan="6"
-            class="vacio"
-          >
-            No existen taxistas registrados.
-          </td>
-        </tr>`;
-
-      return;
+      throw new Error(
+        data.message ||
+        "No se pudieron cargar los taxistas."
+      );
     }
 
 
-tablaTaxistas.innerHTML =
-  data.taxistas
-    .map(taxista => {
+    taxistasActuales =
+      Array.isArray(
+        data.taxistas
+      )
+        ? data.taxistas
+        : [];
 
-      const estado =
-        taxista.activo
-          ? `<span class="badge activo">
-               ACTIVO
-             </span>`
-          : `<span class="badge inactivo">
-               INACTIVO
-             </span>`;
 
-      const textoBoton =
-        taxista.activo
-          ? "DESACTIVAR"
-          : "ACTIVAR";
+    pintarTaxistas();
 
-      return `
-        <tr>
+  } catch (error) {
 
-          <td>
-            <strong>
-              ${taxista.codigo}
-            </strong>
-          </td>
-
-          <td>${taxista.nombre}</td>
-
-          <td>${taxista.placa}</td>
-
-          <td>${taxista.vehiculo}</td>
-
-          <td>
-            ${taxista.telefono || "—"}
-          </td>
-
-          <td>
-            ${estado}
-          </td>
-
-          <td>
-
-            <button
-              type="button"
-              class="btn-small btn-edit editar-taxista"
-              data-id="${taxista.id}"
-            >
-              EDITAR
-            </button>
-
-            <button
-              type="button"
-              class="btn-small btn-toggle cambiar-estado-taxista"
-              data-id="${taxista.id}"
-              data-activo="${taxista.activo}"
-            >
-              ${textoBoton}
-            </button>
-
-          </td>
-
-        </tr>
-      `;
-
-    })
-    .join("");
-document
-  .querySelectorAll(".editar-taxista")
-  .forEach(boton => {
-
-    boton.addEventListener(
-      "click",
-      () => {
-
-        const id =
-          Number(boton.dataset.id);
-
-        const taxista =
-          taxistasActuales.find(
-            t => t.id === id
-          );
-
-        if (!taxista) {
-          console.error(
-            "Taxista no encontrado:",
-            id
-          );
-
-          return;
-        }
-
-        editarTaxista(taxista);
-      }
+    console.error(
+      error
     );
 
-  });
+
+    mostrarMensaje(
+      "No se pudieron cargar los taxistas.",
+      "error"
+    );
+  }
+}
 
 
-document
-  .querySelectorAll(
-    ".cambiar-estado-taxista"
-  )
-  .forEach(boton => {
+function pintarTaxistas() {
+  const tbody =
+    document.getElementById(
+      "tablaTaxistas"
+    );
 
-    boton.addEventListener(
-      "click",
-      async () => {
 
-        const id =
-          Number(boton.dataset.id);
+  tbody.innerHTML = "";
 
-        const estadoActual =
-          boton.dataset.activo === "true";
 
-        await cambiarEstadoTaxista(
-          id,
-          !estadoActual
+  if (
+    taxistasActuales.length === 0
+  ) {
+    tbody.innerHTML = `
+      <tr>
+        <td
+          colspan="9"
+          class="vacio"
+        >
+          No hay taxistas registrados.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  for (
+    const taxista
+    of taxistasActuales
+  ) {
+    const fila =
+      document.createElement(
+        "tr"
+      );
+
+
+    fila.innerHTML = `
+      <td>
+        <strong>
+          ${escaparHtml(
+            taxista.codigo
+          )}
+        </strong>
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.nombre
+        )}
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.placa
+        )}
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.vehiculo
+        )}
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.colorVehiculo ||
+          "-"
+        )}
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.cooperativa ||
+          "-"
+        )}
+      </td>
+
+      <td>
+        ${escaparHtml(
+          taxista.telefono ||
+          "-"
+        )}
+      </td>
+
+      <td>
+        <span
+          class="estado ${
+            taxista.activo
+              ? "estado-activo"
+              : "estado-inactivo"
+          }"
+        >
+          ${
+            taxista.activo
+              ? "ACTIVO"
+              : "INACTIVO"
+          }
+        </span>
+      </td>
+
+      <td>
+        <div class="acciones">
+
+          <button
+            type="button"
+            class="btn btn-editar editar-taxista"
+            data-id="${
+              taxista.id
+            }"
+          >
+            Editar
+          </button>
+
+          <button
+            type="button"
+            class="btn ${
+              taxista.activo
+                ? "btn-desactivar"
+                : "btn-activar"
+            } cambiar-estado-taxista"
+            data-id="${
+              taxista.id
+            }"
+          >
+            ${
+              taxista.activo
+                ? "Desactivar"
+                : "Activar"
+            }
+          </button>
+
+        </div>
+      </td>
+    `;
+
+
+    tbody.appendChild(
+      fila
+    );
+  }
+
+
+  document
+    .querySelectorAll(
+      ".editar-taxista"
+    )
+    .forEach(
+      (boton) => {
+
+        boton.addEventListener(
+          "click",
+          () => {
+
+            const id =
+              Number(
+                boton.dataset.id
+              );
+
+
+            abrirEditarTaxista(
+              id
+            );
+          }
         );
       }
     );
 
-  });
 
-  } catch (error) {
+  document
+    .querySelectorAll(
+      ".cambiar-estado-taxista"
+    )
+    .forEach(
+      (boton) => {
 
-    console.error(error);
+        boton.addEventListener(
+          "click",
+          () => {
 
-    tablaTaxistas.innerHTML =
-      `<tr>
-        <td
-          colspan="6"
-          class="vacio"
-        >
-          Error cargando taxistas.
-        </td>
-      </tr>`;
-  }
+            const id =
+              Number(
+                boton.dataset.id
+              );
+
+
+            cambiarEstadoTaxista(
+              id
+            );
+          }
+        );
+      }
+    );
 }
 
 
-abrirRegistro.addEventListener(
-  "click",
-  () => {
+/*
+  ========================================
+  NUEVO TAXISTA
+  ========================================
+*/
 
-    mensajeFormulario.innerHTML =
-      "";
-
-    overlay.classList.add(
-      "active"
-    );
-
-    codigoInput.focus();
-  }
-);
-
-
-function cerrarModal() {
-
-  overlay.classList.remove(
-    "active"
+const modalNuevoTaxista =
+  document.getElementById(
+    "modalNuevoTaxista"
   );
 
-  formTaxista.reset();
+const formNuevoTaxista =
+  document.getElementById(
+    "formNuevoTaxista"
+  );
 
-  codigoPreview.textContent =
-    "---";
 
-  mensajeFormulario.innerHTML =
-    "";
+function abrirNuevoTaxista() {
+  formNuevoTaxista.reset();
+
+  modalNuevoTaxista.classList.add(
+    "visible"
+  );
 }
 
 
-cerrarRegistro.addEventListener(
+function cerrarNuevoTaxista() {
+  modalNuevoTaxista.classList.remove(
+    "visible"
+  );
+}
+
+
+btnNuevoTaxista.addEventListener(
   "click",
-  cerrarModal
+  abrirNuevoTaxista
 );
 
 
-overlay.addEventListener(
-  "click",
-  event => {
-
-    if (
-      event.target === overlay
-    ) {
-      cerrarModal();
-    }
-
-  }
-);
+document
+  .getElementById(
+    "cancelarNuevoTaxista"
+  )
+  .addEventListener(
+    "click",
+    cerrarNuevoTaxista
+  );
 
 
-codigoInput.addEventListener(
-  "input",
-  () => {
-
-    codigoInput.value =
-      codigoInput.value
-        .replace(/\D/g, "")
-        .slice(0, 3);
-
-
-    if (!codigoInput.value) {
-
-      codigoPreview.textContent =
-        "---";
-
-      return;
-    }
-
-
-    codigoPreview.textContent =
-      codigoInput.value.padStart(
-        3,
-        "0"
-      );
-  }
-);
-
-
-formTaxista.addEventListener(
+formNuevoTaxista.addEventListener(
   "submit",
-  async event => {
+  async (event) => {
 
     event.preventDefault();
 
 
-    mensajeFormulario.innerHTML =
-      "";
-
-
-    const boton =
-      document.getElementById(
-        "guardarTaxista"
-      );
-
-
-    boton.disabled = true;
-
-    boton.textContent =
-      "GUARDANDO...";
-
-
     const datos = {
-
       codigo:
-        codigoInput.value,
+        document
+          .getElementById(
+            "codigo"
+          )
+          .value
+          .trim(),
 
       nombre:
         document
@@ -587,32 +688,81 @@ formTaxista.addEventListener(
           .value
           .trim(),
 
+      colorVehiculo:
+        document
+          .getElementById(
+            "colorVehiculo"
+          )
+          .value
+          .trim(),
+
+      cooperativa:
+        document
+          .getElementById(
+            "cooperativa"
+          )
+          .value
+          .trim(),
+
       telefono:
         document
           .getElementById(
             "telefono"
           )
           .value
-          .trim()
+          .trim(),
 
+      titularPichincha:
+        document
+          .getElementById(
+            "titularPichincha"
+          )
+          .value
+          .trim(),
+
+      cuentaPichincha:
+        document
+          .getElementById(
+            "cuentaPichincha"
+          )
+          .value
+          .trim(),
+
+      titularGuayaquil:
+        document
+          .getElementById(
+            "titularGuayaquil"
+          )
+          .value
+          .trim(),
+
+      cuentaGuayaquil:
+        document
+          .getElementById(
+            "cuentaGuayaquil"
+          )
+          .value
+          .trim(),
     };
 
 
     try {
-
       const response =
         await fetch(
           "/api/taxistas",
           {
-            method:"POST",
+            method:
+              "POST",
 
-            headers:{
+            headers: {
               "Content-Type":
-                "application/json"
+                "application/json",
             },
 
             body:
-              JSON.stringify(datos)
+              JSON.stringify(
+                datos
+              ),
           }
         );
 
@@ -621,66 +771,48 @@ formTaxista.addEventListener(
         await response.json();
 
 
-      if (!response.ok) {
-
-        mensajeFormulario.innerHTML =
-          `<div class="error">
-             ${data.message}
-           </div>`;
-
-        return;
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "No se pudo registrar el taxista."
+        );
       }
 
 
-      mensajeFormulario.innerHTML =
-        `<div class="success">
-           ✓ Taxista ${data.taxista.codigo}
-           registrado correctamente
-         </div>`;
+      cerrarNuevoTaxista();
+
+
+      mostrarMensaje(
+        "Taxista registrado correctamente."
+      );
 
 
       await cargarTaxistas();
 
-
-      setTimeout(
-        cerrarModal,
-        900
-      );
-
-
     } catch (error) {
 
-      console.error(error);
-
-      mensajeFormulario.innerHTML =
-        `<div class="error">
-           Error de conexión
-         </div>`;
-
-
-    } finally {
-
-      boton.disabled = false;
-
-      boton.textContent =
-        "GUARDAR TAXISTA";
-
+      mostrarMensaje(
+        error.message ||
+        "No se pudo registrar el taxista.",
+        "error"
+      );
     }
-
   }
 );
 
 
-cargarCarreras();
+/*
+  ========================================
+  EDITAR TAXISTA
+  ========================================
+*/
 
-const overlayEditar =
+const modalEditarTaxista =
   document.getElementById(
-    "overlayEditar"
-  );
-
-const cerrarEdicion =
-  document.getElementById(
-    "cerrarEdicion"
+    "modalEditarTaxista"
   );
 
 const formEditarTaxista =
@@ -688,155 +820,239 @@ const formEditarTaxista =
     "formEditarTaxista"
   );
 
-const mensajeEdicion =
-  document.getElementById(
-    "mensajeEdicion"
-  );
+
+function abrirEditarTaxista(
+  id
+) {
+  const taxista =
+    taxistasActuales.find(
+      (item) =>
+        item.id === id
+    );
 
 
-function editarTaxista(taxista) {
+  if (!taxista) {
+    mostrarMensaje(
+      "No se encontró el taxista.",
+      "error"
+    );
+
+    return;
+  }
+
 
   document.getElementById(
     "editarId"
   ).value =
     taxista.id;
 
+
   document.getElementById(
     "editarCodigo"
   ).value =
-    taxista.codigo;
+    taxista.codigo || "";
+
 
   document.getElementById(
     "editarNombre"
   ).value =
-    taxista.nombre;
+    taxista.nombre || "";
+
 
   document.getElementById(
     "editarPlaca"
   ).value =
-    taxista.placa;
+    taxista.placa || "";
+
 
   document.getElementById(
     "editarVehiculo"
   ).value =
-    taxista.vehiculo;
+    taxista.vehiculo || "";
+
+
+  document.getElementById(
+    "editarColorVehiculo"
+  ).value =
+    taxista.colorVehiculo || "";
+
+
+  document.getElementById(
+    "editarCooperativa"
+  ).value =
+    taxista.cooperativa || "";
+
 
   document.getElementById(
     "editarTelefono"
   ).value =
     taxista.telefono || "";
 
-  mensajeEdicion.innerHTML =
-    "";
 
-  overlayEditar.classList.add(
-    "active"
+  document.getElementById(
+    "editarTitularPichincha"
+  ).value =
+    taxista.titularPichincha || "";
+
+
+  document.getElementById(
+    "editarCuentaPichincha"
+  ).value =
+    taxista.cuentaPichincha || "";
+
+
+  document.getElementById(
+    "editarTitularGuayaquil"
+  ).value =
+    taxista.titularGuayaquil || "";
+
+
+  document.getElementById(
+    "editarCuentaGuayaquil"
+  ).value =
+    taxista.cuentaGuayaquil || "";
+
+
+  modalEditarTaxista.classList.add(
+    "visible"
   );
 }
 
 
-function cerrarModalEdicion() {
-
-  overlayEditar.classList.remove(
-    "active"
+function cerrarEditarTaxista() {
+  modalEditarTaxista.classList.remove(
+    "visible"
   );
-
-  mensajeEdicion.innerHTML =
-    "";
 }
 
 
-cerrarEdicion.addEventListener(
-  "click",
-  cerrarModalEdicion
-);
-
-
-overlayEditar.addEventListener(
-  "click",
-  event => {
-
-    if (
-      event.target === overlayEditar
-    ) {
-      cerrarModalEdicion();
-    }
-
-  }
-);
+document
+  .getElementById(
+    "cancelarEditarTaxista"
+  )
+  .addEventListener(
+    "click",
+    cerrarEditarTaxista
+  );
 
 
 formEditarTaxista.addEventListener(
   "submit",
-  async event => {
+  async (event) => {
 
     event.preventDefault();
 
-    const id =
-      document.getElementById(
-        "editarId"
-      ).value;
 
-    const boton =
-      document.getElementById(
-        "guardarEdicion"
+    const id =
+      Number(
+        document
+          .getElementById(
+            "editarId"
+          )
+          .value
       );
 
-    boton.disabled = true;
 
-    boton.textContent =
-      "GUARDANDO...";
+    const datos = {
+      nombre:
+        document
+          .getElementById(
+            "editarNombre"
+          )
+          .value
+          .trim(),
+
+      placa:
+        document
+          .getElementById(
+            "editarPlaca"
+          )
+          .value
+          .trim(),
+
+      vehiculo:
+        document
+          .getElementById(
+            "editarVehiculo"
+          )
+          .value
+          .trim(),
+
+      colorVehiculo:
+        document
+          .getElementById(
+            "editarColorVehiculo"
+          )
+          .value
+          .trim(),
+
+      cooperativa:
+        document
+          .getElementById(
+            "editarCooperativa"
+          )
+          .value
+          .trim(),
+
+      telefono:
+        document
+          .getElementById(
+            "editarTelefono"
+          )
+          .value
+          .trim(),
+
+      titularPichincha:
+        document
+          .getElementById(
+            "editarTitularPichincha"
+          )
+          .value
+          .trim(),
+
+      cuentaPichincha:
+        document
+          .getElementById(
+            "editarCuentaPichincha"
+          )
+          .value
+          .trim(),
+
+      titularGuayaquil:
+        document
+          .getElementById(
+            "editarTitularGuayaquil"
+          )
+          .value
+          .trim(),
+
+      cuentaGuayaquil:
+        document
+          .getElementById(
+            "editarCuentaGuayaquil"
+          )
+          .value
+          .trim(),
+    };
 
 
     try {
-
       const response =
         await fetch(
           `/api/taxistas/${id}`,
           {
-            method:"PATCH",
+            method:
+              "PATCH",
 
-            headers:{
+            headers: {
               "Content-Type":
-                "application/json"
+                "application/json",
             },
 
             body:
-              JSON.stringify({
-
-                nombre:
-                  document
-                    .getElementById(
-                      "editarNombre"
-                    )
-                    .value
-                    .trim(),
-
-                placa:
-                  document
-                    .getElementById(
-                      "editarPlaca"
-                    )
-                    .value
-                    .trim(),
-
-                vehiculo:
-                  document
-                    .getElementById(
-                      "editarVehiculo"
-                    )
-                    .value
-                    .trim(),
-
-                telefono:
-                  document
-                    .getElementById(
-                      "editarTelefono"
-                    )
-                    .value
-                    .trim()
-
-              })
+              JSON.stringify(
+                datos
+              ),
           }
         );
 
@@ -845,76 +1061,78 @@ formEditarTaxista.addEventListener(
         await response.json();
 
 
-      if (!response.ok) {
-
-        mensajeEdicion.innerHTML =
-          `<div class="error">
-             ${data.message}
-           </div>`;
-
-        return;
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "No se pudo actualizar el taxista."
+        );
       }
 
 
-      mensajeEdicion.innerHTML =
-        `<div class="success">
-           ✓ Cambios guardados
-         </div>`;
+      cerrarEditarTaxista();
+
+
+      mostrarMensaje(
+        "Datos del taxista actualizados."
+      );
 
 
       await cargarTaxistas();
 
-
-      setTimeout(
-        cerrarModalEdicion,
-        700
-      );
-
-
     } catch (error) {
 
-      console.error(error);
-
-      mensajeEdicion.innerHTML =
-        `<div class="error">
-           Error de conexión
-         </div>`;
-
-    } finally {
-
-      boton.disabled = false;
-
-      boton.textContent =
-        "GUARDAR CAMBIOS";
-
+      mostrarMensaje(
+        error.message ||
+        "No se pudo actualizar el taxista.",
+        "error"
+      );
     }
-
   }
 );
 
 
+/*
+  ========================================
+  ACTIVAR / DESACTIVAR
+  ========================================
+*/
+
 async function cambiarEstadoTaxista(
-  id,
-  nuevoEstado
+  id
 ) {
+  const taxista =
+    taxistasActuales.find(
+      (item) =>
+        item.id === id
+    );
+
+
+  if (!taxista) {
+    return;
+  }
+
 
   try {
-
     const response =
       await fetch(
         `/api/taxistas/${id}`,
         {
-          method:"PATCH",
+          method:
+            "PATCH",
 
-          headers:{
+          headers: {
             "Content-Type":
-              "application/json"
+              "application/json",
           },
 
           body:
             JSON.stringify({
-              activo:nuevoEstado
-            })
+              activo:
+                !taxista.activo,
+            }),
         }
       );
 
@@ -923,41 +1141,83 @@ async function cambiarEstadoTaxista(
       await response.json();
 
 
-    if (!response.ok) {
-
-      alert(
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
         data.message ||
-        "No se pudo cambiar el estado"
+        "No se pudo cambiar el estado."
       );
-
-      return;
     }
+
+
+    mostrarMensaje(
+      data.taxista.activo
+        ? "Taxista activado."
+        : "Taxista desactivado."
+    );
 
 
     await cargarTaxistas();
 
-
   } catch (error) {
 
-    console.error(error);
-
-    alert(
-      "Error de conexión"
+    mostrarMensaje(
+      error.message ||
+      "No se pudo cambiar el estado.",
+      "error"
     );
   }
 }
 
-setInterval(
-  () => {
+
+/*
+  ========================================
+  CERRAR MODALES AL HACER CLICK FUERA
+  ========================================
+*/
+
+modalNuevoTaxista.addEventListener(
+  "click",
+  (event) => {
 
     if (
-      panelCarreras.classList.contains(
-        "active"
-      )
+      event.target ===
+      modalNuevoTaxista
     ) {
-      cargarCarreras();
+      cerrarNuevoTaxista();
     }
+  }
+);
 
-  },
+
+modalEditarTaxista.addEventListener(
+  "click",
+  (event) => {
+
+    if (
+      event.target ===
+      modalEditarTaxista
+    ) {
+      cerrarEditarTaxista();
+    }
+  }
+);
+
+
+/*
+  ========================================
+  INICIO
+  ========================================
+*/
+
+cargarCarreras();
+
+cargarTaxistas();
+
+
+setInterval(
+  cargarCarreras,
   10000
 );

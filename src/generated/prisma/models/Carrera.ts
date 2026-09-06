@@ -31,6 +31,7 @@ export type CarreraAvgAggregateOutputType = {
   numero: number | null
   latitud: number | null
   longitud: number | null
+  clienteId: number | null
   taxistaId: number | null
 }
 
@@ -39,6 +40,7 @@ export type CarreraSumAggregateOutputType = {
   numero: number | null
   latitud: number | null
   longitud: number | null
+  clienteId: number | null
   taxistaId: number | null
 }
 
@@ -55,6 +57,13 @@ export type CarreraMinAggregateOutputType = {
   estado: $Enums.EstadoCarrera | null
   fechaCreacion: Date | null
   fechaAceptacion: Date | null
+  fechaEnCamino: Date | null
+  fechaCerca: Date | null
+  fechaLlegada: Date | null
+  fechaFin: Date | null
+  calificacion: string | null
+  canceladaPor: string | null
+  clienteId: number | null
   taxistaId: number | null
 }
 
@@ -71,6 +80,13 @@ export type CarreraMaxAggregateOutputType = {
   estado: $Enums.EstadoCarrera | null
   fechaCreacion: Date | null
   fechaAceptacion: Date | null
+  fechaEnCamino: Date | null
+  fechaCerca: Date | null
+  fechaLlegada: Date | null
+  fechaFin: Date | null
+  calificacion: string | null
+  canceladaPor: string | null
+  clienteId: number | null
   taxistaId: number | null
 }
 
@@ -87,6 +103,13 @@ export type CarreraCountAggregateOutputType = {
   estado: number
   fechaCreacion: number
   fechaAceptacion: number
+  fechaEnCamino: number
+  fechaCerca: number
+  fechaLlegada: number
+  fechaFin: number
+  calificacion: number
+  canceladaPor: number
+  clienteId: number
   taxistaId: number
   _all: number
 }
@@ -97,6 +120,7 @@ export type CarreraAvgAggregateInputType = {
   numero?: true
   latitud?: true
   longitud?: true
+  clienteId?: true
   taxistaId?: true
 }
 
@@ -105,6 +129,7 @@ export type CarreraSumAggregateInputType = {
   numero?: true
   latitud?: true
   longitud?: true
+  clienteId?: true
   taxistaId?: true
 }
 
@@ -121,6 +146,13 @@ export type CarreraMinAggregateInputType = {
   estado?: true
   fechaCreacion?: true
   fechaAceptacion?: true
+  fechaEnCamino?: true
+  fechaCerca?: true
+  fechaLlegada?: true
+  fechaFin?: true
+  calificacion?: true
+  canceladaPor?: true
+  clienteId?: true
   taxistaId?: true
 }
 
@@ -137,6 +169,13 @@ export type CarreraMaxAggregateInputType = {
   estado?: true
   fechaCreacion?: true
   fechaAceptacion?: true
+  fechaEnCamino?: true
+  fechaCerca?: true
+  fechaLlegada?: true
+  fechaFin?: true
+  calificacion?: true
+  canceladaPor?: true
+  clienteId?: true
   taxistaId?: true
 }
 
@@ -153,6 +192,13 @@ export type CarreraCountAggregateInputType = {
   estado?: true
   fechaCreacion?: true
   fechaAceptacion?: true
+  fechaEnCamino?: true
+  fechaCerca?: true
+  fechaLlegada?: true
+  fechaFin?: true
+  calificacion?: true
+  canceladaPor?: true
+  clienteId?: true
   taxistaId?: true
   _all?: true
 }
@@ -256,6 +302,13 @@ export type CarreraGroupByOutputType = {
   estado: $Enums.EstadoCarrera
   fechaCreacion: Date
   fechaAceptacion: Date | null
+  fechaEnCamino: Date | null
+  fechaCerca: Date | null
+  fechaLlegada: Date | null
+  fechaFin: Date | null
+  calificacion: string | null
+  canceladaPor: string | null
+  clienteId: number | null
   taxistaId: number | null
   _count: CarreraCountAggregateOutputType | null
   _avg: CarreraAvgAggregateOutputType | null
@@ -295,7 +348,15 @@ export type CarreraWhereInput = {
   estado?: Prisma.EnumEstadoCarreraFilter<"Carrera"> | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFilter<"Carrera"> | Date | string
   fechaAceptacion?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaEnCamino?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaCerca?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaLlegada?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaFin?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  calificacion?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   taxista?: Prisma.XOR<Prisma.TaxistaNullableScalarRelationFilter, Prisma.TaxistaWhereInput> | null
 }
 
@@ -312,7 +373,15 @@ export type CarreraOrderByWithRelationInput = {
   estado?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaAceptacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaEnCamino?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaCerca?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaLlegada?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaFin?: Prisma.SortOrderInput | Prisma.SortOrder
+  calificacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  canceladaPor?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxistaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cliente?: Prisma.ClienteOrderByWithRelationInput
   taxista?: Prisma.TaxistaOrderByWithRelationInput
 }
 
@@ -332,7 +401,15 @@ export type CarreraWhereUniqueInput = Prisma.AtLeast<{
   estado?: Prisma.EnumEstadoCarreraFilter<"Carrera"> | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFilter<"Carrera"> | Date | string
   fechaAceptacion?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaEnCamino?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaCerca?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaLlegada?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaFin?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  calificacion?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   taxista?: Prisma.XOR<Prisma.TaxistaNullableScalarRelationFilter, Prisma.TaxistaWhereInput> | null
 }, "id" | "numero" | "token">
 
@@ -349,6 +426,13 @@ export type CarreraOrderByWithAggregationInput = {
   estado?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaAceptacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaEnCamino?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaCerca?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaLlegada?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaFin?: Prisma.SortOrderInput | Prisma.SortOrder
+  calificacion?: Prisma.SortOrderInput | Prisma.SortOrder
+  canceladaPor?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxistaId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CarreraCountOrderByAggregateInput
   _avg?: Prisma.CarreraAvgOrderByAggregateInput
@@ -373,6 +457,13 @@ export type CarreraScalarWhereWithAggregatesInput = {
   estado?: Prisma.EnumEstadoCarreraWithAggregatesFilter<"Carrera"> | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeWithAggregatesFilter<"Carrera"> | Date | string
   fechaAceptacion?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  fechaEnCamino?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  fechaCerca?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  fechaLlegada?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  fechaFin?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  calificacion?: Prisma.StringNullableWithAggregatesFilter<"Carrera"> | string | null
+  canceladaPor?: Prisma.StringNullableWithAggregatesFilter<"Carrera"> | string | null
+  clienteId?: Prisma.IntNullableWithAggregatesFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableWithAggregatesFilter<"Carrera"> | number | null
 }
 
@@ -388,6 +479,13 @@ export type CarreraCreateInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  cliente?: Prisma.ClienteCreateNestedOneWithoutCarrerasInput
   taxista?: Prisma.TaxistaCreateNestedOneWithoutCarrerasInput
 }
 
@@ -404,6 +502,13 @@ export type CarreraUncheckedCreateInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  clienteId?: number | null
   taxistaId?: number | null
 }
 
@@ -419,6 +524,13 @@ export type CarreraUpdateInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.ClienteUpdateOneWithoutCarrerasNestedInput
   taxista?: Prisma.TaxistaUpdateOneWithoutCarrerasNestedInput
 }
 
@@ -435,6 +547,13 @@ export type CarreraUncheckedUpdateInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -451,6 +570,13 @@ export type CarreraCreateManyInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  clienteId?: number | null
   taxistaId?: number | null
 }
 
@@ -466,6 +592,12 @@ export type CarreraUpdateManyMutationInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type CarreraUncheckedUpdateManyInput = {
@@ -481,7 +613,24 @@ export type CarreraUncheckedUpdateManyInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type CarreraListRelationFilter = {
+  every?: Prisma.CarreraWhereInput
+  some?: Prisma.CarreraWhereInput
+  none?: Prisma.CarreraWhereInput
+}
+
+export type CarreraOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type CarreraCountOrderByAggregateInput = {
@@ -497,6 +646,13 @@ export type CarreraCountOrderByAggregateInput = {
   estado?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaAceptacion?: Prisma.SortOrder
+  fechaEnCamino?: Prisma.SortOrder
+  fechaCerca?: Prisma.SortOrder
+  fechaLlegada?: Prisma.SortOrder
+  fechaFin?: Prisma.SortOrder
+  calificacion?: Prisma.SortOrder
+  canceladaPor?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
 }
 
@@ -505,6 +661,7 @@ export type CarreraAvgOrderByAggregateInput = {
   numero?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
 }
 
@@ -521,6 +678,13 @@ export type CarreraMaxOrderByAggregateInput = {
   estado?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaAceptacion?: Prisma.SortOrder
+  fechaEnCamino?: Prisma.SortOrder
+  fechaCerca?: Prisma.SortOrder
+  fechaLlegada?: Prisma.SortOrder
+  fechaFin?: Prisma.SortOrder
+  calificacion?: Prisma.SortOrder
+  canceladaPor?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
 }
 
@@ -537,6 +701,13 @@ export type CarreraMinOrderByAggregateInput = {
   estado?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaAceptacion?: Prisma.SortOrder
+  fechaEnCamino?: Prisma.SortOrder
+  fechaCerca?: Prisma.SortOrder
+  fechaLlegada?: Prisma.SortOrder
+  fechaFin?: Prisma.SortOrder
+  calificacion?: Prisma.SortOrder
+  canceladaPor?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
 }
 
@@ -545,29 +716,50 @@ export type CarreraSumOrderByAggregateInput = {
   numero?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
 }
 
-export type CarreraListRelationFilter = {
-  every?: Prisma.CarreraWhereInput
-  some?: Prisma.CarreraWhereInput
-  none?: Prisma.CarreraWhereInput
+export type CarreraCreateNestedManyWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput> | Prisma.CarreraCreateWithoutClienteInput[] | Prisma.CarreraUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutClienteInput | Prisma.CarreraCreateOrConnectWithoutClienteInput[]
+  createMany?: Prisma.CarreraCreateManyClienteInputEnvelope
+  connect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
 }
 
-export type CarreraOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type CarreraUncheckedCreateNestedManyWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput> | Prisma.CarreraCreateWithoutClienteInput[] | Prisma.CarreraUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutClienteInput | Prisma.CarreraCreateOrConnectWithoutClienteInput[]
+  createMany?: Prisma.CarreraCreateManyClienteInputEnvelope
+  connect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type CarreraUpdateManyWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput> | Prisma.CarreraCreateWithoutClienteInput[] | Prisma.CarreraUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutClienteInput | Prisma.CarreraCreateOrConnectWithoutClienteInput[]
+  upsert?: Prisma.CarreraUpsertWithWhereUniqueWithoutClienteInput | Prisma.CarreraUpsertWithWhereUniqueWithoutClienteInput[]
+  createMany?: Prisma.CarreraCreateManyClienteInputEnvelope
+  set?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  disconnect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  delete?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  connect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  update?: Prisma.CarreraUpdateWithWhereUniqueWithoutClienteInput | Prisma.CarreraUpdateWithWhereUniqueWithoutClienteInput[]
+  updateMany?: Prisma.CarreraUpdateManyWithWhereWithoutClienteInput | Prisma.CarreraUpdateManyWithWhereWithoutClienteInput[]
+  deleteMany?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type CarreraUncheckedUpdateManyWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput> | Prisma.CarreraCreateWithoutClienteInput[] | Prisma.CarreraUncheckedCreateWithoutClienteInput[]
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutClienteInput | Prisma.CarreraCreateOrConnectWithoutClienteInput[]
+  upsert?: Prisma.CarreraUpsertWithWhereUniqueWithoutClienteInput | Prisma.CarreraUpsertWithWhereUniqueWithoutClienteInput[]
+  createMany?: Prisma.CarreraCreateManyClienteInputEnvelope
+  set?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  disconnect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  delete?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  connect?: Prisma.CarreraWhereUniqueInput | Prisma.CarreraWhereUniqueInput[]
+  update?: Prisma.CarreraUpdateWithWhereUniqueWithoutClienteInput | Prisma.CarreraUpdateWithWhereUniqueWithoutClienteInput[]
+  updateMany?: Prisma.CarreraUpdateManyWithWhereWithoutClienteInput | Prisma.CarreraUpdateManyWithWhereWithoutClienteInput[]
+  deleteMany?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
 }
 
 export type FloatFieldUpdateOperationsInput = {
@@ -582,12 +774,12 @@ export type EnumEstadoCarreraFieldUpdateOperationsInput = {
   set?: $Enums.EstadoCarrera
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -640,6 +832,100 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaNestedInput = {
   deleteMany?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
 }
 
+export type CarreraCreateWithoutClienteInput = {
+  numero: number
+  token: string
+  nombreCliente: string
+  whatsappCliente: string
+  latitud: number
+  longitud: number
+  referencia: string
+  formaPago: string
+  estado?: $Enums.EstadoCarrera
+  fechaCreacion?: Date | string
+  fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  taxista?: Prisma.TaxistaCreateNestedOneWithoutCarrerasInput
+}
+
+export type CarreraUncheckedCreateWithoutClienteInput = {
+  id?: number
+  numero: number
+  token: string
+  nombreCliente: string
+  whatsappCliente: string
+  latitud: number
+  longitud: number
+  referencia: string
+  formaPago: string
+  estado?: $Enums.EstadoCarrera
+  fechaCreacion?: Date | string
+  fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  taxistaId?: number | null
+}
+
+export type CarreraCreateOrConnectWithoutClienteInput = {
+  where: Prisma.CarreraWhereUniqueInput
+  create: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput>
+}
+
+export type CarreraCreateManyClienteInputEnvelope = {
+  data: Prisma.CarreraCreateManyClienteInput | Prisma.CarreraCreateManyClienteInput[]
+}
+
+export type CarreraUpsertWithWhereUniqueWithoutClienteInput = {
+  where: Prisma.CarreraWhereUniqueInput
+  update: Prisma.XOR<Prisma.CarreraUpdateWithoutClienteInput, Prisma.CarreraUncheckedUpdateWithoutClienteInput>
+  create: Prisma.XOR<Prisma.CarreraCreateWithoutClienteInput, Prisma.CarreraUncheckedCreateWithoutClienteInput>
+}
+
+export type CarreraUpdateWithWhereUniqueWithoutClienteInput = {
+  where: Prisma.CarreraWhereUniqueInput
+  data: Prisma.XOR<Prisma.CarreraUpdateWithoutClienteInput, Prisma.CarreraUncheckedUpdateWithoutClienteInput>
+}
+
+export type CarreraUpdateManyWithWhereWithoutClienteInput = {
+  where: Prisma.CarreraScalarWhereInput
+  data: Prisma.XOR<Prisma.CarreraUpdateManyMutationInput, Prisma.CarreraUncheckedUpdateManyWithoutClienteInput>
+}
+
+export type CarreraScalarWhereInput = {
+  AND?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
+  OR?: Prisma.CarreraScalarWhereInput[]
+  NOT?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
+  id?: Prisma.IntFilter<"Carrera"> | number
+  numero?: Prisma.IntFilter<"Carrera"> | number
+  token?: Prisma.StringFilter<"Carrera"> | string
+  nombreCliente?: Prisma.StringFilter<"Carrera"> | string
+  whatsappCliente?: Prisma.StringFilter<"Carrera"> | string
+  latitud?: Prisma.FloatFilter<"Carrera"> | number
+  longitud?: Prisma.FloatFilter<"Carrera"> | number
+  referencia?: Prisma.StringFilter<"Carrera"> | string
+  formaPago?: Prisma.StringFilter<"Carrera"> | string
+  estado?: Prisma.EnumEstadoCarreraFilter<"Carrera"> | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFilter<"Carrera"> | Date | string
+  fechaAceptacion?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaEnCamino?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaCerca?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaLlegada?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  fechaFin?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  calificacion?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+}
+
 export type CarreraCreateWithoutTaxistaInput = {
   numero: number
   token: string
@@ -652,6 +938,13 @@ export type CarreraCreateWithoutTaxistaInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  cliente?: Prisma.ClienteCreateNestedOneWithoutCarrerasInput
 }
 
 export type CarreraUncheckedCreateWithoutTaxistaInput = {
@@ -667,6 +960,13 @@ export type CarreraUncheckedCreateWithoutTaxistaInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  clienteId?: number | null
 }
 
 export type CarreraCreateOrConnectWithoutTaxistaInput = {
@@ -694,23 +994,91 @@ export type CarreraUpdateManyWithWhereWithoutTaxistaInput = {
   data: Prisma.XOR<Prisma.CarreraUpdateManyMutationInput, Prisma.CarreraUncheckedUpdateManyWithoutTaxistaInput>
 }
 
-export type CarreraScalarWhereInput = {
-  AND?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
-  OR?: Prisma.CarreraScalarWhereInput[]
-  NOT?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
-  id?: Prisma.IntFilter<"Carrera"> | number
-  numero?: Prisma.IntFilter<"Carrera"> | number
-  token?: Prisma.StringFilter<"Carrera"> | string
-  nombreCliente?: Prisma.StringFilter<"Carrera"> | string
-  whatsappCliente?: Prisma.StringFilter<"Carrera"> | string
-  latitud?: Prisma.FloatFilter<"Carrera"> | number
-  longitud?: Prisma.FloatFilter<"Carrera"> | number
-  referencia?: Prisma.StringFilter<"Carrera"> | string
-  formaPago?: Prisma.StringFilter<"Carrera"> | string
-  estado?: Prisma.EnumEstadoCarreraFilter<"Carrera"> | $Enums.EstadoCarrera
-  fechaCreacion?: Prisma.DateTimeFilter<"Carrera"> | Date | string
-  fechaAceptacion?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
-  taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+export type CarreraCreateManyClienteInput = {
+  id?: number
+  numero: number
+  token: string
+  nombreCliente: string
+  whatsappCliente: string
+  latitud: number
+  longitud: number
+  referencia: string
+  formaPago: string
+  estado?: $Enums.EstadoCarrera
+  fechaCreacion?: Date | string
+  fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  taxistaId?: number | null
+}
+
+export type CarreraUpdateWithoutClienteInput = {
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  referencia?: Prisma.StringFieldUpdateOperationsInput | string
+  formaPago?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxista?: Prisma.TaxistaUpdateOneWithoutCarrerasNestedInput
+}
+
+export type CarreraUncheckedUpdateWithoutClienteInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  referencia?: Prisma.StringFieldUpdateOperationsInput | string
+  formaPago?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type CarreraUncheckedUpdateManyWithoutClienteInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  referencia?: Prisma.StringFieldUpdateOperationsInput | string
+  formaPago?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CarreraCreateManyTaxistaInput = {
@@ -726,6 +1094,13 @@ export type CarreraCreateManyTaxistaInput = {
   estado?: $Enums.EstadoCarrera
   fechaCreacion?: Date | string
   fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  clienteId?: number | null
 }
 
 export type CarreraUpdateWithoutTaxistaInput = {
@@ -740,6 +1115,13 @@ export type CarreraUpdateWithoutTaxistaInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cliente?: Prisma.ClienteUpdateOneWithoutCarrerasNestedInput
 }
 
 export type CarreraUncheckedUpdateWithoutTaxistaInput = {
@@ -755,6 +1137,13 @@ export type CarreraUncheckedUpdateWithoutTaxistaInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type CarreraUncheckedUpdateManyWithoutTaxistaInput = {
@@ -770,6 +1159,13 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaInput = {
   estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 
@@ -787,7 +1183,15 @@ export type CarreraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   estado?: boolean
   fechaCreacion?: boolean
   fechaAceptacion?: boolean
+  fechaEnCamino?: boolean
+  fechaCerca?: boolean
+  fechaLlegada?: boolean
+  fechaFin?: boolean
+  calificacion?: boolean
+  canceladaPor?: boolean
+  clienteId?: boolean
   taxistaId?: boolean
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
 
@@ -804,7 +1208,15 @@ export type CarreraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   estado?: boolean
   fechaCreacion?: boolean
   fechaAceptacion?: boolean
+  fechaEnCamino?: boolean
+  fechaCerca?: boolean
+  fechaLlegada?: boolean
+  fechaFin?: boolean
+  calificacion?: boolean
+  canceladaPor?: boolean
+  clienteId?: boolean
   taxistaId?: boolean
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
 
@@ -821,7 +1233,15 @@ export type CarreraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   estado?: boolean
   fechaCreacion?: boolean
   fechaAceptacion?: boolean
+  fechaEnCamino?: boolean
+  fechaCerca?: boolean
+  fechaLlegada?: boolean
+  fechaFin?: boolean
+  calificacion?: boolean
+  canceladaPor?: boolean
+  clienteId?: boolean
   taxistaId?: boolean
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
 
@@ -838,23 +1258,34 @@ export type CarreraSelectScalar = {
   estado?: boolean
   fechaCreacion?: boolean
   fechaAceptacion?: boolean
+  fechaEnCamino?: boolean
+  fechaCerca?: boolean
+  fechaLlegada?: boolean
+  fechaFin?: boolean
+  calificacion?: boolean
+  canceladaPor?: boolean
+  clienteId?: boolean
   taxistaId?: boolean
 }
 
-export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "taxistaId", ExtArgs["result"]["carrera"]>
+export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "fechaEnCamino" | "fechaCerca" | "fechaLlegada" | "fechaFin" | "calificacion" | "canceladaPor" | "clienteId" | "taxistaId", ExtArgs["result"]["carrera"]>
 export type CarreraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }
 export type CarreraIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }
 export type CarreraIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }
 
 export type $CarreraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Carrera"
   objects: {
+    cliente: Prisma.$ClientePayload<ExtArgs> | null
     taxista: Prisma.$TaxistaPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -870,6 +1301,13 @@ export type $CarreraPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     estado: $Enums.EstadoCarrera
     fechaCreacion: Date
     fechaAceptacion: Date | null
+    fechaEnCamino: Date | null
+    fechaCerca: Date | null
+    fechaLlegada: Date | null
+    fechaFin: Date | null
+    calificacion: string | null
+    canceladaPor: string | null
+    clienteId: number | null
     taxistaId: number | null
   }, ExtArgs["result"]["carrera"]>
   composites: {}
@@ -1265,6 +1703,7 @@ readonly fields: CarreraFieldRefs;
  */
 export interface Prisma__CarreraClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  cliente<T extends Prisma.Carrera$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Carrera$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   taxista<T extends Prisma.Carrera$taxistaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Carrera$taxistaArgs<ExtArgs>>): Prisma.Prisma__TaxistaClient<runtime.Types.Result.GetResult<Prisma.$TaxistaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1307,6 +1746,13 @@ export interface CarreraFieldRefs {
   readonly estado: Prisma.FieldRef<"Carrera", 'EstadoCarrera'>
   readonly fechaCreacion: Prisma.FieldRef<"Carrera", 'DateTime'>
   readonly fechaAceptacion: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly fechaEnCamino: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly fechaCerca: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly fechaLlegada: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly fechaFin: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly calificacion: Prisma.FieldRef<"Carrera", 'String'>
+  readonly canceladaPor: Prisma.FieldRef<"Carrera", 'String'>
+  readonly clienteId: Prisma.FieldRef<"Carrera", 'Int'>
   readonly taxistaId: Prisma.FieldRef<"Carrera", 'Int'>
 }
     
@@ -1704,6 +2150,25 @@ export type CarreraDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Carreras to delete.
    */
   limit?: number
+}
+
+/**
+ * Carrera.cliente
+ */
+export type Carrera$clienteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cliente
+   */
+  select?: Prisma.ClienteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cliente
+   */
+  omit?: Prisma.ClienteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClienteInclude<ExtArgs> | null
+  where?: Prisma.ClienteWhereInput
 }
 
 /**

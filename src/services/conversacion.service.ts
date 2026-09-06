@@ -1,39 +1,205 @@
-import { prisma } from "../config/prisma";
-
 import {
-  enviarTextoWhatsApp,
-  solicitarUbicacionWhatsApp,
-} from "./whatsapp.service";
+  prisma,
+} from "../config/prisma";
 
 import {
   crearCarrera,
 } from "./carrera.service";
 
+import {
+  enviarTextoWhatsApp,
+  solicitarUbicacionWhatsApp,
+  enviarBotonesWhatsApp,
+} from "./whatsapp.service";
 
-interface MensajeEntrante {
+
+interface MensajeWhatsAppInput {
   telefono: string;
+
   nombre?: string;
-  tipo: string;
+
+  tipo?: string;
+
   texto?: string;
+
+  botonId?: string;
+
   latitud?: number;
+
   longitud?: number;
+
   nombreUbicacion?: string;
+
   direccionUbicacion?: string;
 }
 
 
+function normalizarTelefono(
+  telefono: string
+) {
+  return telefono.replace(
+    /\D/g,
+    ""
+  );
+}
+
+
+function esCancelar(
+  texto?: string,
+  botonId?: string
+) {
+  const t =
+    (texto || "")
+      .trim()
+      .toLowerCase();
+
+  const b =
+    (botonId || "")
+      .trim()
+      .toLowerCase();
+
+
+  return (
+    t === "cancelar" ||
+    b === "cancelar_carrera"
+  );
+}
+
+
+function obtenerPago(
+  texto?: string,
+  botonId?: string
+) {
+  const valor =
+    (
+      botonId ||
+      texto ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+
+  if (
+    valor ===
+      "pago_efectivo" ||
+    valor ===
+      "efectivo"
+  ) {
+    return "Efectivo";
+  }
+
+
+  if (
+    valor ===
+      "pago_pichincha" ||
+    valor.includes(
+      "pichincha"
+    )
+  ) {
+    return (
+      "Transferencia Banco Pichincha"
+    );
+  }
+
+
+  if (
+    valor ===
+      "pago_guayaquil" ||
+    valor.includes(
+      "guayaquil"
+    )
+  ) {
+    return (
+      "Transferencia Banco Guayaquil"
+    );
+  }
+
+
+  return null;
+}
+
+
+async function enviarOpcionesPago(
+  telefono: string
+) {
+  await enviarBotonesWhatsApp(
+    telefono,
+
+    "¿Cómo deseas pagar al finalizar la carrera?",
+
+    [
+      {
+        id:
+          "pago_efectivo",
+
+        titulo:
+          "Efectivo",
+      },
+
+      {
+        id:
+          "pago_pichincha",
+
+        titulo:
+          "Pichincha",
+      },
+
+      {
+        id:
+          "pago_guayaquil",
+
+        titulo:
+          "Guayaquil",
+      },
+    ]
+  );
+}
+
+
+async function enviarCarreraEnCurso(
+  telefono: string,
+  nombre: string
+) {
+  await enviarBotonesWhatsApp(
+    telefono,
+
+    `Hola ${nombre}, tienes una carrera en curso.`,
+
+    [
+      {
+        id:
+          "cancelar_carrera",
+
+        titulo:
+          "Cancelar",
+      },
+    ]
+  );
+}
+
+
 export async function procesarMensajeWhatsApp(
-  mensaje: MensajeEntrante
+  input: MensajeWhatsAppInput
 ) {
   const telefono =
-    mensaje.telefono.replace(
-      /\D/g,
-      ""
+    normalizarTelefono(
+      input.telefono
     );
 
 
+  const cliente =
+    await prisma.cliente.findUnique({
+      where: {
+        whatsapp:
+          telefono,
+      },
+    });
+
+
   let conversacion =
-    await prisma.conversacionWhatsApp
+    await prisma
+      .conversacionWhatsApp
       .findUnique({
         where: {
           telefono,
@@ -41,17 +207,277 @@ export async function procesarMensajeWhatsApp(
       });
 
 
-  if (!conversacion) {
+  /*
+    ======================================
+    CANCELAR CARRERA
+    ======================================
+  */
 
+  if (
+    conversacion &&
+    esCancelar(
+      input.texto,
+      input.botonId
+    )
+  ) {
+    if (
+      conversacion.carreraId
+    ) {
+      const carrera =
+        await prisma.carrera.findUnique({
+          where: {
+            id:
+              conversacion.carreraId,
+          },
+        });
+
+
+      if (
+        carrera &&
+        carrera.estado !==
+          "COMPLETADA" &&
+        carrera.estado !==
+          "CANCELADA"
+      ) {
+        await prisma.carrera.update({
+          where: {
+            id:
+              carrera.id,
+          },
+
+          data: {
+            estado:
+              "CANCELADA",
+
+            canceladaPor:
+              "CLIENTE",
+          },
+        });
+      }
+    }
+
+
+    await prisma
+      .conversacionWhatsApp
+      .update({
+        where: {
+          telefono,
+        },
+
+        data: {
+          estado:
+            "NUEVO",
+
+          carreraId:
+            null,
+
+          latitud:
+            null,
+
+          longitud:
+            null,
+
+          referencia:
+            null,
+        },
+      });
+
+
+    await enviarTextoWhatsApp(
+      telefono,
+
+      "Tu carrera fue cancelada. Cuando necesites otro taxi, escríbeme nuevamente. 🚖"
+    );
+
+
+    return;
+  }
+
+
+  /*
+    ======================================
+    CLIENTE NUEVO
+    ======================================
+  */
+
+  if (!cliente) {
+
+    /*
+      Todavía no existe conversación.
+    */
+
+    if (!conversacion) {
+      conversacion =
+        await prisma
+          .conversacionWhatsApp
+          .create({
+            data: {
+              telefono,
+
+              nombre:
+                input.nombre ||
+                null,
+
+              estado:
+                "ESPERANDO_NOMBRE",
+
+              latitud:
+                input.latitud ??
+                null,
+
+              longitud:
+                input.longitud ??
+                null,
+
+              referencia:
+                input.direccionUbicacion ||
+                input.nombreUbicacion ||
+                null,
+            },
+          });
+
+
+      await enviarTextoWhatsApp(
+        telefono,
+
+        "¡Hola! 👋 Bienvenido a RapiTaxi. Antes de continuar, dime tu nombre por favor."
+      );
+
+
+      return;
+    }
+
+
+    /*
+      Esperando que escriba su nombre.
+    */
+
+    if (
+      conversacion.estado ===
+      "ESPERANDO_NOMBRE"
+    ) {
+      const nombre =
+        (
+          input.texto || ""
+        ).trim();
+
+
+      if (!nombre) {
+        await enviarTextoWhatsApp(
+          telefono,
+
+          "Por favor escríbeme tu nombre para registrarte."
+        );
+
+        return;
+      }
+
+
+      const nuevoCliente =
+        await prisma.cliente.create({
+          data: {
+            whatsapp:
+              telefono,
+
+            nombre,
+          },
+        });
+
+
+      const yaTieneUbicacion =
+        conversacion.latitud !==
+          null &&
+        conversacion.longitud !==
+          null;
+
+
+      conversacion =
+        await prisma
+          .conversacionWhatsApp
+          .update({
+            where: {
+              telefono,
+            },
+
+            data: {
+              nombre,
+
+              clienteId:
+                nuevoCliente.id,
+
+              estado:
+                yaTieneUbicacion
+                  ? "ESPERANDO_PAGO"
+                  : "ESPERANDO_UBICACION",
+            },
+          });
+
+
+      if (yaTieneUbicacion) {
+        await enviarOpcionesPago(
+          telefono
+        );
+
+        return;
+      }
+
+
+      await solicitarUbicacionWhatsApp(
+        telefono,
+
+        `Hola ${nombre} 👋 Envíame tu ubicación actual.`
+      );
+
+
+      return;
+    }
+  }
+
+
+  /*
+    ======================================
+    CLIENTE YA REGISTRADO
+    ======================================
+  */
+
+  const clienteActual =
+    cliente ||
+    (
+      conversacion?.clienteId
+        ? await prisma.cliente
+            .findUnique({
+              where: {
+                id:
+                  conversacion.clienteId,
+              },
+            })
+        : null
+    );
+
+
+  if (!clienteActual) {
+    return;
+  }
+
+
+  /*
+    Si por alguna razón no existe
+    conversación, la recreamos.
+  */
+
+  if (!conversacion) {
     conversacion =
-      await prisma.conversacionWhatsApp
+      await prisma
+        .conversacionWhatsApp
         .create({
           data: {
             telefono,
 
             nombre:
-              mensaje.nombre ||
-              null,
+              clienteActual.nombre,
+
+            clienteId:
+              clienteActual.id,
 
             estado:
               "NUEVO",
@@ -60,12 +486,86 @@ export async function procesarMensajeWhatsApp(
   }
 
 
+  /*
+    ======================================
+    CARRERA EN CURSO
+    ======================================
+  */
+
+  if (
+    conversacion.estado ===
+      "BUSCANDO_TAXI" ||
+    conversacion.estado ===
+      "CARRERA_ACTIVA"
+  ) {
+    await enviarCarreraEnCurso(
+      telefono,
+      clienteActual.nombre
+    );
+
+    return;
+  }
+
+
+  /*
+    ======================================
+    ESTADO NUEVO
+    ======================================
+  */
+
   if (
     conversacion.estado ===
     "NUEVO"
   ) {
 
-    await prisma.conversacionWhatsApp
+    /*
+      El cliente puede mandar
+      ubicación directamente.
+    */
+
+    if (
+      input.tipo ===
+        "location" &&
+      input.latitud !==
+        undefined &&
+      input.longitud !==
+        undefined
+    ) {
+      await prisma
+        .conversacionWhatsApp
+        .update({
+          where: {
+            telefono,
+          },
+
+          data: {
+            latitud:
+              input.latitud,
+
+            longitud:
+              input.longitud,
+
+            referencia:
+              input.direccionUbicacion ||
+              input.nombreUbicacion ||
+              "Ubicación compartida por WhatsApp",
+
+            estado:
+              "ESPERANDO_PAGO",
+          },
+        });
+
+
+      await enviarOpcionesPago(
+        telefono
+      );
+
+      return;
+    }
+
+
+    await prisma
+      .conversacionWhatsApp
       .update({
         where: {
           telefono,
@@ -74,25 +574,75 @@ export async function procesarMensajeWhatsApp(
         data: {
           estado:
             "ESPERANDO_UBICACION",
-
-          nombre:
-            mensaje.nombre ||
-            conversacion.nombre,
         },
       });
 
 
-    await enviarTextoWhatsApp(
+    await solicitarUbicacionWhatsApp(
       telefono,
-      `¡Hola${
-        mensaje.nombre
-          ? `, ${mensaje.nombre}`
-          : ""
-      }! 👋 Bienvenido a RapiTaxi.`
+
+      `Hola ${clienteActual.nombre} 👋 Envíame tu ubicación actual.`
     );
 
 
-    await solicitarUbicacionWhatsApp(
+    return;
+  }
+
+
+  /*
+    ======================================
+    ESPERANDO UBICACIÓN
+    ======================================
+  */
+
+  if (
+    conversacion.estado ===
+    "ESPERANDO_UBICACION"
+  ) {
+    if (
+      input.tipo !==
+        "location" ||
+      input.latitud ===
+        undefined ||
+      input.longitud ===
+        undefined
+    ) {
+      await solicitarUbicacionWhatsApp(
+        telefono,
+
+        `${clienteActual.nombre}, necesito que compartas tu ubicación actual.`
+      );
+
+      return;
+    }
+
+
+    await prisma
+      .conversacionWhatsApp
+      .update({
+        where: {
+          telefono,
+        },
+
+        data: {
+          latitud:
+            input.latitud,
+
+          longitud:
+            input.longitud,
+
+          referencia:
+            input.direccionUbicacion ||
+            input.nombreUbicacion ||
+            "Ubicación compartida por WhatsApp",
+
+          estado:
+            "ESPERANDO_PAGO",
+        },
+      });
+
+
+    await enviarOpcionesPago(
       telefono
     );
 
@@ -101,18 +651,25 @@ export async function procesarMensajeWhatsApp(
   }
 
 
+  /*
+    ======================================
+    ESPERANDO FORMA DE PAGO
+    ======================================
+  */
+
   if (
     conversacion.estado ===
-    "ESPERANDO_UBICACION"
+    "ESPERANDO_PAGO"
   ) {
+    const formaPago =
+      obtenerPago(
+        input.texto,
+        input.botonId
+      );
 
-    if (
-      mensaje.tipo !== "location" ||
-      mensaje.latitud === undefined ||
-      mensaje.longitud === undefined
-    ) {
 
-      await solicitarUbicacionWhatsApp(
+    if (!formaPago) {
+      await enviarOpcionesPago(
         telefono
       );
 
@@ -120,125 +677,19 @@ export async function procesarMensajeWhatsApp(
     }
 
 
-    const referencia =
-      mensaje.direccionUbicacion ||
-      mensaje.nombreUbicacion ||
-      "Ubicación compartida por WhatsApp";
+    const latitud =
+      conversacion.latitud;
 
-
-    await prisma.conversacionWhatsApp
-      .update({
-        where: {
-          telefono,
-        },
-
-        data: {
-          latitud:
-            mensaje.latitud,
-
-          longitud:
-            mensaje.longitud,
-
-          referencia,
-
-          estado:
-            "ESPERANDO_PAGO",
-        },
-      });
-
-
-    await enviarTextoWhatsApp(
-      telefono,
-      [
-        "📍 Ubicación recibida.",
-        "",
-        "¿Cómo deseas pagar al finalizar la carrera?",
-        "",
-        "1️⃣ Efectivo",
-        "2️⃣ Transferencia Banco Pichincha",
-        "3️⃣ Transferencia Banco Guayaquil",
-        "",
-        "Responde solamente 1, 2 o 3."
-      ].join("\n")
-    );
-
-
-    return;
-  }
-
-
-  if (
-    conversacion.estado ===
-    "ESPERANDO_PAGO"
-  ) {
-
-    const respuesta =
-      (mensaje.texto || "")
-        .trim()
-        .toLowerCase();
-
-
-    let formaPago:
-      string | null =
-      null;
+    const longitud =
+      conversacion.longitud;
 
 
     if (
-      respuesta === "1" ||
-      respuesta.includes(
-        "efectivo"
-      )
+      latitud === null ||
+      longitud === null
     ) {
-      formaPago =
-        "Efectivo";
-    }
-
-
-    if (
-      respuesta === "2" ||
-      respuesta.includes(
-        "pichincha"
-      )
-    ) {
-      formaPago =
-        "Transferencia Banco Pichincha";
-    }
-
-
-    if (
-      respuesta === "3" ||
-      respuesta.includes(
-        "guayaquil"
-      )
-    ) {
-      formaPago =
-        "Transferencia Banco Guayaquil";
-    }
-
-
-    if (!formaPago) {
-
-      await enviarTextoWhatsApp(
-        telefono,
-        [
-          "Selecciona una opción válida:",
-          "",
-          "1️⃣ Efectivo",
-          "2️⃣ Transferencia Banco Pichincha",
-          "3️⃣ Transferencia Banco Guayaquil"
-        ].join("\n")
-      );
-
-      return;
-    }
-
-
-    if (
-      conversacion.latitud === null ||
-      conversacion.longitud === null
-    ) {
-
-      await prisma.conversacionWhatsApp
+      await prisma
+        .conversacionWhatsApp
         .update({
           where: {
             telefono,
@@ -255,73 +706,139 @@ export async function procesarMensajeWhatsApp(
         telefono
       );
 
+
       return;
     }
 
 
-    const carrera =
-      await crearCarrera({
-        nombreCliente:
-          conversacion.nombre ||
-          mensaje.nombre ||
-          "Cliente WhatsApp",
+    /*
+      Bloqueo para impedir carreras
+      duplicadas por webhook repetido.
+    */
 
-        whatsappCliente:
-          telefono,
+    const bloqueo =
+      await prisma
+        .conversacionWhatsApp
+        .updateMany({
+          where: {
+            id:
+              conversacion.id,
 
-        latitud:
-          conversacion.latitud,
+            estado:
+              "ESPERANDO_PAGO",
+          },
 
-        longitud:
-          conversacion.longitud,
-
-        referencia:
-          conversacion.referencia ||
-          "Ubicación compartida",
-
-        formaPago,
-      });
+          data: {
+            estado:
+              "BUSCANDO_TAXI",
+          },
+        });
 
 
-    await prisma.conversacionWhatsApp
-      .update({
+    if (
+      bloqueo.count === 0
+    ) {
+      return;
+    }
+
+
+    try {
+      const carrera =
+        await crearCarrera({
+          nombreCliente:
+            clienteActual.nombre,
+
+          whatsappCliente:
+            telefono,
+
+          latitud,
+
+          longitud,
+
+          referencia:
+            conversacion.referencia ||
+            "Ubicación compartida por WhatsApp",
+
+          formaPago,
+        });
+
+
+      await prisma.carrera.update({
         where: {
-          telefono,
+          id:
+            carrera.id,
         },
 
         data: {
-          estado:
-            "CARRERA_CREADA",
+          clienteId:
+            clienteActual.id,
         },
       });
 
 
-    await enviarTextoWhatsApp(
-      telefono,
-      [
-        "✅ ¡Listo!",
-        "",
-        `🚖 Tu carrera #${carrera.numero} fue creada.`,
-        "",
-        "Ya estamos buscando un taxi para ti.",
-        "",
-        "El conductor asignado se comunicará contigo."
-      ].join("\n")
-    );
+      await prisma
+        .conversacionWhatsApp
+        .update({
+          where: {
+            telefono,
+          },
+
+          data: {
+            carreraId:
+              carrera.id,
+
+            estado:
+              "BUSCANDO_TAXI",
+          },
+        });
 
 
-    return;
+      await enviarTextoWhatsApp(
+        telefono,
+
+        `✅ Listo ${clienteActual.nombre}, estoy buscando taxi. Enseguida te confirmo. 🚖`
+      );
+
+
+      return;
+
+    } catch (error) {
+
+      console.error(
+        "Error creando carrera:",
+        error
+      );
+
+
+      await prisma
+        .conversacionWhatsApp
+        .update({
+          where: {
+            telefono,
+          },
+
+          data: {
+            estado:
+              "ESPERANDO_PAGO",
+          },
+        });
+
+
+      throw error;
+    }
   }
 
 
+  /*
+    ======================================
+    ESPERANDO CALIFICACIÓN
+    ======================================
+  */
+
   if (
     conversacion.estado ===
-    "CARRERA_CREADA"
+    "ESPERANDO_CALIFICACION"
   ) {
-
-    await enviarTextoWhatsApp(
-      telefono,
-      "Ya tienes una carrera activa. 🚖 Estamos buscando un taxi para ti."
-    );
+    return;
   }
 }

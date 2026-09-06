@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Cliente: 'Cliente',
   Carrera: 'Carrera',
   Taxista: 'Taxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp'
@@ -69,6 +70,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const ClienteScalarFieldEnum = {
+  id: 'id',
+  whatsapp: 'whatsapp',
+  nombre: 'nombre',
+  fechaRegistro: 'fechaRegistro'
+} as const
+
+export type ClienteScalarFieldEnum = (typeof ClienteScalarFieldEnum)[keyof typeof ClienteScalarFieldEnum]
+
+
 export const CarreraScalarFieldEnum = {
   id: 'id',
   numero: 'numero',
@@ -82,6 +93,13 @@ export const CarreraScalarFieldEnum = {
   estado: 'estado',
   fechaCreacion: 'fechaCreacion',
   fechaAceptacion: 'fechaAceptacion',
+  fechaEnCamino: 'fechaEnCamino',
+  fechaCerca: 'fechaCerca',
+  fechaLlegada: 'fechaLlegada',
+  fechaFin: 'fechaFin',
+  calificacion: 'calificacion',
+  canceladaPor: 'canceladaPor',
+  clienteId: 'clienteId',
   taxistaId: 'taxistaId'
 } as const
 
@@ -94,9 +112,15 @@ export const TaxistaScalarFieldEnum = {
   nombre: 'nombre',
   placa: 'placa',
   vehiculo: 'vehiculo',
+  colorVehiculo: 'colorVehiculo',
+  cooperativa: 'cooperativa',
   telefono: 'telefono',
   activo: 'activo',
-  fechaRegistro: 'fechaRegistro'
+  fechaRegistro: 'fechaRegistro',
+  titularPichincha: 'titularPichincha',
+  cuentaPichincha: 'cuentaPichincha',
+  titularGuayaquil: 'titularGuayaquil',
+  cuentaGuayaquil: 'cuentaGuayaquil'
 } as const
 
 export type TaxistaScalarFieldEnum = (typeof TaxistaScalarFieldEnum)[keyof typeof TaxistaScalarFieldEnum]
@@ -110,6 +134,8 @@ export const ConversacionWhatsAppScalarFieldEnum = {
   latitud: 'latitud',
   longitud: 'longitud',
   referencia: 'referencia',
+  carreraId: 'carreraId',
+  clienteId: 'clienteId',
   fechaCreacion: 'fechaCreacion',
   fechaActualizacion: 'fechaActualizacion'
 } as const

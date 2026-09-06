@@ -397,6 +397,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  Cliente: 'Cliente',
   Carrera: 'Carrera',
   Taxista: 'Taxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp'
@@ -415,10 +416,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "carrera" | "taxista" | "conversacionWhatsApp"
+    modelProps: "cliente" | "carrera" | "taxista" | "conversacionWhatsApp"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    Cliente: {
+      payload: Prisma.$ClientePayload<ExtArgs>
+      fields: Prisma.ClienteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClienteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClienteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        findFirst: {
+          args: Prisma.ClienteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClienteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        findMany: {
+          args: Prisma.ClienteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>[]
+        }
+        create: {
+          args: Prisma.ClienteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        createMany: {
+          args: Prisma.ClienteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClienteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>[]
+        }
+        delete: {
+          args: Prisma.ClienteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        update: {
+          args: Prisma.ClienteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        deleteMany: {
+          args: Prisma.ClienteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClienteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClienteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>[]
+        }
+        upsert: {
+          args: Prisma.ClienteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientePayload>
+        }
+        aggregate: {
+          args: Prisma.ClienteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCliente>
+        }
+        groupBy: {
+          args: Prisma.ClienteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClienteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClienteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClienteCountAggregateOutputType> | number
+        }
+      }
+    }
     Carrera: {
       payload: Prisma.$CarreraPayload<ExtArgs>
       fields: Prisma.CarreraFieldRefs
@@ -677,6 +752,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const ClienteScalarFieldEnum = {
+  id: 'id',
+  whatsapp: 'whatsapp',
+  nombre: 'nombre',
+  fechaRegistro: 'fechaRegistro'
+} as const
+
+export type ClienteScalarFieldEnum = (typeof ClienteScalarFieldEnum)[keyof typeof ClienteScalarFieldEnum]
+
+
 export const CarreraScalarFieldEnum = {
   id: 'id',
   numero: 'numero',
@@ -690,6 +775,13 @@ export const CarreraScalarFieldEnum = {
   estado: 'estado',
   fechaCreacion: 'fechaCreacion',
   fechaAceptacion: 'fechaAceptacion',
+  fechaEnCamino: 'fechaEnCamino',
+  fechaCerca: 'fechaCerca',
+  fechaLlegada: 'fechaLlegada',
+  fechaFin: 'fechaFin',
+  calificacion: 'calificacion',
+  canceladaPor: 'canceladaPor',
+  clienteId: 'clienteId',
   taxistaId: 'taxistaId'
 } as const
 
@@ -702,9 +794,15 @@ export const TaxistaScalarFieldEnum = {
   nombre: 'nombre',
   placa: 'placa',
   vehiculo: 'vehiculo',
+  colorVehiculo: 'colorVehiculo',
+  cooperativa: 'cooperativa',
   telefono: 'telefono',
   activo: 'activo',
-  fechaRegistro: 'fechaRegistro'
+  fechaRegistro: 'fechaRegistro',
+  titularPichincha: 'titularPichincha',
+  cuentaPichincha: 'cuentaPichincha',
+  titularGuayaquil: 'titularGuayaquil',
+  cuentaGuayaquil: 'cuentaGuayaquil'
 } as const
 
 export type TaxistaScalarFieldEnum = (typeof TaxistaScalarFieldEnum)[keyof typeof TaxistaScalarFieldEnum]
@@ -718,6 +816,8 @@ export const ConversacionWhatsAppScalarFieldEnum = {
   latitud: 'latitud',
   longitud: 'longitud',
   referencia: 'referencia',
+  carreraId: 'carreraId',
+  clienteId: 'clienteId',
   fechaCreacion: 'fechaCreacion',
   fechaActualizacion: 'fechaActualizacion'
 } as const
@@ -762,6 +862,13 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
+ * Reference to a field of type 'DateTime'
+ */
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -772,13 +879,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'EstadoCarrera'
  */
 export type EnumEstadoCarreraFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoCarrera'>
-    
-
-
-/**
- * Reference to a field of type 'DateTime'
- */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
@@ -946,6 +1046,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
  */
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
+  cliente?: Prisma.ClienteOmit
   carrera?: Prisma.CarreraOmit
   taxista?: Prisma.TaxistaOmit
   conversacionWhatsApp?: Prisma.ConversacionWhatsAppOmit

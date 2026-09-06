@@ -1,6 +1,7 @@
 const KAPSO_API_URL =
   "https://api.kapso.ai/meta/whatsapp/v24.0";
 
+
 function obtenerConfiguracionKapso() {
   const apiKey =
     process.env.KAPSO_API_KEY;
@@ -8,17 +9,20 @@ function obtenerConfiguracionKapso() {
   const phoneNumberId =
     process.env.KAPSO_PHONE_NUMBER_ID;
 
+
   if (!apiKey) {
     throw new Error(
       "KAPSO_API_KEY no configurada"
     );
   }
 
+
   if (!phoneNumberId) {
     throw new Error(
       "KAPSO_PHONE_NUMBER_ID no configurado"
     );
   }
+
 
   return {
     apiKey,
@@ -27,9 +31,8 @@ function obtenerConfiguracionKapso() {
 }
 
 
-export async function enviarTextoWhatsApp(
-  telefono: string,
-  mensaje: string
+async function enviarMensajeKapso(
+  body: any
 ) {
   const {
     apiKey,
@@ -52,26 +55,7 @@ export async function enviarTextoWhatsApp(
         },
 
         body:
-          JSON.stringify({
-            messaging_product:
-              "whatsapp",
-
-            recipient_type:
-              "individual",
-
-            to:
-              telefono.replace(
-                /\D/g,
-                ""
-              ),
-
-            type:
-              "text",
-
-            text: {
-              body: mensaje,
-            },
-          }),
+          JSON.stringify(body),
       }
     );
 
@@ -82,12 +66,12 @@ export async function enviarTextoWhatsApp(
 
   if (!response.ok) {
     console.error(
-      "Kapso error:",
+      "Error Kapso:",
       data
     );
 
     throw new Error(
-      "No se pudo enviar el mensaje de WhatsApp"
+      "No se pudo enviar mensaje por WhatsApp"
     );
   }
 
@@ -96,80 +80,132 @@ export async function enviarTextoWhatsApp(
 }
 
 
-export async function solicitarUbicacionWhatsApp(
-  telefono: string
+export async function enviarTextoWhatsApp(
+  telefono: string,
+  mensaje: string
 ) {
-  const {
-    apiKey,
-    phoneNumberId,
-  } = obtenerConfiguracionKapso();
+  return enviarMensajeKapso({
+    messaging_product:
+      "whatsapp",
+
+    recipient_type:
+      "individual",
+
+    to:
+      telefono.replace(
+        /\D/g,
+        ""
+      ),
+
+    type:
+      "text",
+
+    text: {
+      body: mensaje,
+    },
+  });
+}
 
 
-  const response =
-    await fetch(
-      `${KAPSO_API_URL}/${phoneNumberId}/messages`,
-      {
-        method: "POST",
+export async function solicitarUbicacionWhatsApp(
+  telefono: string,
+  mensaje:
+    string =
+      "📍 Envíame tu ubicación actual para solicitar tu taxi."
+) {
+  return enviarMensajeKapso({
+    messaging_product:
+      "whatsapp",
 
-        headers: {
-          "Content-Type":
-            "application/json",
+    recipient_type:
+      "individual",
 
-          "X-API-Key":
-            apiKey,
-        },
+    to:
+      telefono.replace(
+        /\D/g,
+        ""
+      ),
 
-        body:
-          JSON.stringify({
-            messaging_product:
-              "whatsapp",
+    type:
+      "interactive",
 
-            recipient_type:
-              "individual",
+    interactive: {
+      type:
+        "location_request_message",
 
-            to:
-              telefono.replace(
-                /\D/g,
-                ""
-              ),
+      body: {
+        text: mensaje,
+      },
 
-            type:
-              "interactive",
-
-            interactive: {
-              type:
-                "location_request_message",
-
-              body: {
-                text:
-                  "📍 Comparte tu ubicación actual para solicitar tu taxi."
-              },
-
-              action: {
-                name:
-                  "send_location"
-              }
-            }
-          }),
-      }
-    );
+      action: {
+        name:
+          "send_location",
+      },
+    },
+  });
+}
 
 
-  const data =
-    await response.json();
+interface BotonWhatsApp {
+  id: string;
+  titulo: string;
+}
 
 
-  if (!response.ok) {
-    console.error(
-      "Kapso location error:",
-      data
-    );
-
+export async function enviarBotonesWhatsApp(
+  telefono: string,
+  mensaje: string,
+  botones: BotonWhatsApp[]
+) {
+  if (
+    botones.length < 1 ||
+    botones.length > 3
+  ) {
     throw new Error(
-      "No se pudo solicitar la ubicación"
+      "WhatsApp permite entre 1 y 3 botones"
     );
   }
 
 
-  return data;
+  return enviarMensajeKapso({
+    messaging_product:
+      "whatsapp",
+
+    recipient_type:
+      "individual",
+
+    to:
+      telefono.replace(
+        /\D/g,
+        ""
+      ),
+
+    type:
+      "interactive",
+
+    interactive: {
+      type: "button",
+
+      body: {
+        text: mensaje,
+      },
+
+      action: {
+        buttons:
+          botones.map(
+            (boton) => ({
+              type: "reply",
+
+              reply: {
+                id:
+                  boton.id,
+
+                title:
+                  boton.titulo,
+              },
+            })
+          ),
+      },
+    },
+  });
 }

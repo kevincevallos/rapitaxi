@@ -30,12 +30,16 @@ export type ConversacionWhatsAppAvgAggregateOutputType = {
   id: number | null
   latitud: number | null
   longitud: number | null
+  carreraId: number | null
+  clienteId: number | null
 }
 
 export type ConversacionWhatsAppSumAggregateOutputType = {
   id: number | null
   latitud: number | null
   longitud: number | null
+  carreraId: number | null
+  clienteId: number | null
 }
 
 export type ConversacionWhatsAppMinAggregateOutputType = {
@@ -46,6 +50,8 @@ export type ConversacionWhatsAppMinAggregateOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  carreraId: number | null
+  clienteId: number | null
   fechaCreacion: Date | null
   fechaActualizacion: Date | null
 }
@@ -58,6 +64,8 @@ export type ConversacionWhatsAppMaxAggregateOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  carreraId: number | null
+  clienteId: number | null
   fechaCreacion: Date | null
   fechaActualizacion: Date | null
 }
@@ -70,6 +78,8 @@ export type ConversacionWhatsAppCountAggregateOutputType = {
   latitud: number
   longitud: number
   referencia: number
+  carreraId: number
+  clienteId: number
   fechaCreacion: number
   fechaActualizacion: number
   _all: number
@@ -80,12 +90,16 @@ export type ConversacionWhatsAppAvgAggregateInputType = {
   id?: true
   latitud?: true
   longitud?: true
+  carreraId?: true
+  clienteId?: true
 }
 
 export type ConversacionWhatsAppSumAggregateInputType = {
   id?: true
   latitud?: true
   longitud?: true
+  carreraId?: true
+  clienteId?: true
 }
 
 export type ConversacionWhatsAppMinAggregateInputType = {
@@ -96,6 +110,8 @@ export type ConversacionWhatsAppMinAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  carreraId?: true
+  clienteId?: true
   fechaCreacion?: true
   fechaActualizacion?: true
 }
@@ -108,6 +124,8 @@ export type ConversacionWhatsAppMaxAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  carreraId?: true
+  clienteId?: true
   fechaCreacion?: true
   fechaActualizacion?: true
 }
@@ -120,6 +138,8 @@ export type ConversacionWhatsAppCountAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  carreraId?: true
+  clienteId?: true
   fechaCreacion?: true
   fechaActualizacion?: true
   _all?: true
@@ -219,6 +239,8 @@ export type ConversacionWhatsAppGroupByOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  carreraId: number | null
+  clienteId: number | null
   fechaCreacion: Date
   fechaActualizacion: Date
   _count: ConversacionWhatsAppCountAggregateOutputType | null
@@ -254,8 +276,11 @@ export type ConversacionWhatsAppWhereInput = {
   latitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  carreraId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
+  clienteId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
 }
 
 export type ConversacionWhatsAppOrderByWithRelationInput = {
@@ -266,13 +291,17 @@ export type ConversacionWhatsAppOrderByWithRelationInput = {
   latitud?: Prisma.SortOrderInput | Prisma.SortOrder
   longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   referencia?: Prisma.SortOrderInput | Prisma.SortOrder
+  carreraId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
+  cliente?: Prisma.ClienteOrderByWithRelationInput
 }
 
 export type ConversacionWhatsAppWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   telefono?: string
+  clienteId?: number
   AND?: Prisma.ConversacionWhatsAppWhereInput | Prisma.ConversacionWhatsAppWhereInput[]
   OR?: Prisma.ConversacionWhatsAppWhereInput[]
   NOT?: Prisma.ConversacionWhatsAppWhereInput | Prisma.ConversacionWhatsAppWhereInput[]
@@ -281,9 +310,11 @@ export type ConversacionWhatsAppWhereUniqueInput = Prisma.AtLeast<{
   latitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  carreraId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
-}, "id" | "telefono">
+  cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
+}, "id" | "telefono" | "clienteId">
 
 export type ConversacionWhatsAppOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -293,6 +324,8 @@ export type ConversacionWhatsAppOrderByWithAggregationInput = {
   latitud?: Prisma.SortOrderInput | Prisma.SortOrder
   longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   referencia?: Prisma.SortOrderInput | Prisma.SortOrder
+  carreraId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   _count?: Prisma.ConversacionWhatsAppCountOrderByAggregateInput
@@ -313,6 +346,8 @@ export type ConversacionWhatsAppScalarWhereWithAggregatesInput = {
   latitud?: Prisma.FloatNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableWithAggregatesFilter<"ConversacionWhatsApp"> | string | null
+  carreraId?: Prisma.IntNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
+  clienteId?: Prisma.IntNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string
 }
@@ -324,8 +359,10 @@ export type ConversacionWhatsAppCreateInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  carreraId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
+  cliente?: Prisma.ClienteCreateNestedOneWithoutConversacionInput
 }
 
 export type ConversacionWhatsAppUncheckedCreateInput = {
@@ -336,6 +373,8 @@ export type ConversacionWhatsAppUncheckedCreateInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  carreraId?: number | null
+  clienteId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
 }
@@ -347,8 +386,10 @@ export type ConversacionWhatsAppUpdateInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  cliente?: Prisma.ClienteUpdateOneWithoutConversacionNestedInput
 }
 
 export type ConversacionWhatsAppUncheckedUpdateInput = {
@@ -359,6 +400,8 @@ export type ConversacionWhatsAppUncheckedUpdateInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -371,6 +414,8 @@ export type ConversacionWhatsAppCreateManyInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  carreraId?: number | null
+  clienteId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
 }
@@ -382,6 +427,7 @@ export type ConversacionWhatsAppUpdateManyMutationInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -394,8 +440,15 @@ export type ConversacionWhatsAppUncheckedUpdateManyInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ConversacionWhatsAppNullableScalarRelationFilter = {
+  is?: Prisma.ConversacionWhatsAppWhereInput | null
+  isNot?: Prisma.ConversacionWhatsAppWhereInput | null
 }
 
 export type ConversacionWhatsAppCountOrderByAggregateInput = {
@@ -406,6 +459,8 @@ export type ConversacionWhatsAppCountOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  carreraId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
 }
@@ -414,6 +469,8 @@ export type ConversacionWhatsAppAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
+  carreraId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
 }
 
 export type ConversacionWhatsAppMaxOrderByAggregateInput = {
@@ -424,6 +481,8 @@ export type ConversacionWhatsAppMaxOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  carreraId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
 }
@@ -436,6 +495,8 @@ export type ConversacionWhatsAppMinOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  carreraId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
 }
@@ -444,6 +505,40 @@ export type ConversacionWhatsAppSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
+  carreraId?: Prisma.SortOrder
+  clienteId?: Prisma.SortOrder
+}
+
+export type ConversacionWhatsAppCreateNestedOneWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+  connectOrCreate?: Prisma.ConversacionWhatsAppCreateOrConnectWithoutClienteInput
+  connect?: Prisma.ConversacionWhatsAppWhereUniqueInput
+}
+
+export type ConversacionWhatsAppUncheckedCreateNestedOneWithoutClienteInput = {
+  create?: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+  connectOrCreate?: Prisma.ConversacionWhatsAppCreateOrConnectWithoutClienteInput
+  connect?: Prisma.ConversacionWhatsAppWhereUniqueInput
+}
+
+export type ConversacionWhatsAppUpdateOneWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+  connectOrCreate?: Prisma.ConversacionWhatsAppCreateOrConnectWithoutClienteInput
+  upsert?: Prisma.ConversacionWhatsAppUpsertWithoutClienteInput
+  disconnect?: Prisma.ConversacionWhatsAppWhereInput | boolean
+  delete?: Prisma.ConversacionWhatsAppWhereInput | boolean
+  connect?: Prisma.ConversacionWhatsAppWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConversacionWhatsAppUpdateToOneWithWhereWithoutClienteInput, Prisma.ConversacionWhatsAppUpdateWithoutClienteInput>, Prisma.ConversacionWhatsAppUncheckedUpdateWithoutClienteInput>
+}
+
+export type ConversacionWhatsAppUncheckedUpdateOneWithoutClienteNestedInput = {
+  create?: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+  connectOrCreate?: Prisma.ConversacionWhatsAppCreateOrConnectWithoutClienteInput
+  upsert?: Prisma.ConversacionWhatsAppUpsertWithoutClienteInput
+  disconnect?: Prisma.ConversacionWhatsAppWhereInput | boolean
+  delete?: Prisma.ConversacionWhatsAppWhereInput | boolean
+  connect?: Prisma.ConversacionWhatsAppWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ConversacionWhatsAppUpdateToOneWithWhereWithoutClienteInput, Prisma.ConversacionWhatsAppUpdateWithoutClienteInput>, Prisma.ConversacionWhatsAppUncheckedUpdateWithoutClienteInput>
 }
 
 export type EnumEstadoConversacionFieldUpdateOperationsInput = {
@@ -458,6 +553,72 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ConversacionWhatsAppCreateWithoutClienteInput = {
+  telefono: string
+  nombre?: string | null
+  estado?: $Enums.EstadoConversacion
+  latitud?: number | null
+  longitud?: number | null
+  referencia?: string | null
+  carreraId?: number | null
+  fechaCreacion?: Date | string
+  fechaActualizacion?: Date | string
+}
+
+export type ConversacionWhatsAppUncheckedCreateWithoutClienteInput = {
+  id?: number
+  telefono: string
+  nombre?: string | null
+  estado?: $Enums.EstadoConversacion
+  latitud?: number | null
+  longitud?: number | null
+  referencia?: string | null
+  carreraId?: number | null
+  fechaCreacion?: Date | string
+  fechaActualizacion?: Date | string
+}
+
+export type ConversacionWhatsAppCreateOrConnectWithoutClienteInput = {
+  where: Prisma.ConversacionWhatsAppWhereUniqueInput
+  create: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+}
+
+export type ConversacionWhatsAppUpsertWithoutClienteInput = {
+  update: Prisma.XOR<Prisma.ConversacionWhatsAppUpdateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedUpdateWithoutClienteInput>
+  create: Prisma.XOR<Prisma.ConversacionWhatsAppCreateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedCreateWithoutClienteInput>
+  where?: Prisma.ConversacionWhatsAppWhereInput
+}
+
+export type ConversacionWhatsAppUpdateToOneWithWhereWithoutClienteInput = {
+  where?: Prisma.ConversacionWhatsAppWhereInput
+  data: Prisma.XOR<Prisma.ConversacionWhatsAppUpdateWithoutClienteInput, Prisma.ConversacionWhatsAppUncheckedUpdateWithoutClienteInput>
+}
+
+export type ConversacionWhatsAppUpdateWithoutClienteInput = {
+  telefono?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estado?: Prisma.EnumEstadoConversacionFieldUpdateOperationsInput | $Enums.EstadoConversacion
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ConversacionWhatsAppUncheckedUpdateWithoutClienteInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  telefono?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estado?: Prisma.EnumEstadoConversacionFieldUpdateOperationsInput | $Enums.EstadoConversacion
+  latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type ConversacionWhatsAppSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -468,8 +629,11 @@ export type ConversacionWhatsAppSelect<ExtArgs extends runtime.Types.Extensions.
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  carreraId?: boolean
+  clienteId?: boolean
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
 export type ConversacionWhatsAppSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -480,8 +644,11 @@ export type ConversacionWhatsAppSelectCreateManyAndReturn<ExtArgs extends runtim
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  carreraId?: boolean
+  clienteId?: boolean
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
 export type ConversacionWhatsAppSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -492,8 +659,11 @@ export type ConversacionWhatsAppSelectUpdateManyAndReturn<ExtArgs extends runtim
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  carreraId?: boolean
+  clienteId?: boolean
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
 export type ConversacionWhatsAppSelectScalar = {
@@ -504,15 +674,28 @@ export type ConversacionWhatsAppSelectScalar = {
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  carreraId?: boolean
+  clienteId?: boolean
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
 }
 
-export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "fechaCreacion" | "fechaActualizacion", ExtArgs["result"]["conversacionWhatsApp"]>
+export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "carreraId" | "clienteId" | "fechaCreacion" | "fechaActualizacion", ExtArgs["result"]["conversacionWhatsApp"]>
+export type ConversacionWhatsAppInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
+}
+export type ConversacionWhatsAppIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
+}
+export type ConversacionWhatsAppIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
+}
 
 export type $ConversacionWhatsAppPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ConversacionWhatsApp"
-  objects: {}
+  objects: {
+    cliente: Prisma.$ClientePayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     telefono: string
@@ -521,6 +704,8 @@ export type $ConversacionWhatsAppPayload<ExtArgs extends runtime.Types.Extension
     latitud: number | null
     longitud: number | null
     referencia: string | null
+    carreraId: number | null
+    clienteId: number | null
     fechaCreacion: Date
     fechaActualizacion: Date
   }, ExtArgs["result"]["conversacionWhatsApp"]>
@@ -917,6 +1102,7 @@ readonly fields: ConversacionWhatsAppFieldRefs;
  */
 export interface Prisma__ConversacionWhatsAppClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  cliente<T extends Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -953,6 +1139,8 @@ export interface ConversacionWhatsAppFieldRefs {
   readonly latitud: Prisma.FieldRef<"ConversacionWhatsApp", 'Float'>
   readonly longitud: Prisma.FieldRef<"ConversacionWhatsApp", 'Float'>
   readonly referencia: Prisma.FieldRef<"ConversacionWhatsApp", 'String'>
+  readonly carreraId: Prisma.FieldRef<"ConversacionWhatsApp", 'Int'>
+  readonly clienteId: Prisma.FieldRef<"ConversacionWhatsApp", 'Int'>
   readonly fechaCreacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>
   readonly fechaActualizacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>
 }
@@ -972,6 +1160,10 @@ export type ConversacionWhatsAppFindUniqueArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
+  /**
    * Filter, which ConversacionWhatsApp to fetch.
    */
   where: Prisma.ConversacionWhatsAppWhereUniqueInput
@@ -990,6 +1182,10 @@ export type ConversacionWhatsAppFindUniqueOrThrowArgs<ExtArgs extends runtime.Ty
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
+  /**
    * Filter, which ConversacionWhatsApp to fetch.
    */
   where: Prisma.ConversacionWhatsAppWhereUniqueInput
@@ -1007,6 +1203,10 @@ export type ConversacionWhatsAppFindFirstArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the ConversacionWhatsApp
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
   /**
    * Filter, which ConversacionWhatsApp to fetch.
    */
@@ -1056,6 +1256,10 @@ export type ConversacionWhatsAppFindFirstOrThrowArgs<ExtArgs extends runtime.Typ
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
+  /**
    * Filter, which ConversacionWhatsApp to fetch.
    */
   where?: Prisma.ConversacionWhatsAppWhereInput
@@ -1103,6 +1307,10 @@ export type ConversacionWhatsAppFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the ConversacionWhatsApp
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
   /**
    * Filter, which ConversacionWhatsApps to fetch.
    */
@@ -1152,6 +1360,10 @@ export type ConversacionWhatsAppCreateArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
+  /**
    * The data needed to create a ConversacionWhatsApp.
    */
   data: Prisma.XOR<Prisma.ConversacionWhatsAppCreateInput, Prisma.ConversacionWhatsAppUncheckedCreateInput>
@@ -1183,6 +1395,10 @@ export type ConversacionWhatsAppCreateManyAndReturnArgs<ExtArgs extends runtime.
    * The data used to create many ConversacionWhatsApps.
    */
   data: Prisma.ConversacionWhatsAppCreateManyInput | Prisma.ConversacionWhatsAppCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1197,6 +1413,10 @@ export type ConversacionWhatsAppUpdateArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the ConversacionWhatsApp
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
   /**
    * The data needed to update a ConversacionWhatsApp.
    */
@@ -1249,6 +1469,10 @@ export type ConversacionWhatsAppUpdateManyAndReturnArgs<ExtArgs extends runtime.
    * Limit how many ConversacionWhatsApps to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1263,6 +1487,10 @@ export type ConversacionWhatsAppUpsertArgs<ExtArgs extends runtime.Types.Extensi
    * Omit specific fields from the ConversacionWhatsApp
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
   /**
    * The filter to search for the ConversacionWhatsApp to update in case it exists.
    */
@@ -1290,6 +1518,10 @@ export type ConversacionWhatsAppDeleteArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
+  /**
    * Filter which ConversacionWhatsApp to delete.
    */
   where: Prisma.ConversacionWhatsAppWhereUniqueInput
@@ -1310,6 +1542,25 @@ export type ConversacionWhatsAppDeleteManyArgs<ExtArgs extends runtime.Types.Ext
 }
 
 /**
+ * ConversacionWhatsApp.cliente
+ */
+export type ConversacionWhatsApp$clienteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Cliente
+   */
+  select?: Prisma.ClienteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Cliente
+   */
+  omit?: Prisma.ClienteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClienteInclude<ExtArgs> | null
+  where?: Prisma.ClienteWhereInput
+}
+
+/**
  * ConversacionWhatsApp without action
  */
 export type ConversacionWhatsAppDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1321,4 +1572,8 @@ export type ConversacionWhatsAppDefaultArgs<ExtArgs extends runtime.Types.Extens
    * Omit specific fields from the ConversacionWhatsApp
    */
   omit?: Prisma.ConversacionWhatsAppOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ConversacionWhatsAppInclude<ExtArgs> | null
 }

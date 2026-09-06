@@ -1,9 +1,12 @@
-import { Request, Response } from "express";
+import {
+  Request,
+  Response,
+} from "express";
 
 import {
-  actualizarTaxista,
   crearTaxista,
   listarTaxistas,
+  actualizarTaxista,
 } from "../services/taxista.service";
 
 
@@ -12,63 +15,132 @@ export async function crearTaxistaController(
   res: Response
 ) {
   try {
-    const {
-      codigo,
-      nombre,
-      placa,
-      vehiculo,
-      telefono,
-    } = req.body;
-
-    if (
-      codigo === undefined ||
-      !nombre ||
-      !placa ||
-      !vehiculo
-    ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Código, nombre, placa y vehículo son obligatorios",
-      });
-    }
-
-
     const taxista =
       await crearTaxista({
-        codigo: String(codigo),
-        nombre: String(nombre),
-        placa: String(placa),
-        vehiculo: String(vehiculo),
+        codigo:
+          String(
+            req.body.codigo || ""
+          ),
+
+        nombre:
+          String(
+            req.body.nombre || ""
+          ),
+
+        placa:
+          String(
+            req.body.placa || ""
+          ),
+
+        vehiculo:
+          String(
+            req.body.vehiculo || ""
+          ),
+
         telefono:
-          telefono
-            ? String(telefono)
+          req.body.telefono !== undefined
+            ? String(
+                req.body.telefono
+              )
+            : undefined,
+
+        colorVehiculo:
+          req.body.colorVehiculo !== undefined
+            ? String(
+                req.body.colorVehiculo
+              )
+            : undefined,
+
+        cooperativa:
+          req.body.cooperativa !== undefined
+            ? String(
+                req.body.cooperativa
+              )
+            : undefined,
+
+        titularPichincha:
+          req.body.titularPichincha !== undefined
+            ? String(
+                req.body.titularPichincha
+              )
+            : undefined,
+
+        cuentaPichincha:
+          req.body.cuentaPichincha !== undefined
+            ? String(
+                req.body.cuentaPichincha
+              )
+            : undefined,
+
+        titularGuayaquil:
+          req.body.titularGuayaquil !== undefined
+            ? String(
+                req.body.titularGuayaquil
+              )
+            : undefined,
+
+        cuentaGuayaquil:
+          req.body.cuentaGuayaquil !== undefined
+            ? String(
+                req.body.cuentaGuayaquil
+              )
             : undefined,
       });
 
 
     return res.status(201).json({
       success: true,
-      message:
-        "Taxista registrado correctamente",
       taxista,
     });
 
-  } catch (error) {
+  } catch (error: any) {
 
     console.error(
-      "Error registrando taxista:",
+      "Error creando taxista:",
       error
     );
 
-    const mensaje =
-      error instanceof Error
-        ? error.message
-        : "No se pudo registrar el taxista";
 
-    return res.status(400).json({
+    if (
+      error?.message ===
+      "CODIGO_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El código debe ser un número entre 001 y 999.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CODIGO_EXISTENTE"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Ese código ya está registrado.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "PLACA_EXISTENTE"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Esa placa ya está registrada.",
+      });
+    }
+
+
+    return res.status(500).json({
       success: false,
-      message: mensaje,
+      message:
+        "No se pudo registrar el taxista.",
     });
   }
 }
@@ -79,9 +151,9 @@ export async function listarTaxistasController(
   res: Response
 ) {
   try {
-
     const taxistas =
       await listarTaxistas();
+
 
     return res.json({
       success: true,
@@ -95,20 +167,26 @@ export async function listarTaxistasController(
       error
     );
 
+
     return res.status(500).json({
       success: false,
       message:
-        "No se pudieron cargar los taxistas",
+        "No se pudieron cargar los taxistas.",
     });
   }
 }
+
+
 export async function actualizarTaxistaController(
   req: Request,
   res: Response
 ) {
   try {
     const id =
-      Number(req.params.id);
+      Number(
+        req.params.id
+      );
+
 
     if (
       !Number.isInteger(id) ||
@@ -116,9 +194,11 @@ export async function actualizarTaxistaController(
     ) {
       return res.status(400).json({
         success: false,
-        message: "ID de taxista inválido",
+        message:
+          "ID de taxista inválido.",
       });
     }
+
 
     const taxista =
       await actualizarTaxista(
@@ -126,52 +206,125 @@ export async function actualizarTaxistaController(
         {
           nombre:
             req.body.nombre !== undefined
-              ? String(req.body.nombre)
+              ? String(
+                  req.body.nombre
+                )
               : undefined,
 
           placa:
             req.body.placa !== undefined
-              ? String(req.body.placa)
+              ? String(
+                  req.body.placa
+                )
               : undefined,
 
           vehiculo:
             req.body.vehiculo !== undefined
-              ? String(req.body.vehiculo)
+              ? String(
+                  req.body.vehiculo
+                )
               : undefined,
 
           telefono:
             req.body.telefono !== undefined
-              ? String(req.body.telefono)
+              ? String(
+                  req.body.telefono
+                )
               : undefined,
 
           activo:
             req.body.activo !== undefined
-              ? Boolean(req.body.activo)
+              ? Boolean(
+                  req.body.activo
+                )
+              : undefined,
+
+          colorVehiculo:
+            req.body.colorVehiculo !== undefined
+              ? String(
+                  req.body.colorVehiculo
+                )
+              : undefined,
+
+          cooperativa:
+            req.body.cooperativa !== undefined
+              ? String(
+                  req.body.cooperativa
+                )
+              : undefined,
+
+          titularPichincha:
+            req.body.titularPichincha !== undefined
+              ? String(
+                  req.body.titularPichincha
+                )
+              : undefined,
+
+          cuentaPichincha:
+            req.body.cuentaPichincha !== undefined
+              ? String(
+                  req.body.cuentaPichincha
+                )
+              : undefined,
+
+          titularGuayaquil:
+            req.body.titularGuayaquil !== undefined
+              ? String(
+                  req.body.titularGuayaquil
+                )
+              : undefined,
+
+          cuentaGuayaquil:
+            req.body.cuentaGuayaquil !== undefined
+              ? String(
+                  req.body.cuentaGuayaquil
+                )
               : undefined,
         }
       );
 
+
     return res.json({
       success: true,
-      message:
-        "Taxista actualizado correctamente",
       taxista,
     });
 
-  } catch (error) {
+  } catch (error: any) {
+
     console.error(
       "Error actualizando taxista:",
       error
     );
 
-    const mensaje =
-      error instanceof Error
-        ? error.message
-        : "No se pudo actualizar el taxista";
 
-    return res.status(400).json({
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "El taxista no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "PLACA_EXISTENTE"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Esa placa ya está registrada por otro taxista.",
+      });
+    }
+
+
+    return res.status(500).json({
       success: false,
-      message: mensaje,
+      message:
+        "No se pudo actualizar el taxista.",
     });
   }
 }

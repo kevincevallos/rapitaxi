@@ -1,764 +1,889 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<title>RapiTaxi Administración</title>
-
-<style>
-:root {
-  --purple:#5b2bd8;
-  --purple-dark:#4320ad;
-  --green:#14b956;
-  --red:#e5484d;
-  --yellow:#fff214;
-  --soft:#f5f3fb;
-  --text:#16132e;
-  --muted:#77738a;
-  --border:#e5e1ef;
-}
-
-* {
-  box-sizing:border-box;
-}
-
-body {
-  margin:0;
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
-  background:#f5f4f9;
-  color:var(--text);
-}
-
-header {
-  background:
-    linear-gradient(
-      135deg,
-      var(--purple),
-      var(--purple-dark)
-    );
-
-  color:white;
-  padding:22px;
-}
-
-.header-inner {
-  max-width:1200px;
-  margin:auto;
-
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  gap:20px;
-}
-
-.logo {
-  font-size:30px;
-  font-weight:950;
-}
-
-.logo span {
-  color:var(--yellow);
-}
-
-.subtitle {
-  font-size:13px;
-  opacity:.75;
-  margin-top:3px;
-}
-
-.container {
-  max-width:1200px;
-  margin:26px auto;
-  padding:0 18px;
-}
-
-.tabs {
-  display:flex;
-  gap:10px;
-  margin-bottom:20px;
-}
-
-.tab {
-  border:0;
-  background:white;
-
-  padding:12px 20px;
-
-  border-radius:12px;
-
-  font-weight:850;
-  cursor:pointer;
-}
-
-.tab.active {
-  background:var(--purple);
-  color:white;
-}
-
-.panel {
-  display:none;
-}
-
-.panel.active {
-  display:block;
-}
-
-.toolbar {
-  display:flex;
-
-  justify-content:space-between;
-  align-items:center;
-
-  gap:15px;
-
-  margin-bottom:15px;
-}
-
-.toolbar h2 {
-  margin:0;
-}
-
-.btn {
-  border:0;
-
-  border-radius:12px;
-
-  padding:12px 18px;
-
-  font-weight:850;
-
-  cursor:pointer;
-}
-
-.btn-purple {
-  background:var(--purple);
-  color:white;
-}
-
-.btn-green {
-  background:var(--green);
-  color:white;
-}
-
-.card {
-  background:white;
-
-  border-radius:20px;
-
-  box-shadow:
-    0 8px 30px rgba(41, 28, 92, .08);
-
-  overflow:hidden;
-}
-
-.table-wrap {
-  overflow-x:auto;
-}
-
-table {
-  width:100%;
-  border-collapse:collapse;
-}
-
-th,
-td {
-  padding:15px;
-
-  border-bottom:
-    1px solid var(--border);
-
-  text-align:left;
-
-  white-space:nowrap;
-}
-
-th {
-  font-size:12px;
-  color:var(--muted);
-  letter-spacing:.5px;
-}
-
-td {
-  font-size:14px;
-}
-
-.badge {
-  display:inline-block;
-
-  padding:6px 10px;
-
-  border-radius:999px;
-
-  font-size:11px;
-  font-weight:900;
-}
-
-.buscando {
-  background:#fff4d8;
-  color:#8a6400;
-}
-
-.asignada {
-  background:#e7f8ee;
-  color:#0b8940;
-}
-
-.activo {
-  background:#e7f8ee;
-  color:#0b8940;
-}
-
-.vacio {
-  padding:30px;
-  text-align:center;
-  color:var(--muted);
-}
-
-.overlay {
-  position:fixed;
-
-  inset:0;
-
-  background:
-    rgba(17, 9, 44, .55);
-
-  display:none;
-
-  align-items:center;
-  justify-content:center;
-
-  padding:20px;
-
-  z-index:1000;
-}
-
-.overlay.active {
-  display:flex;
-}
-
-.modal {
-  background:white;
-
-  width:100%;
-  max-width:480px;
-
-  border-radius:24px;
-
-  padding:25px;
-
-  max-height:95vh;
-  overflow-y:auto;
-}
-
-.modal-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-
-  margin-bottom:20px;
-}
-
-.modal-header h2 {
-  margin:0;
-}
-
-.cerrar {
-  border:0;
-  background:#eeeaf7;
-
-  width:38px;
-  height:38px;
-
-  border-radius:50%;
-
-  font-size:20px;
-  cursor:pointer;
-}
-
-.campo {
-  margin-bottom:15px;
-}
-
-label {
-  display:block;
-
-  font-size:12px;
-  font-weight:900;
-
-  color:var(--muted);
-
-  margin-bottom:6px;
-}
-
-input {
-  width:100%;
-
-  padding:13px;
-
-  border:
-    1px solid var(--border);
-
-  border-radius:12px;
-
-  font:inherit;
-
-  outline:none;
-}
-
-input:focus {
-  border-color:var(--purple);
-}
-
-.codigo-preview {
-  font-size:32px;
-  font-weight:950;
-
-  color:var(--purple);
-
-  text-align:center;
-
-  padding:12px;
-
-  background:var(--soft);
-
-  border-radius:14px;
-
-  margin-bottom:18px;
-}
-
-.error {
-  color:var(--red);
-
-  font-size:13px;
-  font-weight:700;
-
-  margin-bottom:10px;
-}
-
-.success {
-  color:var(--green);
-
-  font-size:13px;
-  font-weight:800;
-
-  margin-bottom:10px;
-}
-
-@media(max-width:600px) {
-  .header-inner {
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .toolbar {
-    align-items:flex-start;
-    flex-direction:column;
-  }
-
-  .btn {
-    width:100%;
-  }
-}
-.btn-small {
-  border:0;
-  border-radius:9px;
-  padding:8px 10px;
-  font-size:12px;
-  font-weight:850;
-  cursor:pointer;
-  margin-right:5px;
-}
-
-.btn-edit {
-  background:#eeeaf7;
-  color:var(--purple);
-}
-
-.btn-toggle {
-  background:#fff1d6;
-  color:#8a6400;
-}
-
-.inactivo {
-  background:#fdeaea;
-  color:#b63030;
-}
-</style>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>RapiTaxi - Administración</title>
+
+  <style>
+    :root {
+      --morado: #5b2ca0;
+      --morado-claro: #7441bd;
+      --fondo: #f5f5f8;
+      --blanco: #ffffff;
+      --texto: #252525;
+      --gris: #707070;
+      --border: #ddddE5;
+      --verde: #199447;
+      --rojo: #d83b3b;
+      --amarillo: #d79b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+    }
+
+    header {
+      background:
+        linear-gradient(
+          135deg,
+          var(--morado),
+          var(--morado-claro)
+        );
+      color: white;
+      padding: 22px 25px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, .15);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 27px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      opacity: .85;
+      font-size: 14px;
+    }
+
+    .contenedor {
+      width: min(1400px, 96%);
+      margin: 25px auto;
+    }
+
+    .barra-superior {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab {
+      border: none;
+      background: white;
+      padding: 11px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+    }
+
+    .tab.activo {
+      background: var(--morado);
+      color: white;
+    }
+
+    .btn-principal {
+      border: none;
+      background: var(--morado);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-principal:hover {
+      background: var(--morado-claro);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.activo {
+      display: block;
+    }
+
+    .tarjeta {
+      background: white;
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, .07);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--gris);
+      font-size: 12px;
+      text-transform: uppercase;
+      background: #fafafd;
+    }
+
+    tr:hover td {
+      background: #fbfaff;
+    }
+
+    .estado {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .estado-buscando {
+      background: #fff3d0;
+      color: #8f6800;
+    }
+
+    .estado-asignada,
+    .estado-en_camino,
+    .estado-cerca,
+    .estado-llego {
+      background: #e7f0ff;
+      color: #1d5ca8;
+    }
+
+    .estado-completada,
+    .estado-activo {
+      background: #dff5e6;
+      color: var(--verde);
+    }
+
+    .estado-cancelada,
+    .estado-inactivo {
+      background: #fde3e3;
+      color: var(--rojo);
+    }
+
+    .acciones {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      padding: 8px 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-editar {
+      background: #ece6f7;
+      color: var(--morado);
+    }
+
+    .btn-desactivar {
+      background: #fde5e5;
+      color: var(--rojo);
+    }
+
+    .btn-activar {
+      background: #dff5e6;
+      color: var(--verde);
+    }
+
+    .vacio {
+      color: #999;
+    }
+
+    .modal-fondo {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 1000;
+    }
+
+    .modal-fondo.visible {
+      display: flex;
+    }
+
+    .modal {
+      width: min(700px, 100%);
+      max-height: 94vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, .25);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: var(--morado);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .campo {
+      margin-bottom: 13px;
+    }
+
+    .campo-completo {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #555;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      outline: none;
+      background: white;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--morado);
+    }
+
+    input:disabled {
+      background: #eeeeef;
+      color: #777;
+    }
+
+    .seccion-form {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .seccion-form h3 {
+      margin: 0 0 13px;
+      color: var(--morado);
+      font-size: 15px;
+    }
+
+    .botones-modal {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 20px;
+    }
+
+    .btn-cancelar {
+      background: #eeeeef;
+      color: #555;
+    }
+
+    .mensaje {
+      margin-bottom: 15px;
+      padding: 11px 14px;
+      border-radius: 9px;
+      display: none;
+    }
+
+    .mensaje.visible {
+      display: block;
+    }
+
+    .mensaje.ok {
+      background: #e2f5e8;
+      color: #18743a;
+    }
+
+    .mensaje.error {
+      background: #fde5e5;
+      color: #aa2929;
+    }
+
+    @media (max-width: 700px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .campo-completo {
+        grid-column: auto;
+      }
+
+      header h1 {
+        font-size: 23px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
-  <div class="header-inner">
+  <header>
+    <h1>🚖 RapiTaxi</h1>
+    <p>Panel de administración</p>
+  </header>
 
-    <div>
-      <div class="logo">
-        Rapi<span>Taxi</span>
+
+  <main class="contenedor">
+
+    <div
+      id="mensajeGeneral"
+      class="mensaje"
+    ></div>
+
+
+    <div class="barra-superior">
+
+      <div class="tabs">
+
+        <button
+          id="tabCarreras"
+          class="tab activo"
+          type="button"
+        >
+          Carreras
+        </button>
+
+        <button
+          id="tabTaxistas"
+          class="tab"
+          type="button"
+        >
+          Taxistas
+        </button>
+
       </div>
 
-      <div class="subtitle">
-        Panel de administración
-      </div>
-    </div>
-
-    <div>
-      Sistema operativo
-    </div>
-
-  </div>
-</header>
-
-
-<div class="container">
-
-  <div class="tabs">
-
-    <button
-      id="tabCarreras"
-      class="tab active"
-    >
-      Carreras
-    </button>
-
-    <button
-      id="tabTaxistas"
-      class="tab"
-    >
-      Taxistas
-    </button>
-
-  </div>
-
-
-  <section
-    id="panelCarreras"
-    class="panel active"
-  >
-
-    <div class="toolbar">
-
-      <h2>
-        Carreras
-      </h2>
 
       <button
-        id="actualizarCarreras"
-        class="btn btn-purple"
+        id="btnNuevoTaxista"
+        class="btn-principal"
+        type="button"
       >
-        ACTUALIZAR
+        + Registrar taxista
       </button>
 
     </div>
 
 
-    <div class="card">
-      <div class="table-wrap">
+    <!-- ============================= -->
+    <!-- CARRERAS -->
+    <!-- ============================= -->
+
+    <section
+      id="panelCarreras"
+      class="panel activo"
+    >
+
+      <div class="tarjeta">
 
         <table>
 
           <thead>
+
             <tr>
-              <th>CARRERA</th>
-              <th>ESTADO</th>
-              <th>REFERENCIA</th>
-              <th>PAGO</th>
-              <th>TAXISTA</th>
-              <th>PLACA</th>
-              <th>FECHA</th>
+              <th>Carrera</th>
+              <th>Estado</th>
+              <th>Cliente</th>
+              <th>Referencia</th>
+              <th>Pago</th>
+              <th>Taxista</th>
+              <th>Placa</th>
+              <th>Fecha</th>
             </tr>
+
           </thead>
 
-          <tbody id="tablaCarreras">
+
+          <tbody
+            id="tablaCarreras"
+          >
           </tbody>
 
         </table>
 
       </div>
-    </div>
 
-  </section>
-
-
-  <section
-    id="panelTaxistas"
-    class="panel"
-  >
-
-    <div class="toolbar">
-
-      <h2>
-        Taxistas registrados
-      </h2>
-
-      <button
-        id="abrirRegistro"
-        class="btn btn-green"
-      >
-        + REGISTRAR TAXISTA
-      </button>
-
-    </div>
+    </section>
 
 
-    <div class="card">
-      <div class="table-wrap">
+    <!-- ============================= -->
+    <!-- TAXISTAS -->
+    <!-- ============================= -->
+
+    <section
+      id="panelTaxistas"
+      class="panel"
+    >
+
+      <div class="tarjeta">
 
         <table>
 
           <thead>
+
             <tr>
-            <th>CÓDIGO</th>
-            <th>NOMBRE</th>
-            <th>PLACA</th>
-            <th>VEHÍCULO</th>
-            <th>TELÉFONO</th>
-            <th>ESTADO</th>
-            <th>ACCIONES</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Placa</th>
+              <th>Vehículo</th>
+              <th>Color</th>
+              <th>Cooperativa</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
+
           </thead>
 
-          <tbody id="tablaTaxistas">
+
+          <tbody
+            id="tablaTaxistas"
+          >
           </tbody>
 
         </table>
 
       </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ============================= -->
+  <!-- MODAL NUEVO TAXISTA -->
+  <!-- ============================= -->
+
+  <div
+    id="modalNuevoTaxista"
+    class="modal-fondo"
+  >
+
+    <div class="modal">
+
+      <h2>Registrar taxista</h2>
+
+
+      <form
+        id="formNuevoTaxista"
+      >
+
+        <div class="grid">
+
+          <div class="campo">
+            <label>Código único</label>
+            <input
+              id="codigo"
+              maxlength="3"
+              inputmode="numeric"
+              placeholder="001"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Nombre</label>
+            <input
+              id="nombre"
+              placeholder="Juan Marcillo"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Placa</label>
+            <input
+              id="placa"
+              placeholder="MMA-8584"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Vehículo</label>
+            <input
+              id="vehiculo"
+              placeholder="Hyundai Accent"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Color</label>
+            <input
+              id="colorVehiculo"
+              placeholder="Amarillo"
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Cooperativa</label>
+            <input
+              id="cooperativa"
+              placeholder="Cooperativa X"
+            />
+          </div>
+
+
+          <div class="campo campo-completo">
+            <label>Teléfono</label>
+            <input
+              id="telefono"
+              inputmode="tel"
+              placeholder="0999999999"
+            />
+          </div>
+
+        </div>
+
+
+        <div class="seccion-form">
+
+          <h3>
+            Banco Pichincha
+          </h3>
+
+
+          <div class="grid">
+
+            <div class="campo">
+              <label>
+                Titular de la cuenta
+              </label>
+
+              <input
+                id="titularPichincha"
+                placeholder="Juan Marcillo"
+              />
+            </div>
+
+
+            <div class="campo">
+              <label>
+                Número de cuenta
+              </label>
+
+              <input
+                id="cuentaPichincha"
+                inputmode="numeric"
+                placeholder="2203031222"
+              />
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="seccion-form">
+
+          <h3>
+            Banco Guayaquil
+          </h3>
+
+
+          <div class="grid">
+
+            <div class="campo">
+              <label>
+                Titular de la cuenta
+              </label>
+
+              <input
+                id="titularGuayaquil"
+                placeholder="Juan Marcillo"
+              />
+            </div>
+
+
+            <div class="campo">
+              <label>
+                Número de cuenta
+              </label>
+
+              <input
+                id="cuentaGuayaquil"
+                inputmode="numeric"
+                placeholder="1234567890"
+              />
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="botones-modal">
+
+          <button
+            id="cancelarNuevoTaxista"
+            class="btn btn-cancelar"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            class="btn-principal"
+            type="submit"
+          >
+            Guardar taxista
+          </button>
+
+        </div>
+
+      </form>
+
     </div>
-
-  </section>
-
-</div>
-
-
-<div
-  id="overlay"
-  class="overlay"
->
-
-  <div class="modal">
-
-    <div class="modal-header">
-
-      <h2>
-        Registrar taxista
-      </h2>
-
-      <button
-        id="cerrarRegistro"
-        class="cerrar"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <form id="formTaxista">
-
-      <div class="campo">
-
-        <label>
-          CÓDIGO ÚNICO
-        </label>
-
-        <input
-          id="codigo"
-          inputmode="numeric"
-          maxlength="3"
-          required
-          placeholder="Ej. 354"
-        >
-
-      </div>
-
-
-      <div
-        id="codigoPreview"
-        class="codigo-preview"
-      >
-        ---
-      </div>
-
-
-      <div class="campo">
-
-        <label>
-          NOMBRE COMPLETO
-        </label>
-
-        <input
-          id="nombre"
-          required
-        >
-
-      </div>
-
-
-      <div class="campo">
-
-        <label>
-          PLACA
-        </label>
-
-        <input
-          id="placa"
-          required
-          placeholder="ABC-1234"
-        >
-
-      </div>
-
-
-      <div class="campo">
-
-        <label>
-          VEHÍCULO
-        </label>
-
-        <input
-          id="vehiculo"
-          required
-          placeholder="Kia Picanto"
-        >
-
-      </div>
-
-
-      <div class="campo">
-
-        <label>
-          TELÉFONO
-        </label>
-
-        <input
-          id="telefono"
-          placeholder="593..."
-        >
-
-      </div>
-
-
-      <div
-        id="mensajeFormulario"
-      ></div>
-
-
-      <button
-        id="guardarTaxista"
-        class="btn btn-green"
-        type="submit"
-      >
-        GUARDAR TAXISTA
-      </button>
-
-    </form>
 
   </div>
 
-</div>
 
-<div
-  id="overlayEditar"
-  class="overlay"
->
-  <div class="modal">
+  <!-- ============================= -->
+  <!-- MODAL EDITAR TAXISTA -->
+  <!-- ============================= -->
 
-    <div class="modal-header">
+  <div
+    id="modalEditarTaxista"
+    class="modal-fondo"
+  >
 
-      <h2>
-        Editar taxista
-      </h2>
+    <div class="modal">
 
-      <button
-        id="cerrarEdicion"
-        class="cerrar"
+      <h2>Editar taxista</h2>
+
+
+      <form
+        id="formEditarTaxista"
       >
-        ×
-      </button>
+
+        <input
+          id="editarId"
+          type="hidden"
+        />
+
+
+        <div class="grid">
+
+          <div class="campo">
+            <label>Código único</label>
+
+            <input
+              id="editarCodigo"
+              disabled
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Nombre</label>
+
+            <input
+              id="editarNombre"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Placa</label>
+
+            <input
+              id="editarPlaca"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Vehículo</label>
+
+            <input
+              id="editarVehiculo"
+              required
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Color</label>
+
+            <input
+              id="editarColorVehiculo"
+            />
+          </div>
+
+
+          <div class="campo">
+            <label>Cooperativa</label>
+
+            <input
+              id="editarCooperativa"
+            />
+          </div>
+
+
+          <div class="campo campo-completo">
+            <label>Teléfono</label>
+
+            <input
+              id="editarTelefono"
+              inputmode="tel"
+            />
+          </div>
+
+        </div>
+
+
+        <div class="seccion-form">
+
+          <h3>
+            Banco Pichincha
+          </h3>
+
+
+          <div class="grid">
+
+            <div class="campo">
+
+              <label>
+                Titular de la cuenta
+              </label>
+
+              <input
+                id="editarTitularPichincha"
+              />
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                Número de cuenta
+              </label>
+
+              <input
+                id="editarCuentaPichincha"
+                inputmode="numeric"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="seccion-form">
+
+          <h3>
+            Banco Guayaquil
+          </h3>
+
+
+          <div class="grid">
+
+            <div class="campo">
+
+              <label>
+                Titular de la cuenta
+              </label>
+
+              <input
+                id="editarTitularGuayaquil"
+              />
+
+            </div>
+
+
+            <div class="campo">
+
+              <label>
+                Número de cuenta
+              </label>
+
+              <input
+                id="editarCuentaGuayaquil"
+                inputmode="numeric"
+              />
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="botones-modal">
+
+          <button
+            id="cancelarEditarTaxista"
+            class="btn btn-cancelar"
+            type="button"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            class="btn-principal"
+            type="submit"
+          >
+            Guardar cambios
+          </button>
+
+        </div>
+
+      </form>
 
     </div>
 
-    <form id="formEditarTaxista">
-
-      <input
-        id="editarId"
-        type="hidden"
-      >
-
-      <div class="campo">
-        <label>CÓDIGO</label>
-
-        <input
-          id="editarCodigo"
-          disabled
-        >
-      </div>
-
-      <div class="campo">
-        <label>NOMBRE COMPLETO</label>
-
-        <input
-          id="editarNombre"
-          required
-        >
-      </div>
-
-      <div class="campo">
-        <label>PLACA</label>
-
-        <input
-          id="editarPlaca"
-          required
-        >
-      </div>
-
-      <div class="campo">
-        <label>VEHÍCULO</label>
-
-        <input
-          id="editarVehiculo"
-          required
-        >
-      </div>
-
-      <div class="campo">
-        <label>TELÉFONO</label>
-
-        <input
-          id="editarTelefono"
-        >
-      </div>
-
-      <div
-        id="mensajeEdicion"
-      ></div>
-
-      <button
-        id="guardarEdicion"
-        class="btn btn-green"
-        type="submit"
-      >
-        GUARDAR CAMBIOS
-      </button>
-
-    </form>
-
   </div>
-</div>
-<script src="/admin.js"></script>
+
+
+  <script src="/admin.js"></script>
 
 </body>
 </html>
