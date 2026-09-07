@@ -1137,9 +1137,11 @@ export async function procesarMensajeWhatsApp(
         conversacion.estado ===
         "ESPERANDO_UBICACION"
     ) {
+
         if (
             !tieneUbicacion(input)
         ) {
+
             await solicitarUbicacionWhatsApp(
                 telefono,
 
@@ -1149,6 +1151,61 @@ export async function procesarMensajeWhatsApp(
 
             return;
         }
+
+
+        /*
+          Validamos que la ubicación esté
+          dentro de la cobertura de Chone.
+        */
+
+        if (
+            !ubicacionPermitidaEnChone(
+                input
+            )
+        ) {
+
+            await prisma
+                .conversacionWhatsApp
+                .update({
+
+                    where: {
+                        telefono,
+                    },
+
+                    data: {
+                        estado:
+                            "ESPERANDO_UBICACION",
+
+                        latitud:
+                            null,
+
+                        longitud:
+                            null,
+
+                        referencia:
+                            null,
+                    },
+                });
+
+
+            await avisarFueraDeCobertura(
+                telefono
+            );
+
+
+            return;
+        }
+
+
+        /*
+          Convertimos las coordenadas GPS
+          en una referencia legible.
+        */
+
+        const referenciaUbicacion =
+            await obtenerReferenciaProcesada(
+                input
+            );
 
 
         conversacion =
@@ -1168,9 +1225,7 @@ export async function procesarMensajeWhatsApp(
                             input.longitud,
 
                         referencia:
-                            obtenerReferenciaUbicacion(
-                                input
-                            ),
+                            referenciaUbicacion,
 
                         estado:
                             "ESPERANDO_PAGO",
