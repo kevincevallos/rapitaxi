@@ -246,7 +246,7 @@ app.listen(
   () => {
 
     console.log(
-      `🚖 RapiTaxi ejecutándose en puerto ${PORT}`
+      `🚖 Rapitaxi ejecutándose en puerto ${PORT}`
     );
 
     console.log(

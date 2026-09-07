@@ -9,4 +9,5 @@ prisma/dev.db-journal
 
 *.log
 
-.vscode/
+.vscode/dev.db
+dev.db-journal

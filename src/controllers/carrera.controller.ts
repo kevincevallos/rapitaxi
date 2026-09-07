@@ -5,6 +5,7 @@ import {
 
 import {
   crearCarrera,
+  cancelarCarreraAdmin,
   obtenerCarreraPublica,
   aceptarCarrera,
   listarCarrerasAdmin,
@@ -290,5 +291,82 @@ export async function listarCarrerasAdminController(
       message:
         "No se pudieron cargar las carreras.",
     });
+  }
+}
+
+export async function cancelarCarreraAdminController(
+  req: any,
+  res: any
+) {
+
+  const carreraId =
+    Number(req.params.id);
+
+
+  if (
+    !Number.isInteger(carreraId) ||
+    carreraId <= 0
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "ID de carrera inválido."
+    });
+  }
+
+
+  try {
+
+    const resultado =
+      await cancelarCarreraAdmin(
+        carreraId
+      );
+
+
+    return res.json({
+      success: true,
+      message:
+        "Carrera cancelada correctamente.",
+      carrera: resultado
+    });
+
+
+  } catch (error: any) {
+
+    if (
+      error.message ===
+      "CARRERA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "La carrera no existe."
+      });
+    }
+
+
+    if (
+      error.message ===
+      "CARRERA_YA_CERRADA"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya está completada o cancelada."
+      });
+    }
+
+
+    console.error(
+      "Error cancelando carrera desde admin:",
+      error
+    );
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo cancelar la carrera."
+    });
+
   }
 }

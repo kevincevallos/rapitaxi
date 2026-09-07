@@ -5,6 +5,7 @@ import {
   crearCarreraController,
   listarCarrerasAdminController,
   obtenerCarreraController,
+  cancelarCarreraAdminController,
 } from "../controllers/carrera.controller";
 
 const router = Router();
@@ -14,6 +15,11 @@ router.post("/", crearCarreraController);
 router.get(
   "/admin/listado",
   listarCarrerasAdminController
+);
+
+router.post(
+  "/admin/:id/cancelar",
+  cancelarCarreraAdminController
 );
 
 router.get("/:token", obtenerCarreraController);
