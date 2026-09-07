@@ -32,6 +32,11 @@ const btnNuevoTaxista =
     "btnNuevoTaxista"
   );
 
+const btnActualizarCarreras =
+  document.getElementById(
+    "btnActualizarCarreras"
+  );
+
 const mensajeGeneral =
   document.getElementById(
     "mensajeGeneral"
@@ -114,6 +119,34 @@ tabTaxistas.addEventListener(
   mostrarTaxistas
 );
 
+btnActualizarCarreras.addEventListener(
+  "click",
+  async () => {
+
+    btnActualizarCarreras.disabled =
+      true;
+
+    btnActualizarCarreras.textContent =
+      "Actualizando...";
+
+    try {
+
+      await cargarCarreras();
+
+      mostrarMensaje(
+        "Tabla de carreras actualizada."
+      );
+
+    } finally {
+
+      btnActualizarCarreras.disabled =
+        false;
+
+      btnActualizarCarreras.textContent =
+        "🔄 Actualizar tabla";
+    }
+  }
+);
 
 /*
   ========================================
@@ -263,73 +296,70 @@ async function cargarCarreras() {
         <td>
           <strong>
             #${escaparHtml(
-              carrera.numero
-            )}
+        carrera.numero
+      )}
           </strong>
         </td>
 
         <td>
           <span
             class="estado ${claseEstadoCarrera(
-              carrera.estado
-            )}"
+        carrera.estado
+      )}"
           >
             ${escaparHtml(
-              carrera.estado
-            )}
+        carrera.estado
+      )}
           </span>
         </td>
 
         <td>
-          ${
-            escaparHtml(
-              cliente?.nombre ||
-              carrera.nombreCliente ||
-              "-"
-            )
-          }
+          ${escaparHtml(
+        cliente?.nombre ||
+        carrera.nombreCliente ||
+        "-"
+      )
+        }
         </td>
 
         <td>
           ${escaparHtml(
-            carrera.referencia ||
-            "-"
-          )}
+          carrera.referencia ||
+          "-"
+        )}
         </td>
 
         <td>
           ${escaparHtml(
-            carrera.formaPago ||
-            "-"
-          )}
+          carrera.formaPago ||
+          "-"
+        )}
         </td>
 
         <td>
-          ${
-            taxista
-              ? `${escaparHtml(
-                  taxista.codigo
-                )} - ${escaparHtml(
-                  taxista.nombre
-                )}`
-              : "-"
-          }
+          ${taxista
+          ? `${escaparHtml(
+            taxista.codigo
+          )} - ${escaparHtml(
+            taxista.nombre
+          )}`
+          : "-"
+        }
         </td>
 
         <td>
-          ${
-            taxista
-              ? escaparHtml(
-                  taxista.placa
-                )
-              : "-"
-          }
+          ${taxista
+          ? escaparHtml(
+            taxista.placa
+          )
+          : "-"
+        }
         </td>
 
         <td>
           ${formatearFecha(
-            carrera.fechaCreacion
-          )}
+          carrera.fechaCreacion
+        )}
         </td>
 
         <td>
@@ -337,8 +367,8 @@ async function cargarCarreras() {
             type="button"
             class="btn btn-editar copiar-carrera"
             data-token="${escaparHtml(
-              carrera.token
-            )}"
+          carrera.token
+        )}"
           >
             Copiar enlace
           </button>
@@ -510,63 +540,61 @@ function pintarTaxistas() {
       <td>
         <strong>
           ${escaparHtml(
-            taxista.codigo
-          )}
+      taxista.codigo
+    )}
         </strong>
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.nombre
-        )}
+      taxista.nombre
+    )}
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.placa
-        )}
+      taxista.placa
+    )}
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.vehiculo
-        )}
+      taxista.vehiculo
+    )}
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.colorVehiculo ||
-          "-"
-        )}
+      taxista.colorVehiculo ||
+      "-"
+    )}
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.cooperativa ||
-          "-"
-        )}
+      taxista.cooperativa ||
+      "-"
+    )}
       </td>
 
       <td>
         ${escaparHtml(
-          taxista.telefono ||
-          "-"
-        )}
+      taxista.telefono ||
+      "-"
+    )}
       </td>
 
       <td>
         <span
-          class="estado ${
-            taxista.activo
-              ? "estado-activo"
-              : "estado-inactivo"
-          }"
+          class="estado ${taxista.activo
+        ? "estado-activo"
+        : "estado-inactivo"
+      }"
         >
-          ${
-            taxista.activo
-              ? "ACTIVO"
-              : "INACTIVO"
-          }
+          ${taxista.activo
+        ? "ACTIVO"
+        : "INACTIVO"
+      }
         </span>
       </td>
 
@@ -576,29 +604,25 @@ function pintarTaxistas() {
           <button
             type="button"
             class="btn btn-editar editar-taxista"
-            data-id="${
-              taxista.id
-            }"
+            data-id="${taxista.id
+      }"
           >
             Editar
           </button>
 
           <button
             type="button"
-            class="btn ${
-              taxista.activo
-                ? "btn-desactivar"
-                : "btn-activar"
-            } cambiar-estado-taxista"
-            data-id="${
-              taxista.id
-            }"
+            class="btn ${taxista.activo
+        ? "btn-desactivar"
+        : "btn-activar"
+      } cambiar-estado-taxista"
+            data-id="${taxista.id
+      }"
           >
-            ${
-              taxista.activo
-                ? "Desactivar"
-                : "Activar"
-            }
+            ${taxista.activo
+        ? "Desactivar"
+        : "Activar"
+      }
           </button>
 
         </div>

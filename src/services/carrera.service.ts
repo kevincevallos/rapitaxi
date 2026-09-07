@@ -347,27 +347,88 @@ export async function aceptarCarrera(
       .join(" ");
 
 
-  let mensajeCliente =
+let mensajeCliente =
 
-    `🚖 ¡Taxi encontrado!\n\n` +
+  `🚖 ¡Taxi encontrado!\n\n` +
 
-    `👤 Taxista: ${taxista.nombre}\n` +
+  `👤 Taxista: ${taxista.nombre}\n` +
 
-    `🚕 Vehículo: ${descripcionVehiculo}\n` +
+  `🚕 Vehículo: ${descripcionVehiculo}\n` +
 
-    `🔢 Placa: ${taxista.placa}\n` +
+  `🔢 Placa: ${taxista.placa}\n` +
 
-    `🆔 Código: ${taxista.codigo}`;
+  `🆔 Código: ${taxista.codigo}`;
+
+
+if (
+  taxista.cooperativa
+) {
+  mensajeCliente +=
+
+    `\n🏢 Cooperativa: ${taxista.cooperativa}`;
+}
+
+
+/*
+  ========================================
+  DATOS DE TRANSFERENCIA
+  ========================================
+*/
+
+if (
+  carrera.formaPago ===
+  "Transferencia Banco Pichincha"
+) {
+  mensajeCliente +=
+
+    `\n\n💳 Banco Pichincha`;
 
 
   if (
-    taxista.cooperativa
+    taxista.titularPichincha
   ) {
     mensajeCliente +=
 
-      `\n🏢 Cooperativa: ${taxista.cooperativa}`;
+      `\n👤 Titular: ${taxista.titularPichincha}`;
   }
 
+
+  if (
+    taxista.cuentaPichincha
+  ) {
+    mensajeCliente +=
+
+      `\n🏦 Cuenta: ${taxista.cuentaPichincha}`;
+  }
+}
+
+
+if (
+  carrera.formaPago ===
+  "Transferencia Banco Guayaquil"
+) {
+  mensajeCliente +=
+
+    `\n\n💳 Banco Guayaquil`;
+
+
+  if (
+    taxista.titularGuayaquil
+  ) {
+    mensajeCliente +=
+
+      `\n👤 Titular: ${taxista.titularGuayaquil}`;
+  }
+
+
+  if (
+    taxista.cuentaGuayaquil
+  ) {
+    mensajeCliente +=
+
+      `\n🏦 Cuenta: ${taxista.cuentaGuayaquil}`;
+  }
+}
 
   /*
     Intentamos enviar WhatsApp.
@@ -539,7 +600,7 @@ export async function finalizarCarrerasVencidas() {
   const limite =
     new Date(
       ahora.getTime() -
-      1 * 60 * 1000
+      30 * 60 * 1000
     );
 
 

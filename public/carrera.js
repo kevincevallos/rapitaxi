@@ -408,11 +408,19 @@ aceptarBtn.addEventListener(
         carrera.formaPago;
 
 
-      document.getElementById(
-        "whatsappBtn"
-      ).href =
-        carrera.enlaceWhatsapp;
+      const whatsappBtn =
+        document.getElementById(
+          "whatsappBtn"
+        );
 
+      whatsappBtn.href =
+        carrera.enlaceWhatsAppCliente;
+
+      whatsappBtn.target =
+        "_blank";
+
+      whatsappBtn.rel =
+        "noopener noreferrer";
 
       ocultarTodo();
 
@@ -421,7 +429,7 @@ aceptarBtn.addEventListener(
       );
 
 
-  } catch (error) {
+    } catch (error) {
 
       console.error(error);
 
