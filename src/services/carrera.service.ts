@@ -1,23 +1,36 @@
 import crypto from "crypto";
 
-import {
-  prisma,
-} from "../config/prisma";
+import { prisma } from "../config/prisma";
 
 import {
+  enviarBotonesWhatsApp,
   enviarTextoWhatsApp,
 } from "./whatsapp.service";
 
 
+/*
+  ========================================
+  TIPOS
+  ========================================
+*/
+
 interface CrearCarreraInput {
   nombreCliente: string;
   whatsappCliente: string;
+
   latitud: number;
   longitud: number;
+
   referencia: string;
   formaPago: string;
 }
 
+
+/*
+  ========================================
+  UTILIDADES
+  ========================================
+*/
 
 function normalizarCodigoTaxista(
   codigo: string
@@ -57,49 +70,60 @@ function normalizarCodigoTaxista(
 }
 
 
-function construirWhatsappTaxista(
-  telefonoCliente: string,
-  numeroCarrera: number,
-  codigoTaxista: string
+function normalizarTelefono(
+  telefono: string
 ) {
-  const telefono =
-    telefonoCliente.replace(
-      /\D/g,
-      ""
+  const limpio =
+    String(telefono || "")
+      .replace(/\D/g, "");
+
+
+  /*
+    Si ya viene como:
+    59399...
+  */
+  if (
+    limpio.startsWith("593")
+  ) {
+    return limpio;
+  }
+
+
+  /*
+    Si viene como:
+    099...
+  */
+  if (
+    limpio.startsWith("0")
+  ) {
+    return (
+      "593" +
+      limpio.substring(1)
     );
+  }
 
 
-  const mensaje =
-    encodeURIComponent(
-      `Hola, soy el taxi asignado a tu carrera #${numeroCarrera}. Mi código RapiTaxi es ${codigoTaxista}.`
-    );
-
-
-  return (
-    `https://wa.me/${telefono}` +
-    `?text=${mensaje}`
-  );
+  return limpio;
 }
 
+
+/*
+  ========================================
+  CREAR CARRERA
+  ========================================
+*/
 
 export async function crearCarrera(
   data: CrearCarreraInput
 ) {
-  /*
-    Buscamos el número de carrera
-    más alto y generamos el siguiente.
-  */
-
   const ultimaCarrera =
     await prisma.carrera.findFirst({
       orderBy: {
-        numero:
-          "desc",
+        numero: "desc",
       },
 
       select: {
-        numero:
-          true,
+        numero: true,
       },
     });
 
@@ -116,84 +140,77 @@ export async function crearCarrera(
       .toString("hex");
 
 
-  const carrera =
-    await prisma.carrera.create({
-      data: {
-        numero,
-        token,
+  return prisma.carrera.create({
+    data: {
+      numero,
+      token,
 
-        nombreCliente:
-          data.nombreCliente.trim(),
+      nombreCliente:
+        data.nombreCliente.trim(),
 
-        whatsappCliente:
-          data.whatsappCliente.replace(
-            /\D/g,
-            ""
-          ),
+      whatsappCliente:
+        normalizarTelefono(
+          data.whatsappCliente
+        ),
 
-        latitud:
-          data.latitud,
+      latitud:
+        data.latitud,
 
-        longitud:
-          data.longitud,
+      longitud:
+        data.longitud,
 
-        referencia:
-          data.referencia.trim(),
+      referencia:
+        data.referencia.trim(),
 
-        formaPago:
-          data.formaPago,
+      formaPago:
+        data.formaPago,
 
-        estado:
-          "BUSCANDO",
-      },
-    });
-
-
-  return carrera;
+      estado:
+        "BUSCANDO",
+    },
+  });
 }
 
+
+/*
+  ========================================
+  INFORMACIÓN PÚBLICA
+  ========================================
+
+  Esta es la información que ve el
+  taxista antes de aceptar.
+  No exponemos el teléfono del cliente.
+*/
 
 export async function obtenerCarreraPublica(
   token: string
 ) {
-  const carrera =
-    await prisma.carrera.findUnique({
-      where: {
-        token,
-      },
+  return prisma.carrera.findUnique({
+    where: {
+      token,
+    },
 
-      select: {
-        numero:
-          true,
-
-        referencia:
-          true,
-
-        formaPago:
-          true,
-
-        estado:
-          true,
-
-        fechaCreacion:
-          true,
-      },
-    });
-
-
-  return carrera;
+    select: {
+      numero: true,
+      referencia: true,
+      formaPago: true,
+      estado: true,
+      fechaCreacion: true,
+    },
+  });
 }
 
+
+/*
+  ========================================
+  ACEPTAR CARRERA
+  ========================================
+*/
 
 export async function aceptarCarrera(
   token: string,
   codigoTaxista: string
 ) {
-  /*
-    Validamos y normalizamos
-    el código del conductor.
-  */
-
   const codigo =
     normalizarCodigoTaxista(
       codigoTaxista
@@ -201,8 +218,7 @@ export async function aceptarCarrera(
 
 
   /*
-    Comprobamos que el taxista
-    exista.
+    Buscar taxista por su código único.
   */
 
   const taxista =
@@ -228,57 +244,52 @@ export async function aceptarCarrera(
 
 
   /*
-    Aceptación atómica.
+    ACEPTACIÓN ATÓMICA.
 
-    Solamente cambia a ASIGNADA
-    si sigue en BUSCANDO.
+    Solamente puede modificar la carrera
+    si todavía está BUSCANDO.
 
-    Así, aunque dos taxistas
-    pulsen aceptar al mismo tiempo,
-    solamente uno puede ganar.
+    Esto evita que dos taxistas acepten
+    la misma carrera.
   */
 
   const resultado =
     await prisma.carrera.updateMany({
       where: {
         token,
-        estado:
-          "BUSCANDO",
+        estado: "BUSCANDO",
       },
 
       data: {
-        estado:
-          "ASIGNADA",
-
-        fechaAceptacion:
-          new Date(),
+        estado: "ASIGNADA",
 
         taxistaId:
           taxista.id,
+
+        fechaAceptacion:
+          new Date(),
       },
     });
 
 
+  /*
+    Si count = 0:
+    - la carrera no existe, o
+    - otro taxista ya la aceptó.
+  */
+
   if (
     resultado.count === 0
   ) {
-    const existente =
+    const carreraExistente =
       await prisma.carrera.findUnique({
         where: {
           token,
         },
-
-        select: {
-          id:
-            true,
-
-          estado:
-            true,
-        },
       });
 
 
-    if (!existente) {
+    if (!carreraExistente) {
       throw new Error(
         "CARRERA_NO_EXISTE"
       );
@@ -292,14 +303,17 @@ export async function aceptarCarrera(
 
 
   /*
-    Obtenemos la carrera ya
-    asignada.
+    Recuperamos la carrera ya asignada.
   */
 
   const carrera =
     await prisma.carrera.findUnique({
       where: {
         token,
+      },
+
+      include: {
+        taxista: true,
       },
     });
 
@@ -312,24 +326,17 @@ export async function aceptarCarrera(
 
 
   /*
-    Link que verá el taxista ganador
-    para contactar directamente
-    al cliente.
+    ========================================
+    NOTIFICAR AL CLIENTE
+    ========================================
+
+    Aquí NO enviamos todavía datos
+    bancarios.
+
+    El taxista ya aceptó y el cliente
+    recibe los datos del vehículo.
   */
 
-  const enlaceWhatsapp =
-    construirWhatsappTaxista(
-      carrera.whatsappCliente,
-      carrera.numero,
-      taxista.codigo
-    );
-
-
-  /*
-    ======================================
-    NOTIFICACIÓN AUTOMÁTICA AL CLIENTE
-    ======================================
-  */
 
   const descripcionVehiculo =
     [
@@ -340,90 +347,33 @@ export async function aceptarCarrera(
       .join(" ");
 
 
-  let datosPago = "";
+  let mensajeCliente =
 
+    `🚖 ¡Taxi encontrado!\n\n` +
 
-  /*
-    Si el cliente escogió
-    Banco Pichincha, mostramos
-    únicamente los datos Pichincha
-    de ese taxista.
-  */
+    `👤 Taxista: ${taxista.nombre}\n` +
+
+    `🚕 Vehículo: ${descripcionVehiculo}\n` +
+
+    `🔢 Placa: ${taxista.placa}\n` +
+
+    `🆔 Código: ${taxista.codigo}`;
+
 
   if (
-    carrera.formaPago ===
-    "Transferencia Banco Pichincha"
+    taxista.cooperativa
   ) {
-    if (
-      taxista.titularPichincha &&
-      taxista.cuentaPichincha
-    ) {
-      datosPago =
-        `\n\n💳 Transferencia - Banco Pichincha` +
-        `\nTitular: ${taxista.titularPichincha}` +
-        `\nCuenta: ${taxista.cuentaPichincha}`;
-    }
+    mensajeCliente +=
+
+      `\n🏢 Cooperativa: ${taxista.cooperativa}`;
   }
 
 
   /*
-    Si el cliente escogió
-    Banco Guayaquil, mostramos
-    únicamente los datos Guayaquil.
-  */
+    Intentamos enviar WhatsApp.
 
-  if (
-    carrera.formaPago ===
-    "Transferencia Banco Guayaquil"
-  ) {
-    if (
-      taxista.titularGuayaquil &&
-      taxista.cuentaGuayaquil
-    ) {
-      datosPago =
-        `\n\n💳 Transferencia - Banco Guayaquil` +
-        `\nTitular: ${taxista.titularGuayaquil}` +
-        `\nCuenta: ${taxista.cuentaGuayaquil}`;
-    }
-  }
-
-
-  const mensajeCliente =
-    `✅ ¡Listo! ${taxista.nombre} va en camino a recogerte.` +
-
-    `\n\n🚖 Vehículo: ${
-      descripcionVehiculo ||
-      taxista.vehiculo
-    }` +
-
-    `\n🏢 Cooperativa: ${
-      taxista.cooperativa ||
-      "RapiTaxi"
-    }` +
-
-    `\n🔢 Código de unidad: ${
-      taxista.codigo
-    }` +
-
-    `\n📞 Teléfono: ${
-      taxista.telefono ||
-      "No disponible"
-    }` +
-
-    `\n💳 Pago: ${
-      carrera.formaPago
-    }` +
-
-    datosPago;
-
-
-  /*
-    La aceptación de la carrera
-    NO debe fallar aunque Kapso
-    tenga temporalmente un error.
-
-    Por eso WhatsApp va dentro
-    de try/catch.
+    Si WhatsApp tiene un problema,
+    NO deshacemos la aceptación.
   */
 
   try {
@@ -432,60 +382,51 @@ export async function aceptarCarrera(
       mensajeCliente
     );
 
+  } catch (error) {
 
-    /*
-      Mensaje adicional con enlace
-      directo al WhatsApp del
-      taxista.
-    */
-
-    if (taxista.telefono) {
-      let telefonoTaxista =
-        taxista.telefono.replace(
-          /\D/g,
-          ""
-        );
+    console.error(
+      "Error notificando al cliente después de aceptar carrera:",
+      error
+    );
+  }
 
 
-      /*
-        Si el compañero guarda
-        números ecuatorianos como
-        0999999999, los convertimos
-        a 593999999999.
-      */
+  /*
+    ========================================
+    ENLACE PARA ESCRIBIR AL CLIENTE
+    ========================================
+  */
 
-      if (
-        telefonoTaxista.startsWith(
-          "0"
-        )
-      ) {
-        telefonoTaxista =
-          "593" +
-          telefonoTaxista.substring(
-            1
-          );
-      }
+  const telefonoCliente =
+    normalizarTelefono(
+      carrera.whatsappCliente
+    );
 
 
-      await enviarTextoWhatsApp(
-        carrera.whatsappCliente,
-
-        `💬 Escribe directamente a tu taxista:\nhttps://wa.me/${telefonoTaxista}`
-      );
-    }
+  const mensajeParaCliente =
+    encodeURIComponent(
+      `Hola ${carrera.nombreCliente}, soy ${taxista.nombre}, tu taxista de RapiTaxi.`
+    );
 
 
-    /*
-      La conversación pasa a
-      carrera activa.
-    */
+  const enlaceWhatsAppCliente =
+    `https://wa.me/${telefonoCliente}?text=${mensajeParaCliente}`;
 
+
+  /*
+    ========================================
+    ACTUALIZAR CONVERSACIÓN DEL CLIENTE
+    ========================================
+  */
+
+  try {
     await prisma
       .conversacionWhatsApp
       .updateMany({
+
         where: {
           telefono:
-            carrera.whatsappCliente,
+            telefonoCliente,
         },
 
         data: {
@@ -500,21 +441,31 @@ export async function aceptarCarrera(
   } catch (error) {
 
     console.error(
-      "Carrera asignada correctamente, pero no se pudo notificar al cliente por WhatsApp:",
+      "Error actualizando conversación del cliente:",
       error
     );
   }
 
 
   /*
-    Respuesta para la pantalla
-    del taxista ganador.
+    ========================================
+    RESPUESTA PARA LA PÁGINA DEL TAXISTA
+    ========================================
   */
 
   return {
     carrera: {
+      id:
+        carrera.id,
+
       numero:
         carrera.numero,
+
+      estado:
+        carrera.estado,
+
+      nombreCliente:
+        carrera.nombreCliente,
 
       referencia:
         carrera.referencia,
@@ -522,10 +473,16 @@ export async function aceptarCarrera(
       formaPago:
         carrera.formaPago,
 
-      enlaceWhatsapp,
+      whatsappCliente:
+        carrera.whatsappCliente,
+
+      enlaceWhatsAppCliente,
     },
 
     taxista: {
+      id:
+        taxista.id,
+
       codigo:
         taxista.codigo,
 
@@ -551,6 +508,285 @@ export async function aceptarCarrera(
 }
 
 
+/*
+  ========================================
+  FINALIZACIÓN AUTOMÁTICA
+  ========================================
+
+  Esta función será llamada por server.ts.
+
+  Busca carreras que fueron aceptadas
+  hace 30 minutos o más.
+
+  Luego:
+
+  1. Marca la carrera COMPLETADA.
+  2. Guarda fechaFin.
+  3. Libera inmediatamente al cliente.
+  4. Envía la calificación como algo
+     OPCIONAL.
+
+  Aunque el cliente nunca califique,
+  podrá solicitar otro taxi.
+  ========================================
+*/
+
+export async function finalizarCarrerasVencidas() {
+  const ahora =
+    new Date();
+
+
+  const limite =
+    new Date(
+      ahora.getTime() -
+      1 * 60 * 1000
+    );
+
+
+  /*
+    Buscamos cualquier carrera activa
+    que ya haya cumplido los 30 minutos.
+  */
+
+  const carreras =
+    await prisma.carrera.findMany({
+      where: {
+        fechaAceptacion: {
+          lte: limite,
+        },
+
+        fechaFin: null,
+
+        estado: {
+          in: [
+            "ASIGNADA",
+            "EN_CAMINO",
+            "CERCA",
+            "LLEGO",
+          ],
+        },
+      },
+
+      include: {
+        taxista: true,
+      },
+    });
+
+
+  if (
+    carreras.length === 0
+  ) {
+    return 0;
+  }
+
+
+  let finalizadas = 0;
+
+
+  for (
+    const carrera
+    of carreras
+  ) {
+    try {
+
+      /*
+        Volvemos a comprobar el estado
+        mediante updateMany.
+
+        Esto evita que dos ejecuciones
+        del temporizador finalicen la
+        misma carrera dos veces.
+      */
+
+      const resultado =
+        await prisma.carrera.updateMany({
+          where: {
+            id:
+              carrera.id,
+
+            fechaFin:
+              null,
+
+            estado: {
+              in: [
+                "ASIGNADA",
+                "EN_CAMINO",
+                "CERCA",
+                "LLEGO",
+              ],
+            },
+          },
+
+          data: {
+            estado:
+              "COMPLETADA",
+
+            fechaFin:
+              new Date(),
+          },
+        });
+
+
+      if (
+        resultado.count === 0
+      ) {
+        continue;
+      }
+
+
+      finalizadas++;
+
+
+      /*
+        ==================================
+        LIBERAR CLIENTE PRIMERO
+        ==================================
+
+        Esto es lo más importante.
+
+        No esperamos a que califique.
+      */
+
+      const telefonoCliente =
+        normalizarTelefono(
+          carrera.whatsappCliente
+        );
+
+
+      try {
+        await prisma
+          .conversacionWhatsApp
+          .updateMany({
+
+            where: {
+              telefono:
+                telefonoCliente,
+            },
+
+            data: {
+              estado:
+                "NUEVO",
+
+              carreraId:
+                null,
+
+              latitud:
+                null,
+
+              longitud:
+                null,
+
+              referencia:
+                null,
+            },
+          });
+
+      } catch (error) {
+
+        console.error(
+          `Error liberando conversación de carrera #${carrera.numero}:`,
+          error
+        );
+      }
+
+
+      /*
+        ==================================
+        ENVIAR CALIFICACIÓN OPCIONAL
+        ==================================
+
+        El ID de la carrera va dentro
+        del ID del botón.
+
+        Así podremos saber después qué
+        carrera está calificando aunque
+        la conversación ya esté NUEVO.
+      */
+
+      try {
+
+        await enviarTextoWhatsApp(
+          telefonoCliente,
+
+          `✅ Tu carrera #${carrera.numero} ha finalizado.\n\n¡Gracias por viajar con RapiTaxi! 🚖`
+        );
+
+
+        await enviarBotonesWhatsApp(
+          telefonoCliente,
+
+          "¿Qué tal estuvo tu taxista?",
+
+          [
+            {
+              id:
+                `rating_excelente_${carrera.id}`,
+
+              titulo:
+                "Excelente",
+            },
+
+            {
+              id:
+                `rating_bueno_${carrera.id}`,
+
+              titulo:
+                "Bueno",
+            },
+
+            {
+              id:
+                `rating_malo_${carrera.id}`,
+
+              titulo:
+                "Malo",
+            },
+          ]
+        );
+
+      } catch (error) {
+
+        /*
+          IMPORTANTE:
+
+          Si Kapso / WhatsApp falla,
+          la carrera YA está completada
+          y el cliente YA está liberado.
+
+          El servicio no queda bloqueado.
+        */
+
+        console.error(
+          `Error enviando calificación de carrera #${carrera.numero}:`,
+          error
+        );
+      }
+
+
+      console.log(
+        `Carrera #${carrera.numero} finalizada automáticamente después de 30 minutos.`
+      );
+
+    } catch (error) {
+
+      console.error(
+        `Error finalizando automáticamente carrera #${carrera.numero}:`,
+        error
+      );
+    }
+  }
+
+
+  return finalizadas;
+}
+
+
+/*
+  ========================================
+  LISTADO PARA ADMIN
+  ========================================
+*/
+
 export async function listarCarrerasAdmin() {
   return prisma.carrera.findMany({
     orderBy: {
@@ -559,8 +795,18 @@ export async function listarCarrerasAdmin() {
     },
 
     include: {
-      cliente:
-        true,
+      cliente: {
+        select: {
+          id:
+            true,
+
+          nombre:
+            true,
+
+          whatsapp:
+            true,
+        },
+      },
 
       taxista: {
         select: {
@@ -586,9 +832,6 @@ export async function listarCarrerasAdmin() {
             true,
 
           telefono:
-            true,
-
-          activo:
             true,
         },
       },
