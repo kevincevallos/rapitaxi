@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>RapiTaxi - Carrera</title>
+  <title>Rapitaxi - Carrera</title>
 
   <style>
     :root {
@@ -41,11 +39,9 @@
       min-height: 100vh;
 
       background:
-        linear-gradient(
-          160deg,
+        linear-gradient(160deg,
           var(--purple) 0%,
-          var(--purple-dark) 100%
-        );
+          var(--purple-dark) 100%);
 
       color: var(--text);
 
@@ -155,7 +151,7 @@
       margin-bottom: 22px;
     }
 
-    .info-item + .info-item {
+    .info-item+.info-item {
       margin-top: 20px;
     }
 
@@ -228,6 +224,40 @@
       color: white;
     }
 
+    .ubicacion-btn {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 14px;
+
+      border: 2px solid #2563eb;
+      border-radius: 16px;
+
+      background: white;
+      color: #2563eb;
+
+      font-size: 16px;
+      font-weight: 900;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-decoration: none;
+
+      transition:
+        transform 0.15s ease,
+        opacity 0.15s ease;
+    }
+
+    .ubicacion-btn:active {
+      transform: scale(0.98);
+    }
+
+    .ubicacion-icono {
+      margin-left: 10px;
+      font-size: 20px;
+    }
+
     .icon-circle {
       width: 76px;
       height: 76px;
@@ -298,7 +328,7 @@
     }
 
     .footer {
-      color: rgba(255,255,255,.72);
+      color: rgba(255, 255, 255, .72);
 
       font-size: 12px;
 
@@ -306,71 +336,72 @@
 
       margin-top: 18px;
     }
+
     .codigo-box {
-  background: var(--soft);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 18px;
-  text-align: left;
-}
+      background: var(--soft);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
 
-.codigo-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 18px;
-}
+    .codigo-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
 
-.codigo-icon {
-  font-size: 24px;
-  line-height: 1;
-}
+    .codigo-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
 
-.codigo-help {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
-  margin-top: 4px;
-}
+    .codigo-help {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+      margin-top: 4px;
+    }
 
-.codigo-inputs {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
+    .codigo-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
 
-.codigo-input {
-  width: 78px;
-  height: 82px;
+    .codigo-input {
+      width: 78px;
+      height: 82px;
 
-  border: 2px solid #d9d2f4;
-  border-radius: 16px;
+      border: 2px solid #d9d2f4;
+      border-radius: 16px;
 
-  text-align: center;
+      text-align: center;
 
-  font-size: 34px;
-  font-weight: 800;
+      font-size: 34px;
+      font-weight: 800;
 
-  color: var(--text);
+      color: var(--text);
 
-  outline: none;
+      outline: none;
 
-  background: white;
-}
+      background: white;
+    }
 
-.codigo-input:focus {
-  border-color: var(--purple);
-  box-shadow:
-    0 0 0 3px rgba(91, 43, 216, .12);
-}
+    .codigo-input:focus {
+      border-color: var(--purple);
+      box-shadow:
+        0 0 0 3px rgba(91, 43, 216, .12);
+    }
 
-.codigo-error {
-  color: #d43737;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  margin-top: 12px;
-}
+    .codigo-error {
+      color: #d43737;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 12px;
+    }
   </style>
 </head>
 
@@ -379,7 +410,7 @@
   <main class="app">
 
     <div class="brand">
-      <h1>Rapi<span>Taxi</span></h1>
+      <h1>Rapi<span>taxi</span></h1>
     </div>
 
     <!-- CARGANDO -->
@@ -397,10 +428,7 @@
         NUEVA CARRERA
       </div>
 
-      <div
-        id="numeroCarrera"
-        class="numero"
-      >
+      <div id="numeroCarrera" class="numero">
         #---
       </div>
 
@@ -417,10 +445,7 @@
             📍 REFERENCIA
           </div>
 
-          <div
-            id="referencia"
-            class="value"
-          >
+          <div id="referencia" class="value">
             Cargando...
           </div>
 
@@ -432,75 +457,48 @@
             💳 FORMA DE PAGO
           </div>
 
-          <div
-            id="formaPago"
-            class="value"
-          >
+          <div id="formaPago" class="value">
             Cargando...
           </div>
 
         </div>
 
       </div>
-<div class="codigo-box">
+      <div class="codigo-box">
 
-  <div class="codigo-header">
+        <div class="codigo-header">
 
-    <div class="codigo-icon">
-      🔒
-    </div>
+          <div class="codigo-icon">
+            🔒
+          </div>
 
-    <div>
-      <div class="label">
-        CÓDIGO DE CONDUCTOR
+          <div>
+            <div class="label">
+              CÓDIGO DE CONDUCTOR
+            </div>
+
+            <div class="codigo-help">
+              Ingresa tu código de 3 dígitos para identificarte.
+            </div>
+          </div>
+
+        </div>
+
+
+        <div class="codigo-inputs">
+
+          <input id="codigo1" class="codigo-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+
+          <input id="codigo2" class="codigo-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+
+          <input id="codigo3" class="codigo-input" type="text" inputmode="numeric" maxlength="1" autocomplete="off">
+
+        </div>
+
+
+        <div id="codigoError" class="codigo-error hidden"></div>
+
       </div>
-
-      <div class="codigo-help">
-        Ingresa tu código de 3 dígitos para identificarte.
-      </div>
-    </div>
-
-  </div>
-
-
-  <div class="codigo-inputs">
-
-    <input
-      id="codigo1"
-      class="codigo-input"
-      type="text"
-      inputmode="numeric"
-      maxlength="1"
-      autocomplete="off"
-    >
-
-    <input
-      id="codigo2"
-      class="codigo-input"
-      type="text"
-      inputmode="numeric"
-      maxlength="1"
-      autocomplete="off"
-    >
-
-    <input
-      id="codigo3"
-      class="codigo-input"
-      type="text"
-      inputmode="numeric"
-      maxlength="1"
-      autocomplete="off"
-    >
-
-  </div>
-
-
-  <div
-    id="codigoError"
-    class="codigo-error hidden"
-  ></div>
-
-</div>
       <button id="aceptarBtn">
         ACEPTAR CARRERA →
       </button>
@@ -520,10 +518,7 @@
         ¡Carrera asignada!
       </h2>
 
-      <p
-        id="mensajeGanador"
-        class="result-subtitle"
-      >
+      <p id="mensajeGanador" class="result-subtitle">
         Has tomado la carrera.
       </p>
 
@@ -532,13 +527,17 @@
         <div class="info-item">
 
           <div class="label">
-            📍 REFERENCIA
+            📍 RECOGER EN
           </div>
 
-          <div
-            id="referenciaGanador"
-            class="value"
-          ></div>
+          <div id="referenciaGanador" class="value"></div>
+
+          <a id="ubicacionBtn" class="ubicacion-btn" href="#" target="_blank" rel="noopener noreferrer">
+            Ubicación del cliente
+            <span class="ubicacion-icono">
+              ↗
+            </span>
+          </a>
 
         </div>
 
@@ -548,22 +547,13 @@
             💳 FORMA DE PAGO
           </div>
 
-          <div
-            id="pagoGanador"
-            class="value"
-          ></div>
+          <div id="pagoGanador" class="value"></div>
 
         </div>
 
       </div>
 
-      <a
-        id="whatsappBtn"
-        class="whatsapp"
-        href="#"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a id="whatsappBtn" class="whatsapp" href="#" target="_blank" rel="noopener noreferrer">
         ESCRIBIR AL CLIENTE
       </a>
 
@@ -591,19 +581,17 @@
 
     <!-- ERROR -->
 
-    <section
-      id="pantallaError"
-      class="error-general hidden"
-    >
+    <section id="pantallaError" class="error-general hidden">
       No se pudo cargar esta carrera.
     </section>
 
 
     <div class="footer">
-      RapiTaxi · Servicio de asignación de carreras
+      Rapitaxi · Servicio de asignación de carreras
     </div>
 
   </main>
   <script src="/carrera.js"></script>
 </body>
+
 </html>

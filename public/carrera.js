@@ -422,6 +422,20 @@ aceptarBtn.addEventListener(
       whatsappBtn.rel =
         "noopener noreferrer";
 
+      const ubicacionBtn =
+        document.getElementById(
+          "ubicacionBtn"
+        );
+
+      ubicacionBtn.href =
+        carrera.enlaceGoogleMaps;
+
+      ubicacionBtn.target =
+        "_blank";
+
+      ubicacionBtn.rel =
+        "noopener noreferrer";
+
       ocultarTodo();
 
       pantallaGanador.classList.remove(

@@ -262,7 +262,7 @@ async function cargarCarreras() {
       tbody.innerHTML = `
         <tr>
           <td
-            colspan="9"
+            colspan="10"
             class="vacio"
           >
             No hay carreras registradas.
@@ -291,6 +291,23 @@ async function cargarCarreras() {
           "tr"
         );
 
+      const puedeCancelar =
+        carrera.estado !== "COMPLETADA" &&
+        carrera.estado !== "CANCELADA";
+
+      const botonCancelar =
+        puedeCancelar
+          ? `
+      <button
+        class="btn btn-desactivar btn-cancelar-carrera"
+        data-id="${carrera.id}"
+        data-numero="${carrera.numero}"
+        type="button"
+      >
+        Cancelar
+      </button>
+    `
+          : "-";
 
       fila.innerHTML = `
         <td>
@@ -364,14 +381,30 @@ async function cargarCarreras() {
 
         <td>
           <button
-            type="button"
-            class="btn btn-editar copiar-carrera"
-            data-token="${escaparHtml(
+  type="button"
+  class="btn btn-editar copiar-carrera"
+
+  data-token="${escaparHtml(
           carrera.token
         )}"
-          >
-            Copiar enlace
-          </button>
+
+  data-numero="${escaparHtml(
+          carrera.numero
+        )}"
+
+  data-referencia="${escaparHtml(
+          carrera.referencia || "-"
+        )}"
+
+  data-pago="${escaparHtml(
+          carrera.formaPago || "-"
+        )}"
+>
+  Copiar enlace
+</button>
+        </td>
+        <td>
+          ${botonCancelar}
         </td>
       `;
 
@@ -400,28 +433,46 @@ async function cargarCarreras() {
               const token =
                 boton.dataset.token;
 
+              const numero =
+                boton.dataset.numero;
+
+              const referencia =
+                boton.dataset.referencia ||
+                "-";
+
+              const pago =
+                boton.dataset.pago ||
+                "-";
+
 
               const enlace =
                 `${window.location.origin}/c/${token}`;
+
+
+              const mensaje =
+                `✅🚕 NUEVA CARRERA #${numero}\n\n` +
+                `📌 *Referencia:* ${referencia}\n` +
+                `💳 *Pago:* ${pago}\n\n` +
+                `🔗 *Acéptala primero:* ${enlace}`;
 
 
               try {
                 await navigator
                   .clipboard
                   .writeText(
-                    enlace
+                    mensaje
                   );
 
 
                 mostrarMensaje(
-                  "Enlace de carrera copiado."
+                  "Mensaje de carrera copiado."
                 );
 
               } catch (error) {
 
                 window.prompt(
-                  "Copia este enlace:",
-                  enlace
+                  "Copia este mensaje:",
+                  mensaje
                 );
               }
             }
@@ -1318,4 +1369,110 @@ cargarTaxistas();
 setInterval(
   cargarCarreras,
   10000
+);
+
+async function cancelarCarreraAdmin(
+  carreraId,
+  numeroCarrera
+) {
+
+  const confirmar =
+    window.confirm(
+      `¿Cancelar la carrera #${numeroCarrera}?\n\n` +
+      "El cliente quedará libre para solicitar otra carrera."
+    );
+
+  if (!confirmar) {
+    return;
+  }
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/carreras/admin/${carreraId}/cancelar`,
+        {
+          method: "POST"
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      mostrarMensaje(
+        data.message ||
+        "No se pudo cancelar la carrera.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    mostrarMensaje(
+      `Carrera #${numeroCarrera} cancelada correctamente.`,
+      "ok"
+    );
+
+
+    await cargarCarreras();
+
+
+  } catch (error) {
+
+    console.error(
+      "Error cancelando carrera:",
+      error
+    );
+
+
+    mostrarMensaje(
+      "No se pudo conectar con el servidor.",
+      "error"
+    );
+
+  }
+}
+
+document.addEventListener(
+  "click",
+  async event => {
+
+    const boton =
+      event.target.closest(
+        ".btn-cancelar-carrera"
+      );
+
+
+    if (!boton) {
+      return;
+    }
+
+
+    const carreraId =
+      Number(
+        boton.dataset.id
+      );
+
+    const numeroCarrera =
+      boton.dataset.numero;
+
+
+    boton.disabled = true;
+
+    boton.textContent =
+      "Cancelando...";
+
+
+    await cancelarCarreraAdmin(
+      carreraId,
+      numeroCarrera
+    );
+
+  }
 );
