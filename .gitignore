@@ -11,3 +11,5 @@ prisma/dev.db-journal
 
 .vscode/dev.db
 dev.db-journal
+/dev.db
+/dev.db-journal
