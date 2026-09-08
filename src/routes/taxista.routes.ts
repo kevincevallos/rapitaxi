@@ -4,10 +4,22 @@ import {
   actualizarTaxistaController,
   crearTaxistaController,
   listarTaxistasController,
+  loginTaxistaAppController,
 } from "../controllers/taxista.controller";
 
 const router = Router();
 
+/*
+  LOGIN APP TAXISTA
+*/
+router.post(
+  "/app/login",
+  loginTaxistaAppController
+);
+
+/*
+  ADMIN
+*/
 router.get(
   "/",
   listarTaxistasController

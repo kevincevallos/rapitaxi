@@ -3,6 +3,8 @@ import {
     Response,
 } from "express";
 
+import { prisma } from "../config/prisma";
+
 import {
     crearTaxista,
     listarTaxistas,
@@ -347,11 +349,104 @@ export async function actualizarTaxistaController(
                     "Ese código ya está asignado a otro taxista.",
             });
         }
-        
+
         return res.status(500).json({
             success: false,
             message:
                 "No se pudo actualizar el taxista.",
+        });
+    }
+}
+
+
+export async function loginTaxistaAppController(
+    req: Request,
+    res: Response
+) {
+    try {
+
+        const codigoEntrada =
+            String(
+                req.body.codigo || ""
+            )
+            .replace(
+                /\D/g,
+                ""
+            );
+
+
+        if (
+            codigoEntrada.length < 1 ||
+            codigoEntrada.length > 3
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Código de taxista inválido.",
+            });
+        }
+
+
+        const codigo =
+            codigoEntrada.padStart(
+                3,
+                "0"
+            );
+
+
+        const taxista =
+            await prisma.taxista.findUnique({
+                where: {
+                    codigo,
+                },
+                select: {
+                    id: true,
+                    codigo: true,
+                    nombre: true,
+                    placa: true,
+                    vehiculo: true,
+                    colorVehiculo: true,
+                    cooperativa: true,
+                    activo: true,
+                },
+            });
+
+
+        if (!taxista) {
+            return res.status(404).json({
+                success: false,
+                message:
+                    "No existe un taxista con ese código.",
+            });
+        }
+
+
+        if (!taxista.activo) {
+            return res.status(403).json({
+                success: false,
+                message:
+                    "Este taxista se encuentra desactivado.",
+            });
+        }
+
+
+        return res.json({
+            success: true,
+            taxista,
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Error iniciando sesión de taxista:",
+            error
+        );
+
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "No se pudo iniciar sesión.",
         });
     }
 }
