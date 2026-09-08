@@ -174,12 +174,12 @@ export async function crearCarrera(
 
 /*
   ========================================
-  INFORMACIÓN PÚBLICA
+  INFORMACI├ôN P├ÜBLICA
   ========================================
 
-  Esta es la información que ve el
+  Esta es la informaci├│n que ve el
   taxista antes de aceptar.
-  No exponemos el teléfono del cliente.
+  No exponemos el tel├®fono del cliente.
 */
 
 export async function obtenerCarreraPublica(
@@ -218,7 +218,7 @@ export async function aceptarCarrera(
 
 
     /*
-      Buscar taxista por su código único.
+      Buscar taxista por su c├│digo ├║nico.
     */
 
     const taxista =
@@ -244,62 +244,128 @@ export async function aceptarCarrera(
 
 
     /*
-      ACEPTACIÓN ATÓMICA.
-  
-      Solamente puede modificar la carrera
-      si todavía está BUSCANDO.
-  
-      Esto evita que dos taxistas acepten
-      la misma carrera.
+      ========================================
+      ACEPTACIÓN SEGURA DE CARRERA
+      ========================================
+
+      Reglas:
+
+      1. Un taxista solamente puede tener
+         UNA carrera activa.
+
+      2. Solamente el primer taxista puede
+         aceptar una carrera BUSCANDO.
+
+      Ambas comprobaciones se hacen dentro
+      de una transacción.
     */
 
-    const resultado =
-        await prisma.carrera.updateMany({
-            where: {
-                token,
-                estado: "BUSCANDO",
-            },
+    await prisma.$transaction(
+        async tx => {
 
-            data: {
-                estado: "ASIGNADA",
+            /*
+              Primero comprobamos si este
+              taxista ya tiene una carrera
+              activa.
+            */
 
-                taxistaId:
-                    taxista.id,
+            const carreraActiva =
+                await tx.carrera.findFirst({
+                    where: {
+                        taxistaId:
+                            taxista.id,
 
-                fechaAceptacion:
-                    new Date(),
-            },
-        });
+                        fechaFin:
+                            null,
+
+                        estado: {
+                            in: [
+                                "ASIGNADA",
+                                "EN_CAMINO",
+                                "CERCA",
+                                "LLEGO",
+                            ],
+                        },
+                    },
+
+                    select: {
+                        id: true,
+                        numero: true,
+                        estado: true,
+                    },
+                });
 
 
-    /*
-      Si count = 0:
-      - la carrera no existe, o
-      - otro taxista ya la aceptó.
-    */
-
-    if (
-        resultado.count === 0
-    ) {
-        const carreraExistente =
-            await prisma.carrera.findUnique({
-                where: {
-                    token,
-                },
-            });
+            if (carreraActiva) {
+                throw new Error(
+                    "TAXISTA_OCUPADO"
+                );
+            }
 
 
-        if (!carreraExistente) {
-            throw new Error(
-                "CARRERA_NO_EXISTE"
-            );
+            /*
+              Ahora intentamos adjudicar
+              esta carrera.
+
+              updateMany garantiza que solo
+              se modifica si todavía está
+              BUSCANDO.
+            */
+
+            const resultado =
+                await tx.carrera.updateMany({
+                    where: {
+                        token,
+                        estado:
+                            "BUSCANDO",
+                    },
+
+                    data: {
+                        estado:
+                            "ASIGNADA",
+
+                        taxistaId:
+                            taxista.id,
+
+                        fechaAceptacion:
+                            new Date(),
+                    },
+                });
+
+
+            /*
+              Si count = 0:
+
+              - la carrera no existe, o
+              - otro taxista ya la aceptó.
+            */
+
+            if (
+                resultado.count === 0
+            ) {
+
+                const carreraExistente =
+                    await tx.carrera.findUnique({
+                        where: {
+                            token,
+                        },
+                    });
+
+
+                if (!carreraExistente) {
+                    throw new Error(
+                        "CARRERA_NO_EXISTE"
+                    );
+                }
+
+
+                throw new Error(
+                    "YA_ASIGNADA"
+                );
+            }
+
         }
-
-
-        throw new Error(
-            "YA_ASIGNADA"
-        );
-    }
+    );
 
 
     /*
@@ -330,11 +396,11 @@ export async function aceptarCarrera(
       NOTIFICAR AL CLIENTE
       ========================================
   
-      Aquí NO enviamos todavía datos
+      Aqu├¡ NO enviamos todav├¡a datos
       bancarios.
   
-      El taxista ya aceptó y el cliente
-      recibe los datos del vehículo.
+      El taxista ya acept├│ y el cliente
+      recibe los datos del veh├¡culo.
     */
 
 
@@ -349,15 +415,15 @@ export async function aceptarCarrera(
 
     let mensajeCliente =
 
-        `🚖 Ok✅ ${taxista.nombre} irá a recogerte.\n` +
+        `ƒÜû OkÔ£à ${taxista.nombre} ir├í a recogerte.\n` +
 
-        `🚕 Vehículo: ${descripcionVehiculo}\n` +
+        `ƒÜò Veh├¡culo: ${descripcionVehiculo}\n` +
 
-        `🔢 Placa: ${taxista.placa}\n` +
+        `ƒöó Placa: ${taxista.placa}\n` +
 
-        `✅ Whatsapp: ${taxista.telefono}\n` +
+        `Ô£à Whatsapp: ${taxista.telefono}\n` +
 
-        `💳 Pago: ${carrera.formaPago}`;
+        `ƒÆ│ Pago: ${carrera.formaPago}`;
 
 
     if (
@@ -365,7 +431,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\n🏢 Coop: ${taxista.cooperativa}`;
+            `\nƒÅó Coop: ${taxista.cooperativa}`;
     }
 
 
@@ -381,7 +447,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\n\n💳 Banco Pichincha`;
+            `\n\nƒÆ│ Banco Pichincha`;
 
 
         if (
@@ -389,7 +455,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\n👤 Titular: ${taxista.titularPichincha}`;
+                `\nƒæñ Titular: ${taxista.titularPichincha}`;
         }
 
 
@@ -398,7 +464,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\n🏦 Cuenta: ${taxista.cuentaPichincha}`;
+                `\nƒÅª Cuenta: ${taxista.cuentaPichincha}`;
         }
     }
 
@@ -409,7 +475,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\n\n💳 Banco Guayaquil`;
+            `\n\nƒÆ│ Banco Guayaquil`;
 
 
         if (
@@ -417,7 +483,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\n👤 Titular: ${taxista.titularGuayaquil}`;
+                `\nƒæñ Titular: ${taxista.titularGuayaquil}`;
         }
 
 
@@ -426,7 +492,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\n🏦 Cuenta: ${taxista.cuentaGuayaquil}`;
+                `\nƒÅª Cuenta: ${taxista.cuentaGuayaquil}`;
         }
     }
 
@@ -434,7 +500,7 @@ export async function aceptarCarrera(
       Intentamos enviar WhatsApp.
   
       Si WhatsApp tiene un problema,
-      NO deshacemos la aceptación.
+      NO deshacemos la aceptaci├│n.
     */
 
     try {
@@ -446,7 +512,7 @@ export async function aceptarCarrera(
     } catch (error) {
 
         console.error(
-            "Error notificando al cliente después de aceptar carrera:",
+            "Error notificando al cliente despu├®s de aceptar carrera:",
             error
         );
     }
@@ -466,7 +532,7 @@ export async function aceptarCarrera(
 
     const mensajeParaCliente =
         encodeURIComponent(
-            `Hola ${carrera.nombreCliente}, soy ${taxista.nombre}, el taxista asignado a tu carrera.🚖✅`
+            `Hola ${carrera.nombreCliente}, soy ${taxista.nombre}, el taxista asignado a tu carrera.ƒÜûÔ£à`
         );
 
 
@@ -476,7 +542,7 @@ export async function aceptarCarrera(
 
     /*
       ========================================
-      ACTUALIZAR CONVERSACIÓN DEL CLIENTE
+      ACTUALIZAR CONVERSACI├ôN DEL CLIENTE
       ========================================
     */
 
@@ -502,7 +568,7 @@ export async function aceptarCarrera(
     } catch (error) {
 
         console.error(
-            "Error actualizando conversación del cliente:",
+            "Error actualizando conversaci├│n del cliente:",
             error
         );
     }
@@ -510,7 +576,7 @@ export async function aceptarCarrera(
 
     /*
       ========================================
-      RESPUESTA PARA LA PÁGINA DEL TAXISTA
+      RESPUESTA PARA LA P├üGINA DEL TAXISTA
       ========================================
     */
 
@@ -575,24 +641,24 @@ export async function aceptarCarrera(
 
 /*
   ========================================
-  FINALIZACIÓN AUTOMÁTICA
+  FINALIZACI├ôN AUTOM├üTICA
   ========================================
 
-  Esta función será llamada por server.ts.
+  Esta funci├│n ser├í llamada por server.ts.
 
   Busca carreras que fueron aceptadas
-  hace 30 minutos o más.
+  hace 30 minutos o m├ís.
 
   Luego:
 
   1. Marca la carrera COMPLETADA.
   2. Guarda fechaFin.
   3. Libera inmediatamente al cliente.
-  4. Envía la calificación como algo
+  4. Env├¡a la calificaci├│n como algo
      OPCIONAL.
 
   Aunque el cliente nunca califique,
-  podrá solicitar otro taxi.
+  podr├í solicitar otro taxi.
   ========================================
 */
 
@@ -707,7 +773,7 @@ export async function finalizarCarrerasVencidas() {
               LIBERAR CLIENTE PRIMERO
               ==================================
       
-              Esto es lo más importante.
+              Esto es lo m├ís importante.
       
               No esperamos a que califique.
             */
@@ -749,7 +815,7 @@ export async function finalizarCarrerasVencidas() {
             } catch (error) {
 
                 console.error(
-                    `Error liberando conversación de carrera #${carrera.numero}:`,
+                    `Error liberando conversaci├│n de carrera #${carrera.numero}:`,
                     error
                 );
             }
@@ -757,15 +823,15 @@ export async function finalizarCarrerasVencidas() {
 
             /*
               ==================================
-              ENVIAR CALIFICACIÓN OPCIONAL
+              ENVIAR CALIFICACI├ôN OPCIONAL
               ==================================
       
               El ID de la carrera va dentro
-              del ID del botón.
+              del ID del bot├│n.
       
-              Así podremos saber después qué
-              carrera está calificando aunque
-              la conversación ya esté NUEVO.
+              As├¡ podremos saber despu├®s qu├®
+              carrera est├í calificando aunque
+              la conversaci├│n ya est├® NUEVO.
             */
 
             try {
@@ -773,14 +839,14 @@ export async function finalizarCarrerasVencidas() {
                 await enviarTextoWhatsApp(
                     telefonoCliente,
 
-                    `✅ Tu carrera #${carrera.numero} ha finalizado.\n¡Gracias por viajar con Rapitaxi! 🚖`
+                    `Ô£à Tu carrera #${carrera.numero} ha finalizado.\n┬íGracias por viajar con Rapitaxi! ƒÜû`
                 );
 
 
                 await enviarBotonesWhatsApp(
                     telefonoCliente,
 
-                    "¿Qué tal estuvo tu taxista?",
+                    "┬┐Qu├® tal estuvo tu taxista?",
 
                     [
                         {
@@ -815,27 +881,27 @@ export async function finalizarCarrerasVencidas() {
                   IMPORTANTE:
         
                   Si Kapso / WhatsApp falla,
-                  la carrera YA está completada
-                  y el cliente YA está liberado.
+                  la carrera YA est├í completada
+                  y el cliente YA est├í liberado.
         
                   El servicio no queda bloqueado.
                 */
 
                 console.error(
-                    `Error enviando calificación de carrera #${carrera.numero}:`,
+                    `Error enviando calificaci├│n de carrera #${carrera.numero}:`,
                     error
                 );
             }
 
 
             console.log(
-                `Carrera #${carrera.numero} finalizada automáticamente después de 30 minutos.`
+                `Carrera #${carrera.numero} finalizada autom├íticamente despu├®s de 30 minutos.`
             );
 
         } catch (error) {
 
             console.error(
-                `Error finalizando automáticamente carrera #${carrera.numero}:`,
+                `Error finalizando autom├íticamente carrera #${carrera.numero}:`,
                 error
             );
         }

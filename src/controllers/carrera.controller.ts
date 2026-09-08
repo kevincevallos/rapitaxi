@@ -233,6 +233,18 @@ export async function aceptarCarreraController(
 
     if (
       error?.message ===
+      "TAXISTA_OCUPADO"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Ya tienes una carrera activa. Finalízala antes de aceptar otra.",
+      });
+    }
+
+
+    if (
+      error?.message ===
       "CARRERA_NO_EXISTE"
     ) {
       return res.status(404).json({
@@ -294,6 +306,7 @@ export async function listarCarrerasAdminController(
   }
 }
 
+
 export async function cancelarCarreraAdminController(
   req: any,
   res: any
@@ -309,7 +322,8 @@ export async function cancelarCarreraAdminController(
   ) {
     return res.status(400).json({
       success: false,
-      message: "ID de carrera inválido."
+      message:
+        "ID de carrera inválido."
     });
   }
 
