@@ -108,6 +108,25 @@ function normalizarTelefono(
 
 
 /*
+  Convierte cualquier texto saliente de WhatsApp
+  a caracteres ASCII seguros.
+
+  Esto evita problemas de codificacion con emojis,
+  tildes o caracteres especiales en produccion.
+*/
+function textoSeguroWhatsApp(
+    valor: unknown
+) {
+    return String(
+        valor ?? ""
+    )
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\x20-\x7E\n\r\t]/g, "");
+}
+
+
+/*
   ========================================
   CREAR CARRERA
   ========================================
@@ -174,12 +193,12 @@ export async function crearCarrera(
 
 /*
   ========================================
-  INFORMACI├ôN P├ÜBLICA
+  INFORMACIÓN PÚBLICA
   ========================================
 
-  Esta es la informaci├│n que ve el
+  Esta es la información que ve el
   taxista antes de aceptar.
-  No exponemos el tel├®fono del cliente.
+  No exponemos el teléfono del cliente.
 */
 
 export async function obtenerCarreraPublica(
@@ -218,7 +237,7 @@ export async function aceptarCarrera(
 
 
     /*
-      Buscar taxista por su c├│digo ├║nico.
+      Buscar taxista por su código único.
     */
 
     const taxista =
@@ -396,11 +415,11 @@ export async function aceptarCarrera(
       NOTIFICAR AL CLIENTE
       ========================================
   
-      Aqu├¡ NO enviamos todav├¡a datos
+      Aquí NO enviamos todavía datos
       bancarios.
   
-      El taxista ya acept├│ y el cliente
-      recibe los datos del veh├¡culo.
+      El taxista ya aceptó y el cliente
+      recibe los datos del vehículo.
     */
 
 
@@ -415,15 +434,15 @@ export async function aceptarCarrera(
 
     let mensajeCliente =
 
-        `ƒÜû OkÔ£à ${taxista.nombre} ir├í a recogerte.\n` +
+        `Ok ${taxista.nombre} ira a recogerte.\n` +
 
-        `ƒÜò Veh├¡culo: ${descripcionVehiculo}\n` +
+        `Vehiculo: ${descripcionVehiculo}\n` +
 
-        `ƒöó Placa: ${taxista.placa}\n` +
+        `Placa: ${taxista.placa}\n` +
 
-        `Ô£à Whatsapp: ${taxista.telefono}\n` +
+        `WhatsApp: ${taxista.telefono || "No registrado"}\n` +
 
-        `ƒÆ│ Pago: ${carrera.formaPago}`;
+        `Pago: ${carrera.formaPago}`;
 
 
     if (
@@ -431,7 +450,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\nƒÅó Coop: ${taxista.cooperativa}`;
+            `\nCoop: ${taxista.cooperativa}`;
     }
 
 
@@ -447,7 +466,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\n\nƒÆ│ Banco Pichincha`;
+            `\n\nBanco Pichincha`;
 
 
         if (
@@ -455,7 +474,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\nƒæñ Titular: ${taxista.titularPichincha}`;
+                `\nTitular: ${taxista.titularPichincha}`;
         }
 
 
@@ -464,7 +483,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\nƒÅª Cuenta: ${taxista.cuentaPichincha}`;
+                `\nCuenta: ${taxista.cuentaPichincha}`;
         }
     }
 
@@ -475,7 +494,7 @@ export async function aceptarCarrera(
     ) {
         mensajeCliente +=
 
-            `\n\nƒÆ│ Banco Guayaquil`;
+            `\n\nBanco Guayaquil`;
 
 
         if (
@@ -483,7 +502,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\nƒæñ Titular: ${taxista.titularGuayaquil}`;
+                `\nTitular: ${taxista.titularGuayaquil}`;
         }
 
 
@@ -492,7 +511,7 @@ export async function aceptarCarrera(
         ) {
             mensajeCliente +=
 
-                `\nƒÅª Cuenta: ${taxista.cuentaGuayaquil}`;
+                `\nCuenta: ${taxista.cuentaGuayaquil}`;
         }
     }
 
@@ -500,19 +519,21 @@ export async function aceptarCarrera(
       Intentamos enviar WhatsApp.
   
       Si WhatsApp tiene un problema,
-      NO deshacemos la aceptaci├│n.
+      NO deshacemos la aceptación.
     */
 
     try {
         await enviarTextoWhatsApp(
             carrera.whatsappCliente,
-            mensajeCliente
+            textoSeguroWhatsApp(
+                mensajeCliente
+            )
         );
 
     } catch (error) {
 
         console.error(
-            "Error notificando al cliente despu├®s de aceptar carrera:",
+            "Error notificando al cliente después de aceptar carrera:",
             error
         );
     }
@@ -532,7 +553,9 @@ export async function aceptarCarrera(
 
     const mensajeParaCliente =
         encodeURIComponent(
-            `Hola ${carrera.nombreCliente}, soy ${taxista.nombre}, el taxista asignado a tu carrera.ƒÜûÔ£à`
+            textoSeguroWhatsApp(
+                `Hola ${carrera.nombreCliente}, soy ${taxista.nombre}, el taxista asignado a tu carrera #${carrera.numero}.`
+            )
         );
 
 
@@ -542,7 +565,7 @@ export async function aceptarCarrera(
 
     /*
       ========================================
-      ACTUALIZAR CONVERSACI├ôN DEL CLIENTE
+      ACTUALIZAR CONVERSACIÓN DEL CLIENTE
       ========================================
     */
 
@@ -568,7 +591,7 @@ export async function aceptarCarrera(
     } catch (error) {
 
         console.error(
-            "Error actualizando conversaci├│n del cliente:",
+            "Error actualizando conversación del cliente:",
             error
         );
     }
@@ -576,7 +599,7 @@ export async function aceptarCarrera(
 
     /*
       ========================================
-      RESPUESTA PARA LA P├üGINA DEL TAXISTA
+      RESPUESTA PARA LA PÁGINA DEL TAXISTA
       ========================================
     */
 
@@ -641,24 +664,24 @@ export async function aceptarCarrera(
 
 /*
   ========================================
-  FINALIZACI├ôN AUTOM├üTICA
+  FINALIZACIÓN AUTOMÁTICA
   ========================================
 
-  Esta funci├│n ser├í llamada por server.ts.
+  Esta función será llamada por server.ts.
 
   Busca carreras que fueron aceptadas
-  hace 30 minutos o m├ís.
+  hace 30 minutos o más.
 
   Luego:
 
   1. Marca la carrera COMPLETADA.
   2. Guarda fechaFin.
   3. Libera inmediatamente al cliente.
-  4. Env├¡a la calificaci├│n como algo
+  4. Envía la calificación como algo
      OPCIONAL.
 
   Aunque el cliente nunca califique,
-  podr├í solicitar otro taxi.
+  podrá solicitar otro taxi.
   ========================================
 */
 
@@ -773,7 +796,7 @@ export async function finalizarCarrerasVencidas() {
               LIBERAR CLIENTE PRIMERO
               ==================================
       
-              Esto es lo m├ís importante.
+              Esto es lo más importante.
       
               No esperamos a que califique.
             */
@@ -815,7 +838,7 @@ export async function finalizarCarrerasVencidas() {
             } catch (error) {
 
                 console.error(
-                    `Error liberando conversaci├│n de carrera #${carrera.numero}:`,
+                    `Error liberando conversación de carrera #${carrera.numero}:`,
                     error
                 );
             }
@@ -823,15 +846,15 @@ export async function finalizarCarrerasVencidas() {
 
             /*
               ==================================
-              ENVIAR CALIFICACI├ôN OPCIONAL
+              ENVIAR CALIFICACIÓN OPCIONAL
               ==================================
       
               El ID de la carrera va dentro
-              del ID del bot├│n.
+              del ID del botón.
       
-              As├¡ podremos saber despu├®s qu├®
-              carrera est├í calificando aunque
-              la conversaci├│n ya est├® NUEVO.
+              Así podremos saber después qué
+              carrera está calificando aunque
+              la conversación ya esté NUEVO.
             */
 
             try {
@@ -839,14 +862,16 @@ export async function finalizarCarrerasVencidas() {
                 await enviarTextoWhatsApp(
                     telefonoCliente,
 
-                    `Ô£à Tu carrera #${carrera.numero} ha finalizado.\n┬íGracias por viajar con Rapitaxi! ƒÜû`
+                    textoSeguroWhatsApp(
+                        `Tu carrera #${carrera.numero} ha finalizado.\nGracias por viajar con Rapitaxi!`
+                    )
                 );
 
 
                 await enviarBotonesWhatsApp(
                     telefonoCliente,
 
-                    "┬┐Qu├® tal estuvo tu taxista?",
+                    "Que tal estuvo tu taxista?",
 
                     [
                         {
@@ -881,27 +906,27 @@ export async function finalizarCarrerasVencidas() {
                   IMPORTANTE:
         
                   Si Kapso / WhatsApp falla,
-                  la carrera YA est├í completada
-                  y el cliente YA est├í liberado.
+                  la carrera YA está completada
+                  y el cliente YA está liberado.
         
                   El servicio no queda bloqueado.
                 */
 
                 console.error(
-                    `Error enviando calificaci├│n de carrera #${carrera.numero}:`,
+                    `Error enviando calificación de carrera #${carrera.numero}:`,
                     error
                 );
             }
 
 
             console.log(
-                `Carrera #${carrera.numero} finalizada autom├íticamente despu├®s de 30 minutos.`
+                `Carrera #${carrera.numero} finalizada automáticamente después de 30 minutos.`
             );
 
         } catch (error) {
 
             console.error(
-                `Error finalizando autom├íticamente carrera #${carrera.numero}:`,
+                `Error finalizando automáticamente carrera #${carrera.numero}:`,
                 error
             );
         }
