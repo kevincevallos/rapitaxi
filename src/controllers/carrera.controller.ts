@@ -11,6 +11,10 @@ import {
   listarCarrerasAdmin,
 } from "../services/carrera.service";
 
+import {
+  prisma,
+} from "../config/prisma";
+
 
 export async function crearCarreraController(
   req: Request,
@@ -82,6 +86,55 @@ export async function crearCarreraController(
       success: false,
       message:
         "No se pudo crear la carrera.",
+    });
+  }
+}
+
+
+export async function listarCarrerasDisponiblesAppController(
+  _req: Request,
+  res: Response
+) {
+  try {
+
+    const carreras =
+      await prisma.carrera.findMany({
+        where: {
+          estado: "BUSCANDO",
+        },
+
+        orderBy: {
+          fechaCreacion: "desc",
+        },
+
+        select: {
+          id: true,
+          numero: true,
+          token: true,
+          referencia: true,
+          formaPago: true,
+          fechaCreacion: true,
+        },
+      });
+
+
+    return res.json({
+      success: true,
+      carreras,
+    });
+
+  } catch (error) {
+
+    console.error(
+      "Error cargando carreras disponibles para app:",
+      error
+    );
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudieron cargar las carreras disponibles.",
     });
   }
 }
@@ -167,12 +220,6 @@ export async function aceptarCarreraController(
         codigoTaxista
       );
 
-
-    /*
-      Si aceptarCarrera llegó hasta aquí,
-      significa que el taxista ganó
-      correctamente la carrera.
-    */
 
     return res.json({
       success: true,
@@ -308,8 +355,8 @@ export async function listarCarrerasAdminController(
 
 
 export async function cancelarCarreraAdminController(
-  req: any,
-  res: any
+  req: Request,
+  res: Response
 ) {
 
   const carreraId =
@@ -323,7 +370,7 @@ export async function cancelarCarreraAdminController(
     return res.status(400).json({
       success: false,
       message:
-        "ID de carrera inválido."
+        "ID de carrera inválido.",
     });
   }
 
@@ -340,7 +387,7 @@ export async function cancelarCarreraAdminController(
       success: true,
       message:
         "Carrera cancelada correctamente.",
-      carrera: resultado
+      carrera: resultado,
     });
 
 
@@ -353,7 +400,7 @@ export async function cancelarCarreraAdminController(
       return res.status(404).json({
         success: false,
         message:
-          "La carrera no existe."
+          "La carrera no existe.",
       });
     }
 
@@ -365,7 +412,7 @@ export async function cancelarCarreraAdminController(
       return res.status(409).json({
         success: false,
         message:
-          "La carrera ya está completada o cancelada."
+          "La carrera ya está completada o cancelada.",
       });
     }
 
@@ -379,7 +426,7 @@ export async function cancelarCarreraAdminController(
     return res.status(500).json({
       success: false,
       message:
-        "No se pudo cancelar la carrera."
+        "No se pudo cancelar la carrera.",
     });
 
   }
