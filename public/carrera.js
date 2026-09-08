@@ -82,6 +82,14 @@ function limpiarErrorCodigo() {
 }
 
 
+function restaurarBotonAceptar() {
+  aceptarBtn.disabled = false;
+
+  aceptarBtn.textContent =
+    "ACEPTAR CARRERA →";
+}
+
+
 function obtenerCodigoTaxista() {
   return codigoInputs
     .map(input => input.value)
@@ -306,6 +314,44 @@ aceptarBtn.addEventListener(
         await response.json();
 
 
+      /*
+        IMPORTANTE:
+
+        TAXISTA_OCUPADO devuelve HTTP 409,
+        igual que YA_ASIGNADA.
+
+        Por eso debemos comprobar primero
+        si el backend está diciendo que el
+        taxista ya tiene una carrera activa.
+      */
+
+      if (
+        response.status === 409 &&
+        typeof data?.message === "string" &&
+        data.message
+          .toLowerCase()
+          .includes("carrera activa")
+      ) {
+
+        mostrarErrorCodigo(
+          data.message ||
+          "Ya tienes una carrera activa. Finalízala antes de aceptar otra."
+        );
+
+        restaurarBotonAceptar();
+
+        return;
+      }
+
+
+      /*
+        Solamente después comprobamos el 409
+        general.
+
+        Si llegamos aquí significa que la
+        carrera fue tomada por otro taxista.
+      */
+
       if (
         response.status === 409 ||
         data.estado === "YA_ASIGNADA"
@@ -325,10 +371,7 @@ aceptarBtn.addEventListener(
           "Código de conductor no registrado."
         );
 
-        aceptarBtn.disabled = false;
-
-        aceptarBtn.textContent =
-          "ACEPTAR CARRERA →";
+        restaurarBotonAceptar();
 
         return;
       }
@@ -342,10 +385,7 @@ aceptarBtn.addEventListener(
           "Este conductor no está habilitado."
         );
 
-        aceptarBtn.disabled = false;
-
-        aceptarBtn.textContent =
-          "ACEPTAR CARRERA →";
+        restaurarBotonAceptar();
 
         return;
       }
@@ -361,10 +401,7 @@ aceptarBtn.addEventListener(
           "Código de conductor inválido."
         );
 
-        aceptarBtn.disabled = false;
-
-        aceptarBtn.textContent =
-          "ACEPTAR CARRERA →";
+        restaurarBotonAceptar();
 
         return;
       }
@@ -372,10 +409,7 @@ aceptarBtn.addEventListener(
 
       if (!response.ok) {
 
-        aceptarBtn.disabled = false;
-
-        aceptarBtn.textContent =
-          "ACEPTAR CARRERA →";
+        restaurarBotonAceptar();
 
         mostrarErrorCodigo(
           data.message ||
@@ -422,6 +456,7 @@ aceptarBtn.addEventListener(
       whatsappBtn.rel =
         "noopener noreferrer";
 
+
       const ubicacionBtn =
         document.getElementById(
           "ubicacionBtn"
@@ -436,6 +471,7 @@ aceptarBtn.addEventListener(
       ubicacionBtn.rel =
         "noopener noreferrer";
 
+
       ocultarTodo();
 
       pantallaGanador.classList.remove(
@@ -447,10 +483,7 @@ aceptarBtn.addEventListener(
 
       console.error(error);
 
-      aceptarBtn.disabled = false;
-
-      aceptarBtn.textContent =
-        "ACEPTAR CARRERA →";
+      restaurarBotonAceptar();
 
       mostrarErrorCodigo(
         "No se pudo conectar con el servidor."
