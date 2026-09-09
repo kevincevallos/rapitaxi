@@ -9,6 +9,10 @@ import {
   obtenerCarreraPublica,
   aceptarCarrera,
   listarCarrerasAdmin,
+  obtenerCarreraActivaTaxista,
+  actualizarUbicacionTaxista,
+  finalizarCarreraTaxista,
+  obtenerSeguimientoPublico,
 } from "../services/carrera.service";
 
 import {
@@ -91,6 +95,12 @@ export async function crearCarreraController(
 }
 
 
+/*
+  ========================================
+  APP TAXISTAS - DISPONIBLES
+  ========================================
+*/
+
 export async function listarCarrerasDisponiblesAppController(
   _req: Request,
   res: Response
@@ -140,11 +150,434 @@ export async function listarCarrerasDisponiblesAppController(
 }
 
 
+/*
+  ========================================
+  APP TAXISTAS - CARRERA ACTIVA
+  ========================================
+*/
+
+export async function obtenerCarreraActivaTaxistaController(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const codigoTaxista =
+      String(
+        req.params.codigoTaxista || ""
+      );
+
+
+    const carrera =
+      await obtenerCarreraActivaTaxista(
+        codigoTaxista
+      );
+
+
+    return res.json({
+      success: true,
+      carrera,
+    });
+
+  } catch (error: any) {
+
+    console.error(
+      "Error obteniendo carrera activa:",
+      error
+    );
+
+
+    if (
+      error?.message ===
+      "CODIGO_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El código de conductor no es válido.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "El taxista no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_INACTIVO"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Este taxista se encuentra inactivo.",
+      });
+    }
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo consultar la carrera activa.",
+    });
+  }
+}
+
+
+/*
+  ========================================
+  APP TAXISTAS - GPS
+  ========================================
+*/
+
+export async function actualizarUbicacionTaxistaController(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const carreraId =
+      Number(
+        req.params.id
+      );
+
+
+    const codigoTaxista =
+      String(
+        req.body.codigoTaxista || ""
+      );
+
+
+    const latitud =
+      Number(
+        req.body.latitud
+      );
+
+
+    const longitud =
+      Number(
+        req.body.longitud
+      );
+
+
+    if (
+      !Number.isInteger(carreraId) ||
+      carreraId <= 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "ID de carrera inválido.",
+      });
+    }
+
+
+    if (!codigoTaxista) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Falta identificar al taxista.",
+      });
+    }
+
+
+    if (
+      req.body.latitud === undefined ||
+      req.body.longitud === undefined
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Falta la ubicación del taxista.",
+      });
+    }
+
+
+    const carrera =
+      await actualizarUbicacionTaxista(
+        carreraId,
+        codigoTaxista,
+        latitud,
+        longitud
+      );
+
+
+    return res.json({
+      success: true,
+      message:
+        "Ubicación actualizada.",
+      carrera,
+    });
+
+  } catch (error: any) {
+
+    console.error(
+      "Error actualizando ubicación del taxista:",
+      error
+    );
+
+
+    if (
+      error?.message ===
+      "CODIGO_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El código de conductor no es válido.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "UBICACION_INVALIDA"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "La ubicación recibida no es válida.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "El taxista no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_INACTIVO"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Este taxista se encuentra inactivo.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "La carrera no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_PERTENECE_TAXISTA"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Esta carrera no pertenece a este taxista.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_ACTIVA"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya no está activa.",
+      });
+    }
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo actualizar la ubicación.",
+    });
+  }
+}
+
+
+/*
+  ========================================
+  APP TAXISTAS - FINALIZAR
+  ========================================
+*/
+
+export async function finalizarCarreraTaxistaController(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const carreraId =
+      Number(
+        req.params.id
+      );
+
+
+    const codigoTaxista =
+      String(
+        req.body.codigoTaxista || ""
+      );
+
+
+    if (
+      !Number.isInteger(carreraId) ||
+      carreraId <= 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "ID de carrera inválido.",
+      });
+    }
+
+
+    if (!codigoTaxista) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Falta identificar al taxista.",
+      });
+    }
+
+
+    const carrera =
+      await finalizarCarreraTaxista(
+        carreraId,
+        codigoTaxista
+      );
+
+
+    return res.json({
+      success: true,
+      message:
+        "Carrera finalizada correctamente.",
+      carrera,
+    });
+
+  } catch (error: any) {
+
+    console.error(
+      "Error finalizando carrera desde app:",
+      error
+    );
+
+
+    if (
+      error?.message ===
+      "CODIGO_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El código de conductor no es válido.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "El taxista no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_INACTIVO"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Este taxista se encuentra inactivo.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "La carrera no existe.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_PERTENECE_TAXISTA"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Esta carrera no pertenece a este taxista.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_YA_CERRADA"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya está finalizada o cancelada.",
+      });
+    }
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo finalizar la carrera.",
+    });
+  }
+}
+
+
+/*
+  ========================================
+  CARRERA PÚBLICA
+  ========================================
+*/
+
 export async function obtenerCarreraController(
   req: Request,
   res: Response
 ) {
   try {
+
     const token =
       String(
         req.params.token || ""
@@ -193,6 +626,7 @@ export async function aceptarCarreraController(
   res: Response
 ) {
   try {
+
     const token =
       String(
         req.params.token || ""
@@ -323,11 +757,18 @@ export async function aceptarCarreraController(
 }
 
 
+/*
+  ========================================
+  ADMIN
+  ========================================
+*/
+
 export async function listarCarrerasAdminController(
   _req: Request,
   res: Response
 ) {
   try {
+
     const carreras =
       await listarCarrerasAdmin();
 
@@ -360,7 +801,9 @@ export async function cancelarCarreraAdminController(
 ) {
 
   const carreraId =
-    Number(req.params.id);
+    Number(
+      req.params.id
+    );
 
 
   if (
@@ -387,7 +830,8 @@ export async function cancelarCarreraAdminController(
       success: true,
       message:
         "Carrera cancelada correctamente.",
-      carrera: resultado,
+      carrera:
+        resultado,
     });
 
 
@@ -428,6 +872,73 @@ export async function cancelarCarreraAdminController(
       message:
         "No se pudo cancelar la carrera.",
     });
+  }
+}
+/*
+  ========================================
+  SEGUIMIENTO PUBLICO
+  ========================================
+*/
 
+export async function obtenerSeguimientoPublicoController(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const trackingToken =
+      String(
+        req.params.trackingToken || ""
+      );
+
+
+    const seguimiento =
+      await obtenerSeguimientoPublico(
+        trackingToken
+      );
+
+
+    return res.json({
+      success: true,
+      seguimiento,
+    });
+
+  } catch (error: any) {
+
+    if (
+      error?.message ===
+      "TRACKING_TOKEN_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Enlace de seguimiento inválido.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "SEGUIMIENTO_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "El seguimiento no existe.",
+      });
+    }
+
+
+    console.error(
+      "Error obteniendo seguimiento:",
+      error
+    );
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo cargar el seguimiento.",
+    });
   }
 }

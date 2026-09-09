@@ -1,24 +1,28 @@
 import {
-  Router,
+    Router,
 } from "express";
 
 import {
-  aceptarCarreraController,
-  crearCarreraController,
-  listarCarrerasAdminController,
-  listarCarrerasDisponiblesAppController,
-  obtenerCarreraController,
-  cancelarCarreraAdminController,
+    aceptarCarreraController,
+    crearCarreraController,
+    listarCarrerasAdminController,
+    listarCarrerasDisponiblesAppController,
+    obtenerCarreraActivaTaxistaController,
+    actualizarUbicacionTaxistaController,
+    finalizarCarreraTaxistaController,
+    obtenerCarreraController,
+    cancelarCarreraAdminController,
+    obtenerSeguimientoPublicoController
 } from "../controllers/carrera.controller";
 
 
 const router =
-  Router();
+    Router();
 
 
 router.post(
-  "/",
-  crearCarreraController
+    "/",
+    crearCarreraController
 );
 
 
@@ -29,8 +33,26 @@ router.post(
 */
 
 router.get(
-  "/app/disponibles",
-  listarCarrerasDisponiblesAppController
+    "/app/disponibles",
+    listarCarrerasDisponiblesAppController
+);
+
+
+router.get(
+    "/app/activa/:codigoTaxista",
+    obtenerCarreraActivaTaxistaController
+);
+
+
+router.post(
+    "/app/:id/ubicacion",
+    actualizarUbicacionTaxistaController
+);
+
+
+router.post(
+    "/app/:id/finalizar",
+    finalizarCarreraTaxistaController
 );
 
 
@@ -41,32 +63,42 @@ router.get(
 */
 
 router.get(
-  "/admin/listado",
-  listarCarrerasAdminController
+    "/admin/listado",
+    listarCarrerasAdminController
 );
 
 
 router.post(
-  "/admin/:id/cancelar",
-  cancelarCarreraAdminController
+    "/admin/:id/cancelar",
+    cancelarCarreraAdminController
 );
 
+/*
+  ========================================
+  SEGUIMIENTO CLIENTE
+  ========================================
+*/
 
+router.get(
+    "/seguimiento/:trackingToken",
+    obtenerSeguimientoPublicoController
+);
 /*
   ========================================
   CARRERA PUBLICA
   ========================================
 */
 
+
 router.get(
-  "/:token",
-  obtenerCarreraController
+    "/:token",
+    obtenerCarreraController
 );
 
 
 router.post(
-  "/:token/aceptar",
-  aceptarCarreraController
+    "/:token/aceptar",
+    aceptarCarreraController
 );
 
 

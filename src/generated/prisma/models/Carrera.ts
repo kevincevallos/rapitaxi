@@ -29,6 +29,8 @@ export type AggregateCarrera = {
 export type CarreraAvgAggregateOutputType = {
   id: number | null
   numero: number | null
+  latitudTaxista: number | null
+  longitudTaxista: number | null
   latitud: number | null
   longitud: number | null
   clienteId: number | null
@@ -38,6 +40,8 @@ export type CarreraAvgAggregateOutputType = {
 export type CarreraSumAggregateOutputType = {
   id: number | null
   numero: number | null
+  latitudTaxista: number | null
+  longitudTaxista: number | null
   latitud: number | null
   longitud: number | null
   clienteId: number | null
@@ -48,6 +52,11 @@ export type CarreraMinAggregateOutputType = {
   id: number | null
   numero: number | null
   token: string | null
+  trackingToken: string | null
+  latitudTaxista: number | null
+  longitudTaxista: number | null
+  fechaUbicacionTaxista: Date | null
+  ultimaNotificacionSeguimiento: Date | null
   nombreCliente: string | null
   whatsappCliente: string | null
   latitud: number | null
@@ -71,6 +80,11 @@ export type CarreraMaxAggregateOutputType = {
   id: number | null
   numero: number | null
   token: string | null
+  trackingToken: string | null
+  latitudTaxista: number | null
+  longitudTaxista: number | null
+  fechaUbicacionTaxista: Date | null
+  ultimaNotificacionSeguimiento: Date | null
   nombreCliente: string | null
   whatsappCliente: string | null
   latitud: number | null
@@ -94,6 +108,11 @@ export type CarreraCountAggregateOutputType = {
   id: number
   numero: number
   token: number
+  trackingToken: number
+  latitudTaxista: number
+  longitudTaxista: number
+  fechaUbicacionTaxista: number
+  ultimaNotificacionSeguimiento: number
   nombreCliente: number
   whatsappCliente: number
   latitud: number
@@ -118,6 +137,8 @@ export type CarreraCountAggregateOutputType = {
 export type CarreraAvgAggregateInputType = {
   id?: true
   numero?: true
+  latitudTaxista?: true
+  longitudTaxista?: true
   latitud?: true
   longitud?: true
   clienteId?: true
@@ -127,6 +148,8 @@ export type CarreraAvgAggregateInputType = {
 export type CarreraSumAggregateInputType = {
   id?: true
   numero?: true
+  latitudTaxista?: true
+  longitudTaxista?: true
   latitud?: true
   longitud?: true
   clienteId?: true
@@ -137,6 +160,11 @@ export type CarreraMinAggregateInputType = {
   id?: true
   numero?: true
   token?: true
+  trackingToken?: true
+  latitudTaxista?: true
+  longitudTaxista?: true
+  fechaUbicacionTaxista?: true
+  ultimaNotificacionSeguimiento?: true
   nombreCliente?: true
   whatsappCliente?: true
   latitud?: true
@@ -160,6 +188,11 @@ export type CarreraMaxAggregateInputType = {
   id?: true
   numero?: true
   token?: true
+  trackingToken?: true
+  latitudTaxista?: true
+  longitudTaxista?: true
+  fechaUbicacionTaxista?: true
+  ultimaNotificacionSeguimiento?: true
   nombreCliente?: true
   whatsappCliente?: true
   latitud?: true
@@ -183,6 +216,11 @@ export type CarreraCountAggregateInputType = {
   id?: true
   numero?: true
   token?: true
+  trackingToken?: true
+  latitudTaxista?: true
+  longitudTaxista?: true
+  fechaUbicacionTaxista?: true
+  ultimaNotificacionSeguimiento?: true
   nombreCliente?: true
   whatsappCliente?: true
   latitud?: true
@@ -293,6 +331,11 @@ export type CarreraGroupByOutputType = {
   id: number
   numero: number
   token: string
+  trackingToken: string | null
+  latitudTaxista: number | null
+  longitudTaxista: number | null
+  fechaUbicacionTaxista: Date | null
+  ultimaNotificacionSeguimiento: Date | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -339,6 +382,11 @@ export type CarreraWhereInput = {
   id?: Prisma.IntFilter<"Carrera"> | number
   numero?: Prisma.IntFilter<"Carrera"> | number
   token?: Prisma.StringFilter<"Carrera"> | string
+  trackingToken?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  latitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  longitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  fechaUbicacionTaxista?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
   nombreCliente?: Prisma.StringFilter<"Carrera"> | string
   whatsappCliente?: Prisma.StringFilter<"Carrera"> | string
   latitud?: Prisma.FloatFilter<"Carrera"> | number
@@ -364,6 +412,11 @@ export type CarreraOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUbicacionTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaNotificacionSeguimiento?: Prisma.SortOrderInput | Prisma.SortOrder
   nombreCliente?: Prisma.SortOrder
   whatsappCliente?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
@@ -389,9 +442,14 @@ export type CarreraWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   numero?: number
   token?: string
+  trackingToken?: string
   AND?: Prisma.CarreraWhereInput | Prisma.CarreraWhereInput[]
   OR?: Prisma.CarreraWhereInput[]
   NOT?: Prisma.CarreraWhereInput | Prisma.CarreraWhereInput[]
+  latitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  longitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  fechaUbicacionTaxista?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
   nombreCliente?: Prisma.StringFilter<"Carrera"> | string
   whatsappCliente?: Prisma.StringFilter<"Carrera"> | string
   latitud?: Prisma.FloatFilter<"Carrera"> | number
@@ -411,12 +469,17 @@ export type CarreraWhereUniqueInput = Prisma.AtLeast<{
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   taxista?: Prisma.XOR<Prisma.TaxistaNullableScalarRelationFilter, Prisma.TaxistaWhereInput> | null
-}, "id" | "numero" | "token">
+}, "id" | "numero" | "token" | "trackingToken">
 
 export type CarreraOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUbicacionTaxista?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaNotificacionSeguimiento?: Prisma.SortOrderInput | Prisma.SortOrder
   nombreCliente?: Prisma.SortOrder
   whatsappCliente?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
@@ -448,6 +511,11 @@ export type CarreraScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Carrera"> | number
   numero?: Prisma.IntWithAggregatesFilter<"Carrera"> | number
   token?: Prisma.StringWithAggregatesFilter<"Carrera"> | string
+  trackingToken?: Prisma.StringNullableWithAggregatesFilter<"Carrera"> | string | null
+  latitudTaxista?: Prisma.FloatNullableWithAggregatesFilter<"Carrera"> | number | null
+  longitudTaxista?: Prisma.FloatNullableWithAggregatesFilter<"Carrera"> | number | null
+  fechaUbicacionTaxista?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.DateTimeNullableWithAggregatesFilter<"Carrera"> | Date | string | null
   nombreCliente?: Prisma.StringWithAggregatesFilter<"Carrera"> | string
   whatsappCliente?: Prisma.StringWithAggregatesFilter<"Carrera"> | string
   latitud?: Prisma.FloatWithAggregatesFilter<"Carrera"> | number
@@ -470,6 +538,11 @@ export type CarreraScalarWhereWithAggregatesInput = {
 export type CarreraCreateInput = {
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -493,6 +566,11 @@ export type CarreraUncheckedCreateInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -515,6 +593,11 @@ export type CarreraUncheckedCreateInput = {
 export type CarreraUpdateInput = {
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -538,6 +621,11 @@ export type CarreraUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -561,6 +649,11 @@ export type CarreraCreateManyInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -583,6 +676,11 @@ export type CarreraCreateManyInput = {
 export type CarreraUpdateManyMutationInput = {
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -604,6 +702,11 @@ export type CarreraUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -637,6 +740,11 @@ export type CarreraCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrder
+  fechaUbicacionTaxista?: Prisma.SortOrder
+  ultimaNotificacionSeguimiento?: Prisma.SortOrder
   nombreCliente?: Prisma.SortOrder
   whatsappCliente?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
@@ -659,6 +767,8 @@ export type CarreraCountOrderByAggregateInput = {
 export type CarreraAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
@@ -669,6 +779,11 @@ export type CarreraMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrder
+  fechaUbicacionTaxista?: Prisma.SortOrder
+  ultimaNotificacionSeguimiento?: Prisma.SortOrder
   nombreCliente?: Prisma.SortOrder
   whatsappCliente?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
@@ -692,6 +807,11 @@ export type CarreraMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
   token?: Prisma.SortOrder
+  trackingToken?: Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrder
+  fechaUbicacionTaxista?: Prisma.SortOrder
+  ultimaNotificacionSeguimiento?: Prisma.SortOrder
   nombreCliente?: Prisma.SortOrder
   whatsappCliente?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
@@ -714,6 +834,8 @@ export type CarreraMinOrderByAggregateInput = {
 export type CarreraSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   numero?: Prisma.SortOrder
+  latitudTaxista?: Prisma.SortOrder
+  longitudTaxista?: Prisma.SortOrder
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
@@ -762,6 +884,22 @@ export type CarreraUncheckedUpdateManyWithoutClienteNestedInput = {
   deleteMany?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
+export type NullableFloatFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -772,14 +910,6 @@ export type FloatFieldUpdateOperationsInput = {
 
 export type EnumEstadoCarreraFieldUpdateOperationsInput = {
   set?: $Enums.EstadoCarrera
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -835,6 +965,11 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaNestedInput = {
 export type CarreraCreateWithoutClienteInput = {
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -857,6 +992,11 @@ export type CarreraUncheckedCreateWithoutClienteInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -907,6 +1047,11 @@ export type CarreraScalarWhereInput = {
   id?: Prisma.IntFilter<"Carrera"> | number
   numero?: Prisma.IntFilter<"Carrera"> | number
   token?: Prisma.StringFilter<"Carrera"> | string
+  trackingToken?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  latitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  longitudTaxista?: Prisma.FloatNullableFilter<"Carrera"> | number | null
+  fechaUbicacionTaxista?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.DateTimeNullableFilter<"Carrera"> | Date | string | null
   nombreCliente?: Prisma.StringFilter<"Carrera"> | string
   whatsappCliente?: Prisma.StringFilter<"Carrera"> | string
   latitud?: Prisma.FloatFilter<"Carrera"> | number
@@ -929,6 +1074,11 @@ export type CarreraScalarWhereInput = {
 export type CarreraCreateWithoutTaxistaInput = {
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -951,6 +1101,11 @@ export type CarreraUncheckedCreateWithoutTaxistaInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -998,6 +1153,11 @@ export type CarreraCreateManyClienteInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -1019,6 +1179,11 @@ export type CarreraCreateManyClienteInput = {
 export type CarreraUpdateWithoutClienteInput = {
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1041,6 +1206,11 @@ export type CarreraUncheckedUpdateWithoutClienteInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1063,6 +1233,11 @@ export type CarreraUncheckedUpdateManyWithoutClienteInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1085,6 +1260,11 @@ export type CarreraCreateManyTaxistaInput = {
   id?: number
   numero: number
   token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
   nombreCliente: string
   whatsappCliente: string
   latitud: number
@@ -1106,6 +1286,11 @@ export type CarreraCreateManyTaxistaInput = {
 export type CarreraUpdateWithoutTaxistaInput = {
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1128,6 +1313,11 @@ export type CarreraUncheckedUpdateWithoutTaxistaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1150,6 +1340,11 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   numero?: Prisma.IntFieldUpdateOperationsInput | number
   token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
   latitud?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1174,6 +1369,11 @@ export type CarreraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   numero?: boolean
   token?: boolean
+  trackingToken?: boolean
+  latitudTaxista?: boolean
+  longitudTaxista?: boolean
+  fechaUbicacionTaxista?: boolean
+  ultimaNotificacionSeguimiento?: boolean
   nombreCliente?: boolean
   whatsappCliente?: boolean
   latitud?: boolean
@@ -1199,6 +1399,11 @@ export type CarreraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   numero?: boolean
   token?: boolean
+  trackingToken?: boolean
+  latitudTaxista?: boolean
+  longitudTaxista?: boolean
+  fechaUbicacionTaxista?: boolean
+  ultimaNotificacionSeguimiento?: boolean
   nombreCliente?: boolean
   whatsappCliente?: boolean
   latitud?: boolean
@@ -1224,6 +1429,11 @@ export type CarreraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   numero?: boolean
   token?: boolean
+  trackingToken?: boolean
+  latitudTaxista?: boolean
+  longitudTaxista?: boolean
+  fechaUbicacionTaxista?: boolean
+  ultimaNotificacionSeguimiento?: boolean
   nombreCliente?: boolean
   whatsappCliente?: boolean
   latitud?: boolean
@@ -1249,6 +1459,11 @@ export type CarreraSelectScalar = {
   id?: boolean
   numero?: boolean
   token?: boolean
+  trackingToken?: boolean
+  latitudTaxista?: boolean
+  longitudTaxista?: boolean
+  fechaUbicacionTaxista?: boolean
+  ultimaNotificacionSeguimiento?: boolean
   nombreCliente?: boolean
   whatsappCliente?: boolean
   latitud?: boolean
@@ -1268,7 +1483,7 @@ export type CarreraSelectScalar = {
   taxistaId?: boolean
 }
 
-export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "fechaEnCamino" | "fechaCerca" | "fechaLlegada" | "fechaFin" | "calificacion" | "canceladaPor" | "clienteId" | "taxistaId", ExtArgs["result"]["carrera"]>
+export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "trackingToken" | "latitudTaxista" | "longitudTaxista" | "fechaUbicacionTaxista" | "ultimaNotificacionSeguimiento" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "fechaEnCamino" | "fechaCerca" | "fechaLlegada" | "fechaFin" | "calificacion" | "canceladaPor" | "clienteId" | "taxistaId", ExtArgs["result"]["carrera"]>
 export type CarreraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
@@ -1292,6 +1507,11 @@ export type $CarreraPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: number
     numero: number
     token: string
+    trackingToken: string | null
+    latitudTaxista: number | null
+    longitudTaxista: number | null
+    fechaUbicacionTaxista: Date | null
+    ultimaNotificacionSeguimiento: Date | null
     nombreCliente: string
     whatsappCliente: string
     latitud: number
@@ -1737,6 +1957,11 @@ export interface CarreraFieldRefs {
   readonly id: Prisma.FieldRef<"Carrera", 'Int'>
   readonly numero: Prisma.FieldRef<"Carrera", 'Int'>
   readonly token: Prisma.FieldRef<"Carrera", 'String'>
+  readonly trackingToken: Prisma.FieldRef<"Carrera", 'String'>
+  readonly latitudTaxista: Prisma.FieldRef<"Carrera", 'Float'>
+  readonly longitudTaxista: Prisma.FieldRef<"Carrera", 'Float'>
+  readonly fechaUbicacionTaxista: Prisma.FieldRef<"Carrera", 'DateTime'>
+  readonly ultimaNotificacionSeguimiento: Prisma.FieldRef<"Carrera", 'DateTime'>
   readonly nombreCliente: Prisma.FieldRef<"Carrera", 'String'>
   readonly whatsappCliente: Prisma.FieldRef<"Carrera", 'String'>
   readonly latitud: Prisma.FieldRef<"Carrera", 'Float'>

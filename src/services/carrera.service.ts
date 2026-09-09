@@ -348,6 +348,11 @@ export async function aceptarCarrera(
 
                         fechaAceptacion:
                             new Date(),
+
+                        trackingToken:
+                            crypto
+                                .randomBytes(24)
+                                .toString("hex"),
                     },
                 });
 
@@ -422,6 +427,21 @@ export async function aceptarCarrera(
       recibe los datos del vehículo.
     */
 
+    const publicUrl =
+        String(
+            process.env.PUBLIC_URL ||
+            "http://localhost:3000"
+        )
+            .replace(/\/+$/, "");
+
+
+    const enlaceSeguimiento =
+        carrera.trackingToken &&
+            publicUrl
+
+            ? `${publicUrl}/seguimiento.html?token=${carrera.trackingToken}`
+
+            : null;
 
     const descripcionVehiculo =
         [
@@ -442,8 +462,13 @@ export async function aceptarCarrera(
 
         `WhatsApp: ${taxista.telefono || "No registrado"}\n` +
 
-        `Pago: ${carrera.formaPago}`;
+        `Pago: ${carrera.formaPago}` +
 
+        (
+            enlaceSeguimiento
+                ? `\n\nSigue la llegada de tu taxi aqui:\n${enlaceSeguimiento}`
+                : ""
+        );
 
     if (
         taxista.cooperativa
@@ -603,6 +628,7 @@ export async function aceptarCarrera(
       ========================================
     */
 
+
     return {
         carrera: {
             id:
@@ -627,10 +653,11 @@ export async function aceptarCarrera(
                 carrera.whatsappCliente,
 
             enlaceWhatsAppCliente,
+            enlaceSeguimiento,
             latitud: carrera.latitud,
             longitud: carrera.longitud,
             enlaceGoogleMaps:
-                `https://www.google.com/maps/search/?api=1&query=${carrera.latitud},${carrera.longitud}`,
+                `https://www.google.com/maps/dir/?api=1&destination=${carrera.latitud},${carrera.longitud}`,
         },
 
         taxista: {
@@ -1086,5 +1113,1123 @@ export async function cancelarCarreraAdmin(
         carreraId: carrera.id,
         numero: carrera.numero,
         estado: "CANCELADA"
+    };
+}
+
+/*
+  ========================================
+  APP TAXISTA - CARRERA ACTIVA
+  ========================================
+*/
+
+export async function obtenerCarreraActivaTaxista(
+    codigoTaxista: string
+) {
+
+    const codigo =
+        normalizarCodigoTaxista(
+            codigoTaxista
+        );
+
+
+    const taxista =
+        await prisma.taxista.findUnique({
+            where: {
+                codigo,
+            },
+
+            select: {
+                id: true,
+                activo: true,
+            },
+        });
+
+
+    if (!taxista) {
+        throw new Error(
+            "TAXISTA_NO_EXISTE"
+        );
+    }
+
+
+    if (!taxista.activo) {
+        throw new Error(
+            "TAXISTA_INACTIVO"
+        );
+    }
+
+
+    const carrera =
+        await prisma.carrera.findFirst({
+            where: {
+                taxistaId:
+                    taxista.id,
+
+                fechaFin:
+                    null,
+
+                estado: {
+                    in: [
+                        "ASIGNADA",
+                        "EN_CAMINO",
+                        "CERCA",
+                        "LLEGO",
+                    ],
+                },
+            },
+
+            orderBy: {
+                fechaAceptacion:
+                    "desc",
+            },
+        });
+
+
+    if (!carrera) {
+        return null;
+    }
+
+
+    const telefonoCliente =
+        normalizarTelefono(
+            carrera.whatsappCliente
+        );
+
+
+    const mensajeParaCliente =
+        encodeURIComponent(
+            textoSeguroWhatsApp(
+                `Hola ${carrera.nombreCliente}, soy tu taxista asignado a la carrera #${carrera.numero}.`
+            )
+        );
+
+    const publicUrl =
+        String(
+            process.env.PUBLIC_URL ||
+            "http://localhost:3000"
+        )
+            .replace(/\/+$/, "");
+
+
+    const enlaceSeguimiento =
+        carrera.trackingToken &&
+            publicUrl
+
+            ? `${publicUrl}/seguimiento.html?token=${carrera.trackingToken}`
+
+            : null;
+
+    return {
+        id:
+            carrera.id,
+
+        numero:
+            carrera.numero,
+
+        estado:
+            carrera.estado,
+
+        referencia:
+            carrera.referencia,
+
+        formaPago:
+            carrera.formaPago,
+
+        latitud:
+            carrera.latitud,
+
+        longitud:
+            carrera.longitud,
+
+        fechaAceptacion:
+            carrera.fechaAceptacion,
+
+        enlaceSeguimiento,
+
+        enlaceGoogleMaps:
+            `https://www.google.com/maps/dir/?api=1&destination=${carrera.latitud},${carrera.longitud}`,
+
+        enlaceWhatsAppCliente:
+            `https://wa.me/${telefonoCliente}?text=${mensajeParaCliente}`,
+    };
+}
+
+
+/*
+  ========================================
+  APP TAXISTA - ACTUALIZAR GPS
+  ========================================
+*/
+
+export async function actualizarUbicacionTaxista(
+    carreraId: number,
+    codigoTaxista: string,
+    latitud: number,
+    longitud: number
+) {
+
+    const codigo =
+        normalizarCodigoTaxista(
+            codigoTaxista
+        );
+
+
+    if (
+        !Number.isFinite(latitud) ||
+        !Number.isFinite(longitud) ||
+        latitud < -90 ||
+        latitud > 90 ||
+        longitud < -180 ||
+        longitud > 180
+    ) {
+        throw new Error(
+            "UBICACION_INVALIDA"
+        );
+    }
+
+
+    const taxista =
+        await prisma.taxista.findUnique({
+            where: {
+                codigo,
+            },
+
+            select: {
+                id: true,
+                activo: true,
+            },
+        });
+
+
+    if (!taxista) {
+        throw new Error(
+            "TAXISTA_NO_EXISTE"
+        );
+    }
+
+
+    if (!taxista.activo) {
+        throw new Error(
+            "TAXISTA_INACTIVO"
+        );
+    }
+
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                id: carreraId,
+            },
+
+            select: {
+                id: true,
+                numero: true,
+
+                taxistaId: true,
+
+                estado: true,
+                fechaFin: true,
+
+                latitud: true,
+                longitud: true,
+
+                whatsappCliente: true,
+
+                ultimaNotificacionSeguimiento:
+                    true,
+            },
+        });
+
+
+    if (!carrera) {
+        throw new Error(
+            "CARRERA_NO_EXISTE"
+        );
+    }
+
+
+    if (
+        carrera.taxistaId !==
+        taxista.id
+    ) {
+        throw new Error(
+            "CARRERA_NO_PERTENECE_TAXISTA"
+        );
+    }
+
+
+    if (
+        carrera.fechaFin ||
+        ![
+            "ASIGNADA",
+            "EN_CAMINO",
+            "CERCA",
+            "LLEGO",
+        ].includes(
+            carrera.estado
+        )
+    ) {
+        throw new Error(
+            "CARRERA_NO_ACTIVA"
+        );
+    }
+
+
+    const ahora =
+        new Date();
+
+
+    /*
+      Distancia en línea recta entre
+      el taxi y la ubicación del cliente.
+    */
+
+    const distanciaKm =
+        calcularDistanciaKm(
+            latitud,
+            longitud,
+            carrera.latitud,
+            carrera.longitud
+        );
+
+
+    const etaMinutos =
+        calcularEtaAproximadaMinutos(
+            distanciaKm
+        );
+
+
+    /*
+      ========================================
+      ESTADO AUTOMATICO SEGUN DISTANCIA
+      ========================================
+
+      > 700 m  -> EN_CAMINO
+      <= 700 m -> CERCA
+      <= 200 m -> LLEGO
+
+      El taxista NO pulsa botones.
+    */
+
+    let nuevoEstado:
+        "EN_CAMINO" |
+        "CERCA" |
+        "LLEGO";
+
+
+    if (
+        distanciaKm <= 0.2
+    ) {
+
+        nuevoEstado =
+            "LLEGO";
+
+    } else if (
+        distanciaKm <= 0.7
+    ) {
+
+        nuevoEstado =
+            "CERCA";
+
+    } else {
+
+        /*
+          Nunca hacemos retroceder CERCA
+          o LLEGO si el GPS fluctúa.
+        */
+
+        if (
+            carrera.estado ===
+            "CERCA" ||
+            carrera.estado ===
+            "LLEGO"
+        ) {
+
+            nuevoEstado =
+                carrera.estado;
+
+        } else {
+
+            nuevoEstado =
+                "EN_CAMINO";
+        }
+    }
+
+
+    /*
+      Tampoco permitimos:
+      LLEGO -> CERCA
+    */
+
+    if (
+        carrera.estado ===
+        "LLEGO"
+    ) {
+        nuevoEstado =
+            "LLEGO";
+    }
+
+
+    const dataActualizacion: any = {
+
+        latitudTaxista:
+            latitud,
+
+        longitudTaxista:
+            longitud,
+
+        fechaUbicacionTaxista:
+            ahora,
+
+        estado:
+            nuevoEstado,
+    };
+
+
+    if (
+        carrera.estado ===
+        "ASIGNADA"
+    ) {
+
+        dataActualizacion
+            .fechaEnCamino =
+            ahora;
+    }
+
+
+    if (
+        nuevoEstado ===
+        "CERCA" &&
+        carrera.estado !==
+        "CERCA" &&
+        carrera.estado !==
+        "LLEGO"
+    ) {
+
+        dataActualizacion
+            .fechaCerca =
+            ahora;
+    }
+
+
+    if (
+        nuevoEstado ===
+        "LLEGO" &&
+        carrera.estado !==
+        "LLEGO"
+    ) {
+
+        dataActualizacion
+            .fechaLlegada =
+            ahora;
+    }
+
+
+    /*
+      ========================================
+      MENSAJES AUTOMATICOS
+      ========================================
+    */
+
+    const entroEnCerca =
+        nuevoEstado ===
+        "CERCA" &&
+        carrera.estado !==
+        "CERCA" &&
+        carrera.estado !==
+        "LLEGO";
+
+
+    const entroEnLlegando =
+        nuevoEstado ===
+        "LLEGO" &&
+        carrera.estado !==
+        "LLEGO";
+
+
+    const hanPasadoCincoMinutos =
+        !carrera
+            .ultimaNotificacionSeguimiento ||
+
+        (
+            ahora.getTime() -
+            carrera
+                .ultimaNotificacionSeguimiento
+                .getTime()
+        ) >=
+        5 * 60 * 1000;
+
+
+    let mensajeAutomatico:
+        string | null =
+        null;
+
+
+    if (
+        entroEnLlegando
+    ) {
+
+        mensajeAutomatico =
+            `Tu taxi esta llegando. ` +
+            `Se encuentra a aproximadamente ` +
+            `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
+
+    } else if (
+        entroEnCerca
+    ) {
+
+        mensajeAutomatico =
+            `Tu taxi esta cerca. ` +
+            `Se encuentra a aproximadamente ` +
+            `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
+
+    } else if (
+        hanPasadoCincoMinutos
+    ) {
+
+        mensajeAutomatico =
+            `Actualizacion Rapitaxi: ` +
+            `tu taxi se encuentra a aproximadamente ` +
+            `${distanciaKm.toFixed(1)} km ` +
+            `y ${etaMinutos} min de tu ubicacion.`;
+    }
+
+
+    /*
+      Si vamos a enviar un aviso,
+      guardamos el momento.
+
+      Esto evita mandar mensajes con
+      cada actualización GPS.
+    */
+
+    if (
+        mensajeAutomatico
+    ) {
+
+        dataActualizacion
+            .ultimaNotificacionSeguimiento =
+            ahora;
+    }
+
+
+    const actualizada =
+        await prisma.carrera.update({
+            where: {
+                id:
+                    carrera.id,
+            },
+
+            data:
+                dataActualizacion,
+
+            select: {
+                id: true,
+                numero: true,
+                estado: true,
+
+                latitudTaxista:
+                    true,
+
+                longitudTaxista:
+                    true,
+
+                fechaUbicacionTaxista:
+                    true,
+
+                ultimaNotificacionSeguimiento:
+                    true,
+            },
+        });
+
+
+    /*
+      WhatsApp es secundario.
+
+      Si Kapso falla, NO hacemos fallar
+      el GPS ni deshacemos la ubicación.
+    */
+
+    if (
+        mensajeAutomatico
+    ) {
+
+        enviarTextoWhatsApp(
+            normalizarTelefono(
+                carrera.whatsappCliente
+            ),
+
+            textoSeguroWhatsApp(
+                mensajeAutomatico
+            )
+        )
+            .catch(
+                error => {
+
+                    console.error(
+                        `Error enviando seguimiento de carrera #${carrera.numero}:`,
+                        error
+                    );
+                }
+            );
+    }
+
+
+    return {
+        ...actualizada,
+
+        distanciaKm:
+            Number(
+                distanciaKm.toFixed(2)
+            ),
+
+        etaMinutos,
+    };
+}
+
+
+/*
+  ========================================
+  APP TAXISTA - FINALIZAR CARRERA
+  ========================================
+*/
+
+export async function finalizarCarreraTaxista(
+    carreraId: number,
+    codigoTaxista: string
+) {
+
+    const codigo =
+        normalizarCodigoTaxista(
+            codigoTaxista
+        );
+
+
+    const taxista =
+        await prisma.taxista.findUnique({
+            where: {
+                codigo,
+            },
+
+            select: {
+                id: true,
+                activo: true,
+            },
+        });
+
+
+    if (!taxista) {
+        throw new Error(
+            "TAXISTA_NO_EXISTE"
+        );
+    }
+
+
+    if (!taxista.activo) {
+        throw new Error(
+            "TAXISTA_INACTIVO"
+        );
+    }
+
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                id:
+                    carreraId,
+            },
+        });
+
+
+    if (!carrera) {
+        throw new Error(
+            "CARRERA_NO_EXISTE"
+        );
+    }
+
+
+    if (
+        carrera.taxistaId !==
+        taxista.id
+    ) {
+        throw new Error(
+            "CARRERA_NO_PERTENECE_TAXISTA"
+        );
+    }
+
+
+    if (
+        carrera.fechaFin ||
+        carrera.estado ===
+        "COMPLETADA" ||
+        carrera.estado ===
+        "CANCELADA"
+    ) {
+        throw new Error(
+            "CARRERA_YA_CERRADA"
+        );
+    }
+
+
+    const ahora =
+        new Date();
+
+
+    const resultado =
+        await prisma.carrera.updateMany({
+            where: {
+                id:
+                    carrera.id,
+
+                taxistaId:
+                    taxista.id,
+
+                fechaFin:
+                    null,
+
+                estado: {
+                    in: [
+                        "ASIGNADA",
+                        "EN_CAMINO",
+                        "CERCA",
+                        "LLEGO",
+                    ],
+                },
+            },
+
+            data: {
+                estado:
+                    "COMPLETADA",
+
+                fechaFin:
+                    ahora,
+            },
+        });
+
+
+    if (
+        resultado.count === 0
+    ) {
+        throw new Error(
+            "CARRERA_YA_CERRADA"
+        );
+    }
+
+
+    const telefonoCliente =
+        normalizarTelefono(
+            carrera.whatsappCliente
+        );
+
+
+    /*
+      Liberamos inmediatamente al cliente.
+
+      No depende de que WhatsApp funcione.
+    */
+
+    try {
+
+        await prisma
+            .conversacionWhatsApp
+            .updateMany({
+
+                where: {
+                    telefono:
+                        telefonoCliente,
+                },
+
+                data: {
+                    estado:
+                        "NUEVO",
+
+                    carreraId:
+                        null,
+
+                    latitud:
+                        null,
+
+                    longitud:
+                        null,
+
+                    referencia:
+                        null,
+                },
+            });
+
+    } catch (error) {
+
+        console.error(
+            `Error liberando conversación de carrera #${carrera.numero}:`,
+            error
+        );
+
+    }
+
+
+    /*
+      El mensaje es secundario.
+      Si Kapso falla, la carrera ya quedó
+      correctamente finalizada.
+    */
+
+    try {
+
+        await enviarTextoWhatsApp(
+            telefonoCliente,
+
+            textoSeguroWhatsApp(
+                `Tu carrera #${carrera.numero} ha finalizado.\nGracias por viajar con Rapitaxi!`
+            )
+        );
+
+
+        await enviarBotonesWhatsApp(
+            telefonoCliente,
+
+            "Que tal estuvo tu taxista?",
+
+            [
+                {
+                    id:
+                        `rating_excelente_${carrera.id}`,
+
+                    titulo:
+                        "Excelente",
+                },
+
+                {
+                    id:
+                        `rating_bueno_${carrera.id}`,
+
+                    titulo:
+                        "Bueno",
+                },
+
+                {
+                    id:
+                        `rating_malo_${carrera.id}`,
+
+                    titulo:
+                        "Malo",
+                },
+            ]
+        );
+
+    } catch (error) {
+
+        console.error(
+            `Error enviando cierre de carrera #${carrera.numero}:`,
+            error
+        );
+
+    }
+
+
+    return {
+        id:
+            carrera.id,
+
+        numero:
+            carrera.numero,
+
+        estado:
+            "COMPLETADA",
+
+        fechaFin:
+            ahora,
+    };
+}
+/*
+  ========================================
+  SEGUIMIENTO PUBLICO DEL CLIENTE
+  ========================================
+*/
+
+function calcularDistanciaKm(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+) {
+
+    const radioTierraKm =
+        6371;
+
+
+    const gradosARadianes =
+        (grados: number) =>
+            grados * Math.PI / 180;
+
+
+    const dLat =
+        gradosARadianes(
+            lat2 - lat1
+        );
+
+
+    const dLon =
+        gradosARadianes(
+            lon2 - lon1
+        );
+
+
+    const a =
+        Math.sin(dLat / 2) *
+        Math.sin(dLat / 2) +
+
+        Math.cos(
+            gradosARadianes(lat1)
+        ) *
+
+        Math.cos(
+            gradosARadianes(lat2)
+        ) *
+
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+
+    const c =
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        );
+
+
+    return radioTierraKm * c;
+}
+
+
+function calcularEtaAproximadaMinutos(
+    distanciaKm: number
+) {
+
+    /*
+      Para el MVP usamos una velocidad
+      urbana promedio de 25 km/h.
+
+      Luego podremos reemplazar esto
+      por Google Routes u otro proveedor.
+    */
+
+    if (
+        distanciaKm <= 0.15
+    ) {
+        return 1;
+    }
+
+
+    const velocidadKmHora =
+        25;
+
+
+    const minutos =
+        (
+            distanciaKm /
+            velocidadKmHora
+        ) * 60;
+
+
+    return Math.max(
+        1,
+        Math.ceil(minutos)
+    );
+}
+
+
+export async function obtenerSeguimientoPublico(
+    trackingToken: string
+) {
+
+    const token =
+        String(
+            trackingToken || ""
+        ).trim();
+
+
+    if (
+        token.length < 20
+    ) {
+        throw new Error(
+            "TRACKING_TOKEN_INVALIDO"
+        );
+    }
+
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                trackingToken:
+                    token,
+            },
+
+            select: {
+                numero: true,
+                estado: true,
+
+                latitud: true,
+                longitud: true,
+
+                latitudTaxista: true,
+                longitudTaxista: true,
+                fechaUbicacionTaxista:
+                    true,
+
+                fechaAceptacion: true,
+                fechaFin: true,
+
+                taxista: {
+                    select: {
+                        nombre: true,
+                        vehiculo: true,
+                        colorVehiculo: true,
+                        placa: true,
+                        cooperativa: true,
+                    },
+                },
+            },
+        });
+
+
+    if (!carrera) {
+        throw new Error(
+            "SEGUIMIENTO_NO_EXISTE"
+        );
+    }
+
+
+    /*
+      Si la carrera ya terminó, dejamos
+      de entregar la posición del taxi.
+    */
+
+    if (
+        carrera.estado ===
+        "COMPLETADA" ||
+        carrera.estado ===
+        "CANCELADA" ||
+        carrera.fechaFin
+    ) {
+
+        return {
+            numero:
+                carrera.numero,
+
+            estado:
+                carrera.estado,
+
+            activa:
+                false,
+
+            mensaje:
+                "Esta carrera ha finalizado.",
+        };
+    }
+
+
+    let distanciaKm:
+        number | null =
+        null;
+
+
+    let etaMinutos:
+        number | null =
+        null;
+
+
+    if (
+        carrera.latitudTaxista !==
+        null &&
+        carrera.longitudTaxista !==
+        null
+    ) {
+
+        distanciaKm =
+            calcularDistanciaKm(
+                carrera.latitudTaxista,
+                carrera.longitudTaxista,
+                carrera.latitud,
+                carrera.longitud
+            );
+
+
+        etaMinutos =
+            calcularEtaAproximadaMinutos(
+                distanciaKm
+            );
+    }
+
+
+    return {
+        numero:
+            carrera.numero,
+
+        estado:
+            carrera.estado,
+
+        activa:
+            true,
+
+        destino: {
+            latitud:
+                carrera.latitud,
+
+            longitud:
+                carrera.longitud,
+        },
+
+        taxi:
+            carrera.latitudTaxista !==
+                null &&
+                carrera.longitudTaxista !==
+                null
+
+                ? {
+                    latitud:
+                        carrera.latitudTaxista,
+
+                    longitud:
+                        carrera.longitudTaxista,
+
+                    ultimaActualizacion:
+                        carrera.fechaUbicacionTaxista,
+                }
+
+                : null,
+
+        distanciaKm:
+            distanciaKm !== null
+
+                ? Number(
+                    distanciaKm.toFixed(2)
+                )
+
+                : null,
+
+        etaMinutos,
+
+        taxista:
+            carrera.taxista
+
+                ? {
+                    nombre:
+                        carrera.taxista.nombre,
+
+                    vehiculo:
+                        carrera.taxista.vehiculo,
+
+                    colorVehiculo:
+                        carrera.taxista.colorVehiculo,
+
+                    placa:
+                        carrera.taxista.placa,
+
+                    cooperativa:
+                        carrera.taxista.cooperativa,
+                }
+
+                : null,
     };
 }

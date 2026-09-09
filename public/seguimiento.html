@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Rapitaxi - Seguimiento</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f5f7;
+      color: #1f2937;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+    }
+
+    .header {
+      background: #5b2be0;
+      color: #ffffff;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    #map {
+      width: 100%;
+      height: 52vh;
+      min-height: 330px;
+      background: #e5e7eb;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow:
+        0 6px 20px
+        rgba(0, 0, 0, 0.08);
+    }
+
+    .title {
+      margin: 0 0 16px;
+      font-size: 21px;
+      text-align: center;
+    }
+
+    .status {
+      padding: 11px 14px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 11px 0;
+      border-bottom: 1px solid #eeeeee;
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .label {
+      color: #6b7280;
+    }
+
+    .value {
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .tracking-wait {
+      margin-top: 15px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .error {
+      max-width: 500px;
+      margin: 50px auto;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .footer {
+      padding: 8px 20px 25px;
+      color: #9ca3af;
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="brand">
+      🚕 Rapitaxi
+    </div>
+
+    <div class="subtitle">
+      Seguimiento de tu taxi
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="container">
+
+    <div class="card">
+
+      <h2
+        class="title"
+        id="titulo"
+      >
+        Cargando carrera...
+      </h2>
+
+      <div
+        class="status"
+        id="estado"
+      >
+        Esperando información...
+      </div>
+
+      <div class="row">
+        <span class="label">
+          Taxista
+        </span>
+
+        <span
+          class="value"
+          id="taxista"
+        >
+          --
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">
+          Vehículo
+        </span>
+
+        <span
+          class="value"
+          id="vehiculo"
+        >
+          --
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">
+          Distancia aprox.
+        </span>
+
+        <span
+          class="value"
+          id="distancia"
+        >
+          --
+        </span>
+      </div>
+
+      <div class="row">
+        <span class="label">
+          Llegada aprox.
+        </span>
+
+        <span
+          class="value"
+          id="eta"
+        >
+          --
+        </span>
+      </div>
+
+      <div
+        class="tracking-wait"
+        id="mensaje"
+      >
+        La ubicación se actualizará automáticamente.
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Rapitaxi · Chone
+  </div>
+
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  ></script>
+
+  <script src="/seguimiento.js"></script>
+
+</body>
+</html>

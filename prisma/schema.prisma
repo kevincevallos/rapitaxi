@@ -7,57 +7,62 @@ datasource db {
   provider = "sqlite"
 }
 
-
 model Cliente {
   id            Int      @id @default(autoincrement())
   whatsapp      String   @unique
   nombre        String
   fechaRegistro DateTime @default(now())
 
-  carreras      Carrera[]
-  conversacion  ConversacionWhatsApp?
+  carreras     Carrera[]
+  conversacion ConversacionWhatsApp?
 }
 
-
 model Carrera {
-  id              Int           @id @default(autoincrement())
-  numero          Int           @unique
-  token           String        @unique
+  id     Int    @id @default(autoincrement())
+  numero Int    @unique
+  token  String @unique
+
+  trackingToken String? @unique
+
+  latitudTaxista        Float?
+  longitudTaxista       Float?
+  fechaUbicacionTaxista DateTime?
+
+  ultimaNotificacionSeguimiento DateTime?
 
   nombreCliente   String
   whatsappCliente String
 
-  latitud         Float
-  longitud        Float
-  referencia      String
-  formaPago       String
+  latitud    Float
+  longitud   Float
+  referencia String
+  formaPago  String
 
-  estado          EstadoCarrera @default(BUSCANDO)
+  estado EstadoCarrera @default(BUSCANDO)
 
-  fechaCreacion   DateTime      @default(now())
+  fechaCreacion   DateTime  @default(now())
   fechaAceptacion DateTime?
   fechaEnCamino   DateTime?
   fechaCerca      DateTime?
   fechaLlegada    DateTime?
-  fechaFin         DateTime?
+  fechaFin        DateTime?
 
-  calificacion    String?
-  canceladaPor    String?
+  calificacion String?
+  canceladaPor String?
 
-  clienteId       Int?
-  cliente         Cliente?      @relation(fields: [clienteId], references: [id])
+  clienteId Int?
+  cliente   Cliente? @relation(fields: [clienteId], references: [id])
 
-  taxistaId       Int?
-  taxista         Taxista?      @relation(fields: [taxistaId], references: [id])
+  taxistaId Int?
+  taxista   Taxista? @relation(fields: [taxistaId], references: [id])
 }
 
-
 model Taxista {
-  id            Int      @id @default(autoincrement())
-  codigo        String   @unique
-  nombre        String
-  placa         String   @unique
-  vehiculo      String
+  id       Int    @id @default(autoincrement())
+  codigo   String @unique
+  nombre   String
+  placa    String @unique
+  vehiculo String
 
   colorVehiculo String?
   cooperativa   String?
@@ -75,28 +80,26 @@ model Taxista {
   carreras Carrera[]
 }
 
-
 model ConversacionWhatsApp {
-  id                 Int                @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  telefono           String             @unique
-  nombre             String?
+  telefono String  @unique
+  nombre   String?
 
-  estado             EstadoConversacion @default(NUEVO)
+  estado EstadoConversacion @default(NUEVO)
 
-  latitud            Float?
-  longitud           Float?
-  referencia         String?
+  latitud    Float?
+  longitud   Float?
+  referencia String?
 
-  carreraId          Int?
+  carreraId Int?
 
-  clienteId          Int?               @unique
-  cliente            Cliente?           @relation(fields: [clienteId], references: [id])
+  clienteId Int?     @unique
+  cliente   Cliente? @relation(fields: [clienteId], references: [id])
 
-  fechaCreacion      DateTime            @default(now())
-  fechaActualizacion DateTime            @updatedAt
+  fechaCreacion      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
 }
-
 
 enum EstadoCarrera {
   BUSCANDO
@@ -107,7 +110,6 @@ enum EstadoCarrera {
   COMPLETADA
   CANCELADA
 }
-
 
 enum EstadoConversacion {
   NUEVO
