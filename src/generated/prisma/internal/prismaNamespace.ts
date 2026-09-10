@@ -400,6 +400,7 @@ export const ModelName = {
   Cliente: 'Cliente',
   Carrera: 'Carrera',
   Taxista: 'Taxista',
+  DispositivoTaxista: 'DispositivoTaxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp'
 } as const
 
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "cliente" | "carrera" | "taxista" | "conversacionWhatsApp"
+    modelProps: "cliente" | "carrera" | "taxista" | "dispositivoTaxista" | "conversacionWhatsApp"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -642,6 +643,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DispositivoTaxista: {
+      payload: Prisma.$DispositivoTaxistaPayload<ExtArgs>
+      fields: Prisma.DispositivoTaxistaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DispositivoTaxistaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DispositivoTaxistaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        findFirst: {
+          args: Prisma.DispositivoTaxistaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DispositivoTaxistaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        findMany: {
+          args: Prisma.DispositivoTaxistaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>[]
+        }
+        create: {
+          args: Prisma.DispositivoTaxistaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        createMany: {
+          args: Prisma.DispositivoTaxistaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DispositivoTaxistaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>[]
+        }
+        delete: {
+          args: Prisma.DispositivoTaxistaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        update: {
+          args: Prisma.DispositivoTaxistaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        deleteMany: {
+          args: Prisma.DispositivoTaxistaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DispositivoTaxistaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DispositivoTaxistaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>[]
+        }
+        upsert: {
+          args: Prisma.DispositivoTaxistaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DispositivoTaxistaPayload>
+        }
+        aggregate: {
+          args: Prisma.DispositivoTaxistaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDispositivoTaxista>
+        }
+        groupBy: {
+          args: Prisma.DispositivoTaxistaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DispositivoTaxistaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DispositivoTaxistaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DispositivoTaxistaCountAggregateOutputType> | number
+        }
+      }
+    }
     ConversacionWhatsApp: {
       payload: Prisma.$ConversacionWhatsAppPayload<ExtArgs>
       fields: Prisma.ConversacionWhatsAppFieldRefs
@@ -811,6 +886,20 @@ export const TaxistaScalarFieldEnum = {
 } as const
 
 export type TaxistaScalarFieldEnum = (typeof TaxistaScalarFieldEnum)[keyof typeof TaxistaScalarFieldEnum]
+
+
+export const DispositivoTaxistaScalarFieldEnum = {
+  id: 'id',
+  deviceId: 'deviceId',
+  sessionToken: 'sessionToken',
+  expoPushToken: 'expoPushToken',
+  activo: 'activo',
+  fechaRegistro: 'fechaRegistro',
+  fechaActualizacion: 'fechaActualizacion',
+  taxistaId: 'taxistaId'
+} as const
+
+export type DispositivoTaxistaScalarFieldEnum = (typeof DispositivoTaxistaScalarFieldEnum)[keyof typeof DispositivoTaxistaScalarFieldEnum]
 
 
 export const ConversacionWhatsAppScalarFieldEnum = {
@@ -1054,6 +1143,7 @@ export type GlobalOmitConfig = {
   cliente?: Prisma.ClienteOmit
   carrera?: Prisma.CarreraOmit
   taxista?: Prisma.TaxistaOmit
+  dispositivoTaxista?: Prisma.DispositivoTaxistaOmit
   conversacionWhatsApp?: Prisma.ConversacionWhatsAppOmit
 }
 

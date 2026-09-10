@@ -33,6 +33,11 @@ export type Carrera = Prisma.CarreraModel
  */
 export type Taxista = Prisma.TaxistaModel
 /**
+ * Model DispositivoTaxista
+ * 
+ */
+export type DispositivoTaxista = Prisma.DispositivoTaxistaModel
+/**
  * Model ConversacionWhatsApp
  * 
  */

@@ -11,5 +11,6 @@
 export type * from './models/Cliente.js'
 export type * from './models/Carrera.js'
 export type * from './models/Taxista.js'
+export type * from './models/DispositivoTaxista.js'
 export type * from './models/ConversacionWhatsApp.js'
 export type * from './commonInputTypes.js'

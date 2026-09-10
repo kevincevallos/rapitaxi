@@ -1,5 +1,9 @@
 import crypto from "crypto";
 
+import {
+    enviarPushNuevaCarrera,
+} from "./push.service";
+
 import { prisma } from "../config/prisma";
 
 import {
@@ -158,36 +162,52 @@ export async function crearCarrera(
             .randomBytes(24)
             .toString("hex");
 
+    const carrera =
+        await prisma.carrera.create({
+            data: {
+                numero,
+                token,
 
-    return prisma.carrera.create({
-        data: {
-            numero,
-            token,
+                nombreCliente:
+                    data.nombreCliente.trim(),
 
-            nombreCliente:
-                data.nombreCliente.trim(),
+                whatsappCliente:
+                    normalizarTelefono(
+                        data.whatsappCliente
+                    ),
 
-            whatsappCliente:
-                normalizarTelefono(
-                    data.whatsappCliente
-                ),
+                latitud:
+                    data.latitud,
 
-            latitud:
-                data.latitud,
+                longitud:
+                    data.longitud,
 
-            longitud:
-                data.longitud,
+                referencia:
+                    data.referencia.trim(),
 
-            referencia:
-                data.referencia.trim(),
+                formaPago:
+                    data.formaPago,
 
-            formaPago:
-                data.formaPago,
+                estado:
+                    "BUSCANDO",
+            },
+        });
+    enviarPushNuevaCarrera(
+        carrera.numero,
+        carrera.token,
+        carrera.referencia,
+        carrera.formaPago
+    ).catch(
+        (error) => {
+            console.error(
+                "Error lanzando push:",
+                error
+            );
+        }
+    );
 
-            estado:
-                "BUSCANDO",
-        },
-    });
+
+    return carrera;
 }
 
 

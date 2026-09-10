@@ -54,6 +54,7 @@ export const ModelName = {
   Cliente: 'Cliente',
   Carrera: 'Carrera',
   Taxista: 'Taxista',
+  DispositivoTaxista: 'DispositivoTaxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp'
 } as const
 
@@ -129,6 +130,20 @@ export const TaxistaScalarFieldEnum = {
 } as const
 
 export type TaxistaScalarFieldEnum = (typeof TaxistaScalarFieldEnum)[keyof typeof TaxistaScalarFieldEnum]
+
+
+export const DispositivoTaxistaScalarFieldEnum = {
+  id: 'id',
+  deviceId: 'deviceId',
+  sessionToken: 'sessionToken',
+  expoPushToken: 'expoPushToken',
+  activo: 'activo',
+  fechaRegistro: 'fechaRegistro',
+  fechaActualizacion: 'fechaActualizacion',
+  taxistaId: 'taxistaId'
+} as const
+
+export type DispositivoTaxistaScalarFieldEnum = (typeof DispositivoTaxistaScalarFieldEnum)[keyof typeof DispositivoTaxistaScalarFieldEnum]
 
 
 export const ConversacionWhatsAppScalarFieldEnum = {

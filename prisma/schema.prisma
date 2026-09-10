@@ -77,7 +77,25 @@ model Taxista {
   titularGuayaquil String?
   cuentaGuayaquil  String?
 
-  carreras Carrera[]
+  carreras      Carrera[]
+  dispositivos  DispositivoTaxista[]
+}
+
+model DispositivoTaxista {
+  id Int @id @default(autoincrement())
+
+  deviceId     String @unique
+  sessionToken String @unique
+
+  expoPushToken String? @unique
+
+  activo Boolean @default(true)
+
+  fechaRegistro      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  taxistaId Int     @unique
+  taxista   Taxista @relation(fields: [taxistaId], references: [id], onDelete: Cascade)
 }
 
 model ConversacionWhatsApp {

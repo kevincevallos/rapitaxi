@@ -5,21 +5,35 @@ import {
   crearTaxistaController,
   listarTaxistasController,
   loginTaxistaAppController,
+  registrarPushTokenTaxistaController,
+  validarSesionTaxistaController,
 } from "../controllers/taxista.controller";
 
 const router = Router();
 
 /*
-  LOGIN APP TAXISTA
+  APP TAXISTA
 */
+
 router.post(
   "/app/login",
   loginTaxistaAppController
 );
 
+router.post(
+  "/app/push-token",
+  registrarPushTokenTaxistaController
+);
+
+router.get(
+  "/app/session",
+  validarSesionTaxistaController
+);
+
 /*
   ADMIN
 */
+
 router.get(
   "/",
   listarTaxistasController

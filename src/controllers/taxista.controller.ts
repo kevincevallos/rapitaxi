@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import {
     Request,
     Response,
@@ -407,6 +408,7 @@ export async function loginTaxistaAppController(
                     vehiculo: true,
                     colorVehiculo: true,
                     cooperativa: true,
+                    telefono: true,
                     activo: true,
                 },
             });
@@ -430,10 +432,141 @@ export async function loginTaxistaAppController(
         }
 
 
+        /*
+          COMPATIBILIDAD TEMPORAL
+
+          La APK que ya está instalada actualmente
+          todavía puede iniciar sesión enviando solo
+          el código.
+
+          Cuando llegue deviceId se activa el nuevo
+          sistema de sesión única.
+        */
+
+        const deviceId =
+            String(
+                req.body.deviceId || ""
+            )
+            .trim();
+
+
+        if (!deviceId) {
+
+            return res.json({
+                success: true,
+                taxista,
+                sessionToken: null,
+                sessionMode: "legacy",
+            });
+
+        }
+
+
+        if (
+            deviceId.length < 10 ||
+            deviceId.length > 200
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Identificador de dispositivo inválido.",
+            });
+        }
+
+
+        const sessionToken =
+            crypto
+                .randomBytes(32)
+                .toString("hex");
+
+
+        const dispositivo =
+            await prisma.$transaction(
+                async (tx) => {
+
+                    /*
+                      Si este mismo teléfono estaba
+                      vinculado a otro taxista, se libera.
+                    */
+
+                    await tx.dispositivoTaxista.deleteMany({
+                        where: {
+                            deviceId,
+                            taxistaId: {
+                                not:
+                                    taxista.id,
+                            },
+                        },
+                    });
+
+
+                    /*
+                      taxistaId es UNIQUE.
+
+                      Si el taxista inicia sesión
+                      desde otro celular, actualizamos
+                      este mismo registro.
+
+                      El sessionToken anterior deja
+                      de ser válido inmediatamente.
+                    */
+
+                    return await tx.dispositivoTaxista.upsert({
+                        where: {
+                            taxistaId:
+                                taxista.id,
+                        },
+
+                        create: {
+                            taxistaId:
+                                taxista.id,
+
+                            deviceId,
+
+                            sessionToken,
+
+                            expoPushToken:
+                                null,
+
+                            activo:
+                                true,
+                        },
+
+                        update: {
+                            deviceId,
+
+                            sessionToken,
+
+                            expoPushToken:
+                                null,
+
+                            activo:
+                                true,
+                        },
+
+                        select: {
+                            id: true,
+                            deviceId: true,
+                            sessionToken: true,
+                        },
+                    });
+
+                }
+            );
+
+
         return res.json({
             success: true,
+
             taxista,
+
+            sessionToken:
+                dispositivo.sessionToken,
+
+            sessionMode:
+                "device",
         });
+
 
     } catch (error) {
 
@@ -447,6 +580,254 @@ export async function loginTaxistaAppController(
             success: false,
             message:
                 "No se pudo iniciar sesión.",
+        });
+    }
+}
+export async function registrarPushTokenTaxistaController(
+    req: Request,
+    res: Response
+) {
+    try {
+
+        const authorization =
+            String(
+                req.headers.authorization || ""
+            );
+
+
+        const sessionToken =
+            authorization
+                .replace(
+                    /^Bearer\s+/i,
+                    ""
+                )
+                .trim();
+
+
+        if (!sessionToken) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "Sesión no válida.",
+                code:
+                    "SESION_INVALIDA",
+            });
+        }
+
+
+        const expoPushToken =
+            String(
+                req.body.expoPushToken || ""
+            )
+            .trim();
+
+
+        if (
+            !expoPushToken ||
+            !/^Expo(nent)?PushToken\[.+\]$/.test(
+                expoPushToken
+            )
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Push token inválido.",
+            });
+        }
+
+
+        const dispositivo =
+            await prisma.dispositivoTaxista.findUnique({
+                where: {
+                    sessionToken,
+                },
+
+                include: {
+                    taxista: {
+                        select: {
+                            id: true,
+                            activo: true,
+                        },
+                    },
+                },
+            });
+
+
+        if (
+            !dispositivo ||
+            !dispositivo.activo ||
+            !dispositivo.taxista.activo
+        ) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "La sesión ya no es válida.",
+                code:
+                    "SESION_INVALIDA",
+            });
+        }
+
+
+        /*
+          Un ExpoPushToken pertenece solo a
+          un dispositivo activo.
+        */
+
+        await prisma.dispositivoTaxista.updateMany({
+            where: {
+                expoPushToken,
+                id: {
+                    not:
+                        dispositivo.id,
+                },
+            },
+
+            data: {
+                expoPushToken:
+                    null,
+            },
+        });
+
+
+        const actualizado =
+            await prisma.dispositivoTaxista.update({
+                where: {
+                    id:
+                        dispositivo.id,
+                },
+
+                data: {
+                    expoPushToken,
+                },
+
+                select: {
+                    id: true,
+                    expoPushToken: true,
+                },
+            });
+
+
+        return res.json({
+            success: true,
+
+            dispositivo: {
+                id:
+                    actualizado.id,
+
+                pushRegistrado:
+                    Boolean(
+                        actualizado.expoPushToken
+                    ),
+            },
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Error registrando push token:",
+            error
+        );
+
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "No se pudo registrar el dispositivo para notificaciones.",
+        });
+    }
+}
+
+
+export async function validarSesionTaxistaController(
+    req: Request,
+    res: Response
+) {
+    try {
+
+        const authorization =
+            String(
+                req.headers.authorization || ""
+            );
+
+
+        const sessionToken =
+            authorization
+                .replace(
+                    /^Bearer\s+/i,
+                    ""
+                )
+                .trim();
+
+
+        if (!sessionToken) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "La sesión no es válida.",
+                code:
+                    "SESION_INVALIDA",
+            });
+        }
+
+
+        const dispositivo =
+            await prisma.dispositivoTaxista.findUnique({
+                where: {
+                    sessionToken,
+                },
+
+                include: {
+                    taxista: {
+                        select: {
+                            id: true,
+                            nombre: true,
+                            activo: true,
+                        },
+                    },
+                },
+            });
+
+
+        if (
+            !dispositivo ||
+            !dispositivo.activo ||
+            !dispositivo.taxista.activo
+        ) {
+            return res.status(401).json({
+                success: false,
+                message:
+                    "Tu sesión fue cerrada porque este taxista inició sesión en otro dispositivo.",
+                code:
+                    "SESION_REEMPLAZADA",
+            });
+        }
+
+
+        return res.json({
+            success: true,
+
+            session: {
+                activa: true,
+
+                taxistaId:
+                    dispositivo.taxista.id,
+            },
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Error validando sesión:",
+            error
+        );
+
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "No se pudo validar la sesión.",
         });
     }
 }
