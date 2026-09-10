@@ -101,6 +101,39 @@ app.get(
 
 /*
   ========================================
+  SEGUIMIENTO CORTO DEL CLIENTE
+  ========================================
+
+  Ejemplo:
+
+  /s/K7p4Xd82Qa9Lm3Rt
+
+  El token real es leído después
+  por seguimiento.js desde la URL.
+
+  Seguimiento antiguo también seguirá
+  funcionando mediante:
+
+  /seguimiento.html?token=...
+  ========================================
+*/
+
+app.get(
+  "/s/:token",
+  (_req, res) => {
+
+    res.sendFile(
+      path.join(
+        publicPath,
+        "seguimiento.html"
+      )
+    );
+  }
+);
+
+
+/*
+  ========================================
   RUTAS BÁSICAS
   ========================================
 */

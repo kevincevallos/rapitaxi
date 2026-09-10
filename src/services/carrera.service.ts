@@ -371,8 +371,8 @@ export async function aceptarCarrera(
 
                         trackingToken:
                             crypto
-                                .randomBytes(24)
-                                .toString("hex"),
+                                .randomBytes(12)
+                                .toString("base64url"),
                     },
                 });
 
@@ -459,7 +459,7 @@ export async function aceptarCarrera(
         carrera.trackingToken &&
             publicUrl
 
-            ? `${publicUrl}/seguimiento.html?token=${carrera.trackingToken}`
+            ? `${publicUrl}/s/${carrera.trackingToken}`
 
             : null;
 
@@ -1235,7 +1235,7 @@ export async function obtenerCarreraActivaTaxista(
         carrera.trackingToken &&
             publicUrl
 
-            ? `${publicUrl}/seguimiento.html?token=${carrera.trackingToken}`
+            ? `${publicUrl}/s/${carrera.trackingToken}`
 
             : null;
 
@@ -1349,6 +1349,7 @@ export async function actualizarUbicacionTaxista(
 
                 estado: true,
                 fechaFin: true,
+                fechaLlegada: true,
 
                 latitud: true,
                 longitud: true,
@@ -1397,7 +1398,53 @@ export async function actualizarUbicacionTaxista(
 
     const ahora =
         new Date();
+    /*
+      ========================================
+      FIN DEL TRACKING DE APROXIMACION
+      ========================================
+    
+      Cuando el taxi entra en LLEGO,
+      mantenemos el seguimiento durante
+      5 minutos adicionales.
+    
+      Después de ese tiempo dejamos de
+      guardar nuevas coordenadas para esta
+      fase de aproximación.
+    
+      El permiso GPS del teléfono NO se
+      revoca.
+    */
 
+    const seguimientoAproximacionFinalizado =
+        carrera.estado === "LLEGO" &&
+        carrera.fechaLlegada !== null &&
+        (
+            ahora.getTime() -
+            carrera.fechaLlegada.getTime()
+        ) >=
+        5 * 60 * 1000;
+
+
+    if (
+        seguimientoAproximacionFinalizado
+    ) {
+        return {
+            id:
+                carrera.id,
+
+            numero:
+                carrera.numero,
+
+            estado:
+                carrera.estado,
+
+            seguimientoAproximacionActivo:
+                false,
+
+            mensaje:
+                "Seguimiento de aproximacion finalizado.",
+        };
+    }
 
     /*
       Distancia en línea recta entre
@@ -1604,7 +1651,8 @@ export async function actualizarUbicacionTaxista(
             `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
 
     } else if (
-        hanPasadoCincoMinutos
+        hanPasadoCincoMinutos &&
+        nuevoEstado !== "LLEGO"
     ) {
 
         mensajeAutomatico =
@@ -2070,7 +2118,8 @@ export async function obtenerSeguimientoPublico(
 
 
     if (
-        token.length < 20
+        token.length < 12 ||
+        token.length > 100
     ) {
         throw new Error(
             "TRACKING_TOKEN_INVALIDO"
@@ -2098,6 +2147,7 @@ export async function obtenerSeguimientoPublico(
                     true,
 
                 fechaAceptacion: true,
+                fechaLlegada: true,
                 fechaFin: true,
 
                 taxista: {
@@ -2121,8 +2171,13 @@ export async function obtenerSeguimientoPublico(
 
 
     /*
-      Si la carrera ya terminó, dejamos
-      de entregar la posición del taxi.
+      ========================================
+      CARRERA CERRADA
+      ========================================
+
+      Si la carrera fue completada o
+      cancelada, ya no entregamos la
+      ubicación del taxista.
     */
 
     if (
@@ -2143,11 +2198,151 @@ export async function obtenerSeguimientoPublico(
             activa:
                 false,
 
+            seguimientoAproximacionActivo:
+                false,
+
             mensaje:
-                "Esta carrera ha finalizado.",
+                carrera.estado ===
+                "CANCELADA"
+
+                    ? "Esta carrera ha sido cancelada."
+
+                    : "Esta carrera ha finalizado.",
         };
     }
 
+
+    /*
+      ========================================
+      VENTANA DE GRACIA DESPUÉS DE LLEGO
+      ========================================
+
+      Cuando el taxi entra en LLEGO,
+      mantenemos el seguimiento durante
+      5 minutos adicionales.
+
+      Después de esos 5 minutos, la carrera
+      sigue activa, pero el seguimiento de
+      aproximación se considera terminado.
+    */
+
+    const ahora =
+        new Date();
+
+
+    const seguimientoAproximacionActivo =
+        !(
+            carrera.estado ===
+            "LLEGO" &&
+
+            carrera.fechaLlegada !==
+            null &&
+
+            (
+                ahora.getTime() -
+                carrera.fechaLlegada.getTime()
+            ) >=
+            5 * 60 * 1000
+        );
+
+
+    /*
+      ========================================
+      SEGUIMIENTO DE APROXIMACIÓN FINALIZADO
+      ========================================
+
+      Seguimos devolviendo la última posición
+      conocida para que el mapa no quede vacío,
+      pero ya no calculamos ETA ni distancia.
+
+      La página web podrá detectar
+      seguimientoAproximacionActivo = false
+      y detener su actualización automática.
+    */
+
+    if (
+        !seguimientoAproximacionActivo
+    ) {
+
+        return {
+            numero:
+                carrera.numero,
+
+            estado:
+                carrera.estado,
+
+            activa:
+                true,
+
+            seguimientoAproximacionActivo:
+                false,
+
+            mensaje:
+                "Tu taxi llego al punto de recogida. El seguimiento de aproximacion ha finalizado.",
+
+            destino: {
+                latitud:
+                    carrera.latitud,
+
+                longitud:
+                    carrera.longitud,
+            },
+
+            taxi:
+                carrera.latitudTaxista !==
+                    null &&
+                    carrera.longitudTaxista !==
+                    null
+
+                    ? {
+                        latitud:
+                            carrera.latitudTaxista,
+
+                        longitud:
+                            carrera.longitudTaxista,
+
+                        ultimaActualizacion:
+                            carrera.fechaUbicacionTaxista,
+                    }
+
+                    : null,
+
+            distanciaKm:
+                null,
+
+            etaMinutos:
+                null,
+
+            taxista:
+                carrera.taxista
+
+                    ? {
+                        nombre:
+                            carrera.taxista.nombre,
+
+                        vehiculo:
+                            carrera.taxista.vehiculo,
+
+                        colorVehiculo:
+                            carrera.taxista.colorVehiculo,
+
+                        placa:
+                            carrera.taxista.placa,
+
+                        cooperativa:
+                            carrera.taxista.cooperativa,
+                    }
+
+                    : null,
+        };
+    }
+
+
+    /*
+      ========================================
+      DISTANCIA Y ETA
+      ========================================
+    */
 
     let distanciaKm:
         number | null =
@@ -2182,6 +2377,12 @@ export async function obtenerSeguimientoPublico(
     }
 
 
+    /*
+      ========================================
+      RESPUESTA NORMAL DEL SEGUIMIENTO
+      ========================================
+    */
+
     return {
         numero:
             carrera.numero,
@@ -2190,6 +2391,9 @@ export async function obtenerSeguimientoPublico(
             carrera.estado,
 
         activa:
+            true,
+
+        seguimientoAproximacionActivo:
             true,
 
         destino: {
