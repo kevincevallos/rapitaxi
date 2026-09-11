@@ -1478,14 +1478,36 @@ export async function actualizarUbicacionTaxista(
       El taxista NO pulsa botones.
     */
 
+    /*
+      ========================================
+      ESTADO AUTOMATICO SEGUN DISTANCIA
+      ========================================
+    
+      > 700 m  -> EN_CAMINO
+      <= 700 m -> CERCA
+    
+      IMPORTANTE:
+      LLEGO ya NO se activa por GPS.
+    
+      El taxista debe pulsar manualmente
+      el boton LLEGUE en la app.
+      ========================================
+    */
+
     let nuevoEstado:
         "EN_CAMINO" |
         "CERCA" |
         "LLEGO";
 
 
+    /*
+      Si ya marco LLEGO manualmente,
+      nunca retrocedemos de estado.
+    */
+
     if (
-        distanciaKm <= 0.2
+        carrera.estado ===
+        "LLEGO"
     ) {
 
         nuevoEstado =
@@ -1501,41 +1523,26 @@ export async function actualizarUbicacionTaxista(
     } else {
 
         /*
-          Nunca hacemos retroceder CERCA
-          o LLEGO si el GPS fluctúa.
+          Si ya estaba CERCA, no lo
+          hacemos retroceder por una
+          fluctuacion momentanea del GPS.
         */
 
         if (
             carrera.estado ===
-            "CERCA" ||
-            carrera.estado ===
-            "LLEGO"
+            "CERCA"
         ) {
 
             nuevoEstado =
-                carrera.estado;
+                "CERCA";
 
         } else {
 
             nuevoEstado =
                 "EN_CAMINO";
+
         }
     }
-
-
-    /*
-      Tampoco permitimos:
-      LLEGO -> CERCA
-    */
-
-    if (
-        carrera.estado ===
-        "LLEGO"
-    ) {
-        nuevoEstado =
-            "LLEGO";
-    }
-
 
     const dataActualizacion: any = {
 
@@ -1579,19 +1586,6 @@ export async function actualizarUbicacionTaxista(
     }
 
 
-    if (
-        nuevoEstado ===
-        "LLEGO" &&
-        carrera.estado !==
-        "LLEGO"
-    ) {
-
-        dataActualizacion
-            .fechaLlegada =
-            ahora;
-    }
-
-
     /*
       ========================================
       MENSAJES AUTOMATICOS
@@ -1605,14 +1599,6 @@ export async function actualizarUbicacionTaxista(
         "CERCA" &&
         carrera.estado !==
         "LLEGO";
-
-
-    const entroEnLlegando =
-        nuevoEstado ===
-        "LLEGO" &&
-        carrera.estado !==
-        "LLEGO";
-
 
     const hanPasadoCincoMinutos =
         !carrera
@@ -1633,16 +1619,16 @@ export async function actualizarUbicacionTaxista(
 
 
     if (
-        entroEnLlegando
+        entroEnCerca
     ) {
 
         mensajeAutomatico =
-            `Tu taxi esta llegando. ` +
+            `Tu taxi esta cerca. ` +
             `Se encuentra a aproximadamente ` +
             `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
 
     } else if (
-        entroEnCerca
+        hanPasadoCincoMinutos
     ) {
 
         mensajeAutomatico =
@@ -1755,6 +1741,294 @@ export async function actualizarUbicacionTaxista(
     };
 }
 
+/*
+  ========================================
+  APP TAXISTA - MARCAR LLEGADA MANUAL
+  ========================================
+
+  LLEGO solamente se activa cuando
+  el taxista pulsa el boton LLEGUE.
+
+  fechaLlegada inicia el periodo de
+  gracia del seguimiento.
+  ========================================
+*/
+
+export async function marcarLlegadaTaxista(
+    carreraId: number,
+    codigoTaxista: string
+) {
+
+    const codigo =
+        normalizarCodigoTaxista(
+            codigoTaxista
+        );
+
+
+    const taxista =
+        await prisma.taxista.findUnique({
+            where: {
+                codigo,
+            },
+
+            select: {
+                id: true,
+                activo: true,
+            },
+        });
+
+
+    if (!taxista) {
+        throw new Error(
+            "TAXISTA_NO_EXISTE"
+        );
+    }
+
+
+    if (!taxista.activo) {
+        throw new Error(
+            "TAXISTA_INACTIVO"
+        );
+    }
+
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                id: carreraId,
+            },
+
+            select: {
+                id: true,
+                numero: true,
+                taxistaId: true,
+                estado: true,
+                fechaFin: true,
+                fechaLlegada: true,
+                whatsappCliente: true,
+            },
+        });
+
+
+    if (!carrera) {
+        throw new Error(
+            "CARRERA_NO_EXISTE"
+        );
+    }
+
+
+    if (
+        carrera.taxistaId !==
+        taxista.id
+    ) {
+        throw new Error(
+            "CARRERA_NO_PERTENECE_TAXISTA"
+        );
+    }
+
+
+    if (
+        carrera.fechaFin ||
+        carrera.estado ===
+        "COMPLETADA" ||
+        carrera.estado ===
+        "CANCELADA"
+    ) {
+        throw new Error(
+            "CARRERA_YA_CERRADA"
+        );
+    }
+
+
+    /*
+      Si ya habia pulsado LLEGUE,
+      devolvemos el estado actual.
+
+      Esto hace que el endpoint sea
+      seguro ante un doble toque.
+    */
+
+    if (
+        carrera.estado ===
+        "LLEGO"
+    ) {
+
+        return {
+            id:
+                carrera.id,
+
+            numero:
+                carrera.numero,
+
+            estado:
+                "LLEGO" as const,
+
+            fechaLlegada:
+                carrera.fechaLlegada,
+
+            yaMarcada:
+                true,
+        };
+    }
+
+
+    /*
+      Solo permitimos llegada desde
+      una carrera que sigue activa.
+    */
+
+    if (
+        ![
+            "ASIGNADA",
+            "EN_CAMINO",
+            "CERCA",
+        ].includes(
+            carrera.estado
+        )
+    ) {
+        throw new Error(
+            "CARRERA_NO_ACTIVA"
+        );
+    }
+
+
+    const ahora =
+        new Date();
+
+
+    const resultado =
+        await prisma.carrera.updateMany({
+            where: {
+                id:
+                    carrera.id,
+
+                taxistaId:
+                    taxista.id,
+
+                fechaFin:
+                    null,
+
+                estado: {
+                    in: [
+                        "ASIGNADA",
+                        "EN_CAMINO",
+                        "CERCA",
+                    ],
+                },
+            },
+
+            data: {
+                estado:
+                    "LLEGO",
+
+                fechaLlegada:
+                    ahora,
+
+                /*
+                  Evita que inmediatamente despues
+                  se envie tambien una actualizacion
+                  generica de seguimiento.
+                */
+
+                ultimaNotificacionSeguimiento:
+                    ahora,
+            },
+        });
+
+
+    if (
+        resultado.count === 0
+    ) {
+
+        const actual =
+            await prisma.carrera.findUnique({
+                where: {
+                    id:
+                        carrera.id,
+                },
+
+                select: {
+                    estado: true,
+                    fechaLlegada: true,
+                },
+            });
+
+
+        if (
+            actual?.estado ===
+            "LLEGO"
+        ) {
+
+            return {
+                id:
+                    carrera.id,
+
+                numero:
+                    carrera.numero,
+
+                estado:
+                    "LLEGO" as const,
+
+                fechaLlegada:
+                    actual.fechaLlegada,
+
+                yaMarcada:
+                    true,
+            };
+        }
+
+
+        throw new Error(
+            "CARRERA_NO_ACTIVA"
+        );
+    }
+
+
+    /*
+      Avisamos al cliente.
+
+      WhatsApp es secundario:
+      si Kapso falla, la llegada
+      permanece correctamente guardada.
+    */
+
+    enviarTextoWhatsApp(
+        normalizarTelefono(
+            carrera.whatsappCliente
+        ),
+
+        textoSeguroWhatsApp(
+            `Tu taxi ya llego al punto de recogida. Por favor, acercate al vehiculo.`
+        )
+    )
+        .catch(
+            error => {
+
+                console.error(
+                    `Error enviando aviso de llegada de carrera #${carrera.numero}:`,
+                    error
+                );
+            }
+        );
+
+
+    return {
+        id:
+            carrera.id,
+
+        numero:
+            carrera.numero,
+
+        estado:
+            "LLEGO" as const,
+
+        fechaLlegada:
+            ahora,
+
+        yaMarcada:
+            false,
+    };
+}
 
 /*
   ========================================
@@ -2203,7 +2477,7 @@ export async function obtenerSeguimientoPublico(
 
             mensaje:
                 carrera.estado ===
-                "CANCELADA"
+                    "CANCELADA"
 
                     ? "Esta carrera ha sido cancelada."
 

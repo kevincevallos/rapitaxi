@@ -370,10 +370,10 @@ export async function loginTaxistaAppController(
             String(
                 req.body.codigo || ""
             )
-            .replace(
-                /\D/g,
-                ""
-            );
+                .replace(
+                    /\D/g,
+                    ""
+                );
 
 
         if (
@@ -447,7 +447,7 @@ export async function loginTaxistaAppController(
             String(
                 req.body.deviceId || ""
             )
-            .trim();
+                .trim();
 
 
         if (!deviceId) {
@@ -548,6 +548,7 @@ export async function loginTaxistaAppController(
                             id: true,
                             deviceId: true,
                             sessionToken: true,
+                            enLinea: true,
                         },
                     });
 
@@ -565,6 +566,9 @@ export async function loginTaxistaAppController(
 
             sessionMode:
                 "device",
+
+            enLinea:
+                dispositivo.enLinea,
         });
 
 
@@ -619,7 +623,7 @@ export async function registrarPushTokenTaxistaController(
             String(
                 req.body.expoPushToken || ""
             )
-            .trim();
+                .trim();
 
 
         if (
@@ -812,6 +816,9 @@ export async function validarSesionTaxistaController(
 
                 taxistaId:
                     dispositivo.taxista.id,
+
+                enLinea:
+                    dispositivo.enLinea,
             },
         });
 
@@ -828,6 +835,187 @@ export async function validarSesionTaxistaController(
             success: false,
             message:
                 "No se pudo validar la sesión.",
+        });
+    }
+}
+
+export async function cambiarEstadoEnLineaTaxistaController(
+    req: Request,
+    res: Response
+) {
+    try {
+
+        const authorization =
+            String(
+                req.headers.authorization || ""
+            );
+
+
+        const sessionToken =
+            authorization
+                .replace(
+                    /^Bearer\s+/i,
+                    ""
+                )
+                .trim();
+
+
+        if (!sessionToken) {
+
+            return res.status(401).json({
+                success: false,
+
+                message:
+                    "La sesión no es válida.",
+
+                code:
+                    "SESION_INVALIDA",
+            });
+        }
+
+
+        if (
+            typeof req.body.enLinea !==
+            "boolean"
+        ) {
+
+            return res.status(400).json({
+                success: false,
+
+                message:
+                    "El estado enLinea debe ser verdadero o falso.",
+            });
+        }
+
+
+        const dispositivo =
+            await prisma.dispositivoTaxista.findUnique({
+                where: {
+                    sessionToken,
+                },
+
+                include: {
+                    taxista: {
+                        select: {
+                            id: true,
+                            activo: true,
+                        },
+                    },
+                },
+            });
+
+
+        if (
+            !dispositivo ||
+            !dispositivo.activo ||
+            !dispositivo.taxista.activo
+        ) {
+
+            return res.status(401).json({
+                success: false,
+
+                message:
+                    "La sesión ya no es válida.",
+
+                code:
+                    "SESION_INVALIDA",
+            });
+        }
+
+
+        const nuevoEstado =
+            req.body.enLinea;
+
+
+        /*
+          No permitimos desconectarse
+          mientras tenga una carrera activa.
+        */
+
+        if (
+            nuevoEstado === false
+        ) {
+
+            const carreraActiva =
+                await prisma.carrera.findFirst({
+                    where: {
+                        taxistaId:
+                            dispositivo.taxista.id,
+
+                        fechaFin:
+                            null,
+
+                        estado: {
+                            in: [
+                                "ASIGNADA",
+                                "EN_CAMINO",
+                                "CERCA",
+                                "LLEGO",
+                            ],
+                        },
+                    },
+
+                    select: {
+                        id: true,
+                        numero: true,
+                    },
+                });
+
+
+            if (
+                carreraActiva
+            ) {
+
+                return res.status(409).json({
+                    success: false,
+
+                    message:
+                        `Finaliza primero la carrera #${carreraActiva.numero}.`,
+                });
+            }
+        }
+
+
+        const actualizado =
+            await prisma.dispositivoTaxista.update({
+                where: {
+                    id:
+                        dispositivo.id,
+                },
+
+                data: {
+                    enLinea:
+                        nuevoEstado,
+                },
+
+                select: {
+                    id: true,
+                    enLinea: true,
+                },
+            });
+
+
+        return res.json({
+            success: true,
+
+            enLinea:
+                actualizado.enLinea,
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "Error cambiando estado en línea:",
+            error
+        );
+
+
+        return res.status(500).json({
+            success: false,
+
+            message:
+                "No se pudo cambiar el estado del taxista.",
         });
     }
 }

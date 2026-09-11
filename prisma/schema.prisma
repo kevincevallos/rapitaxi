@@ -90,6 +90,7 @@ model DispositivoTaxista {
   expoPushToken String? @unique
 
   activo Boolean @default(true)
+  enLinea Boolean @default(true)
 
   fechaRegistro      DateTime @default(now())
   fechaActualizacion DateTime @updatedAt

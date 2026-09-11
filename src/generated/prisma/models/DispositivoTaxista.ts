@@ -42,6 +42,7 @@ export type DispositivoTaxistaMinAggregateOutputType = {
   sessionToken: string | null
   expoPushToken: string | null
   activo: boolean | null
+  enLinea: boolean | null
   fechaRegistro: Date | null
   fechaActualizacion: Date | null
   taxistaId: number | null
@@ -53,6 +54,7 @@ export type DispositivoTaxistaMaxAggregateOutputType = {
   sessionToken: string | null
   expoPushToken: string | null
   activo: boolean | null
+  enLinea: boolean | null
   fechaRegistro: Date | null
   fechaActualizacion: Date | null
   taxistaId: number | null
@@ -64,6 +66,7 @@ export type DispositivoTaxistaCountAggregateOutputType = {
   sessionToken: number
   expoPushToken: number
   activo: number
+  enLinea: number
   fechaRegistro: number
   fechaActualizacion: number
   taxistaId: number
@@ -87,6 +90,7 @@ export type DispositivoTaxistaMinAggregateInputType = {
   sessionToken?: true
   expoPushToken?: true
   activo?: true
+  enLinea?: true
   fechaRegistro?: true
   fechaActualizacion?: true
   taxistaId?: true
@@ -98,6 +102,7 @@ export type DispositivoTaxistaMaxAggregateInputType = {
   sessionToken?: true
   expoPushToken?: true
   activo?: true
+  enLinea?: true
   fechaRegistro?: true
   fechaActualizacion?: true
   taxistaId?: true
@@ -109,6 +114,7 @@ export type DispositivoTaxistaCountAggregateInputType = {
   sessionToken?: true
   expoPushToken?: true
   activo?: true
+  enLinea?: true
   fechaRegistro?: true
   fechaActualizacion?: true
   taxistaId?: true
@@ -207,6 +213,7 @@ export type DispositivoTaxistaGroupByOutputType = {
   sessionToken: string
   expoPushToken: string | null
   activo: boolean
+  enLinea: boolean
   fechaRegistro: Date
   fechaActualizacion: Date
   taxistaId: number
@@ -241,6 +248,7 @@ export type DispositivoTaxistaWhereInput = {
   sessionToken?: Prisma.StringFilter<"DispositivoTaxista"> | string
   expoPushToken?: Prisma.StringNullableFilter<"DispositivoTaxista"> | string | null
   activo?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
+  enLinea?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
   fechaRegistro?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   taxistaId?: Prisma.IntFilter<"DispositivoTaxista"> | number
@@ -253,6 +261,7 @@ export type DispositivoTaxistaOrderByWithRelationInput = {
   sessionToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
+  enLinea?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
@@ -269,6 +278,7 @@ export type DispositivoTaxistaWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DispositivoTaxistaWhereInput[]
   NOT?: Prisma.DispositivoTaxistaWhereInput | Prisma.DispositivoTaxistaWhereInput[]
   activo?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
+  enLinea?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
   fechaRegistro?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   taxista?: Prisma.XOR<Prisma.TaxistaScalarRelationFilter, Prisma.TaxistaWhereInput>
@@ -280,6 +290,7 @@ export type DispositivoTaxistaOrderByWithAggregationInput = {
   sessionToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
+  enLinea?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
@@ -299,6 +310,7 @@ export type DispositivoTaxistaScalarWhereWithAggregatesInput = {
   sessionToken?: Prisma.StringWithAggregatesFilter<"DispositivoTaxista"> | string
   expoPushToken?: Prisma.StringNullableWithAggregatesFilter<"DispositivoTaxista"> | string | null
   activo?: Prisma.BoolWithAggregatesFilter<"DispositivoTaxista"> | boolean
+  enLinea?: Prisma.BoolWithAggregatesFilter<"DispositivoTaxista"> | boolean
   fechaRegistro?: Prisma.DateTimeWithAggregatesFilter<"DispositivoTaxista"> | Date | string
   fechaActualizacion?: Prisma.DateTimeWithAggregatesFilter<"DispositivoTaxista"> | Date | string
   taxistaId?: Prisma.IntWithAggregatesFilter<"DispositivoTaxista"> | number
@@ -309,6 +321,7 @@ export type DispositivoTaxistaCreateInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
   taxista: Prisma.TaxistaCreateNestedOneWithoutDispositivosInput
@@ -320,6 +333,7 @@ export type DispositivoTaxistaUncheckedCreateInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
   taxistaId: number
@@ -330,6 +344,7 @@ export type DispositivoTaxistaUpdateInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   taxista?: Prisma.TaxistaUpdateOneRequiredWithoutDispositivosNestedInput
@@ -341,6 +356,7 @@ export type DispositivoTaxistaUncheckedUpdateInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   taxistaId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -352,6 +368,7 @@ export type DispositivoTaxistaCreateManyInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
   taxistaId: number
@@ -362,6 +379,7 @@ export type DispositivoTaxistaUpdateManyMutationInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -372,6 +390,7 @@ export type DispositivoTaxistaUncheckedUpdateManyInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   taxistaId?: Prisma.IntFieldUpdateOperationsInput | number
@@ -393,6 +412,7 @@ export type DispositivoTaxistaCountOrderByAggregateInput = {
   sessionToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   activo?: Prisma.SortOrder
+  enLinea?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
@@ -409,6 +429,7 @@ export type DispositivoTaxistaMaxOrderByAggregateInput = {
   sessionToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   activo?: Prisma.SortOrder
+  enLinea?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
@@ -420,6 +441,7 @@ export type DispositivoTaxistaMinOrderByAggregateInput = {
   sessionToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   activo?: Prisma.SortOrder
+  enLinea?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
@@ -477,6 +499,7 @@ export type DispositivoTaxistaCreateWithoutTaxistaInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
 }
@@ -487,6 +510,7 @@ export type DispositivoTaxistaUncheckedCreateWithoutTaxistaInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
 }
@@ -525,6 +549,7 @@ export type DispositivoTaxistaScalarWhereInput = {
   sessionToken?: Prisma.StringFilter<"DispositivoTaxista"> | string
   expoPushToken?: Prisma.StringNullableFilter<"DispositivoTaxista"> | string | null
   activo?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
+  enLinea?: Prisma.BoolFilter<"DispositivoTaxista"> | boolean
   fechaRegistro?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"DispositivoTaxista"> | Date | string
   taxistaId?: Prisma.IntFilter<"DispositivoTaxista"> | number
@@ -536,6 +561,7 @@ export type DispositivoTaxistaCreateManyTaxistaInput = {
   sessionToken: string
   expoPushToken?: string | null
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: Date | string
   fechaActualizacion?: Date | string
 }
@@ -545,6 +571,7 @@ export type DispositivoTaxistaUpdateWithoutTaxistaInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -555,6 +582,7 @@ export type DispositivoTaxistaUncheckedUpdateWithoutTaxistaInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -565,6 +593,7 @@ export type DispositivoTaxistaUncheckedUpdateManyWithoutTaxistaInput = {
   sessionToken?: Prisma.StringFieldUpdateOperationsInput | string
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  enLinea?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -577,6 +606,7 @@ export type DispositivoTaxistaSelect<ExtArgs extends runtime.Types.Extensions.In
   sessionToken?: boolean
   expoPushToken?: boolean
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: boolean
   fechaActualizacion?: boolean
   taxistaId?: boolean
@@ -589,6 +619,7 @@ export type DispositivoTaxistaSelectCreateManyAndReturn<ExtArgs extends runtime.
   sessionToken?: boolean
   expoPushToken?: boolean
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: boolean
   fechaActualizacion?: boolean
   taxistaId?: boolean
@@ -601,6 +632,7 @@ export type DispositivoTaxistaSelectUpdateManyAndReturn<ExtArgs extends runtime.
   sessionToken?: boolean
   expoPushToken?: boolean
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: boolean
   fechaActualizacion?: boolean
   taxistaId?: boolean
@@ -613,12 +645,13 @@ export type DispositivoTaxistaSelectScalar = {
   sessionToken?: boolean
   expoPushToken?: boolean
   activo?: boolean
+  enLinea?: boolean
   fechaRegistro?: boolean
   fechaActualizacion?: boolean
   taxistaId?: boolean
 }
 
-export type DispositivoTaxistaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deviceId" | "sessionToken" | "expoPushToken" | "activo" | "fechaRegistro" | "fechaActualizacion" | "taxistaId", ExtArgs["result"]["dispositivoTaxista"]>
+export type DispositivoTaxistaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "deviceId" | "sessionToken" | "expoPushToken" | "activo" | "enLinea" | "fechaRegistro" | "fechaActualizacion" | "taxistaId", ExtArgs["result"]["dispositivoTaxista"]>
 export type DispositivoTaxistaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   taxista?: boolean | Prisma.TaxistaDefaultArgs<ExtArgs>
 }
@@ -640,6 +673,7 @@ export type $DispositivoTaxistaPayload<ExtArgs extends runtime.Types.Extensions.
     sessionToken: string
     expoPushToken: string | null
     activo: boolean
+    enLinea: boolean
     fechaRegistro: Date
     fechaActualizacion: Date
     taxistaId: number
@@ -1072,6 +1106,7 @@ export interface DispositivoTaxistaFieldRefs {
   readonly sessionToken: Prisma.FieldRef<"DispositivoTaxista", 'String'>
   readonly expoPushToken: Prisma.FieldRef<"DispositivoTaxista", 'String'>
   readonly activo: Prisma.FieldRef<"DispositivoTaxista", 'Boolean'>
+  readonly enLinea: Prisma.FieldRef<"DispositivoTaxista", 'Boolean'>
   readonly fechaRegistro: Prisma.FieldRef<"DispositivoTaxista", 'DateTime'>
   readonly fechaActualizacion: Prisma.FieldRef<"DispositivoTaxista", 'DateTime'>
   readonly taxistaId: Prisma.FieldRef<"DispositivoTaxista", 'Int'>

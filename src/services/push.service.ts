@@ -28,6 +28,8 @@ export async function enviarPushNuevaCarrera(
             await prisma.dispositivoTaxista.findMany({
                 where: {
                     activo: true,
+                    
+                    enLinea: true,
 
                     expoPushToken: {
                         not: null,

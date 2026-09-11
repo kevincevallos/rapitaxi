@@ -7,6 +7,7 @@ import {
   loginTaxistaAppController,
   registrarPushTokenTaxistaController,
   validarSesionTaxistaController,
+  cambiarEstadoEnLineaTaxistaController,
 } from "../controllers/taxista.controller";
 
 const router = Router();
@@ -30,6 +31,10 @@ router.get(
   validarSesionTaxistaController
 );
 
+router.patch(
+  "/app/en-linea",
+  cambiarEstadoEnLineaTaxistaController
+);
 /*
   ADMIN
 */

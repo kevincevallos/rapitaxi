@@ -12,7 +12,8 @@ import {
     finalizarCarreraTaxistaController,
     obtenerCarreraController,
     cancelarCarreraAdminController,
-    obtenerSeguimientoPublicoController
+    obtenerSeguimientoPublicoController,
+    marcarLlegadaTaxistaController,
 } from "../controllers/carrera.controller";
 
 
@@ -49,6 +50,10 @@ router.post(
     actualizarUbicacionTaxistaController
 );
 
+router.post(
+  "/app/:id/llegue",
+  marcarLlegadaTaxistaController
+);
 
 router.post(
     "/app/:id/finalizar",

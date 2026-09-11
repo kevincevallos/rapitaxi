@@ -138,6 +138,7 @@ export const DispositivoTaxistaScalarFieldEnum = {
   sessionToken: 'sessionToken',
   expoPushToken: 'expoPushToken',
   activo: 'activo',
+  enLinea: 'enLinea',
   fechaRegistro: 'fechaRegistro',
   fechaActualizacion: 'fechaActualizacion',
   taxistaId: 'taxistaId'

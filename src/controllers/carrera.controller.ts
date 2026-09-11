@@ -13,6 +13,7 @@ import {
   actualizarUbicacionTaxista,
   finalizarCarreraTaxista,
   obtenerSeguimientoPublico,
+  marcarLlegadaTaxista,
 } from "../services/carrera.service";
 
 import {
@@ -564,7 +565,158 @@ export async function finalizarCarreraTaxistaController(
     });
   }
 }
+export async function marcarLlegadaTaxistaController(
+    req: Request,
+    res: Response
+) {
+    try {
 
+        const carreraId =
+            Number(
+                req.params.id
+            );
+
+
+        if (
+            !Number.isInteger(
+                carreraId
+            ) ||
+            carreraId <= 0
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Carrera inválida.",
+            });
+        }
+
+
+        const codigoTaxista =
+            String(
+                req.body.codigoTaxista ||
+                ""
+            );
+
+
+        if (
+            !codigoTaxista.trim()
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Falta el código del taxista.",
+            });
+        }
+
+
+        const resultado =
+            await marcarLlegadaTaxista(
+                carreraId,
+                codigoTaxista
+            );
+
+
+        return res.json({
+            success: true,
+            carrera:
+                resultado,
+        });
+
+    } catch (error: any) {
+
+        console.error(
+            "Error marcando llegada del taxista:",
+            error
+        );
+
+
+        if (
+            error?.message ===
+            "TAXISTA_NO_EXISTE"
+        ) {
+
+            return res.status(404).json({
+                success: false,
+                message:
+                    "Taxista no encontrado.",
+            });
+        }
+
+
+        if (
+            error?.message ===
+            "TAXISTA_INACTIVO"
+        ) {
+
+            return res.status(403).json({
+                success: false,
+                message:
+                    "El taxista está inactivo.",
+            });
+        }
+
+
+        if (
+            error?.message ===
+            "CARRERA_NO_EXISTE"
+        ) {
+
+            return res.status(404).json({
+                success: false,
+                message:
+                    "Carrera no encontrada.",
+            });
+        }
+
+
+        if (
+            error?.message ===
+            "CARRERA_NO_PERTENECE_TAXISTA"
+        ) {
+
+            return res.status(403).json({
+                success: false,
+                message:
+                    "La carrera no pertenece a este taxista.",
+            });
+        }
+
+
+        if (
+            error?.message ===
+            "CARRERA_YA_CERRADA"
+        ) {
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    "La carrera ya está cerrada.",
+            });
+        }
+
+
+        if (
+            error?.message ===
+            "CARRERA_NO_ACTIVA"
+        ) {
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    "La carrera ya no está activa.",
+            });
+        }
+
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "No se pudo marcar la llegada.",
+        });
+    }
+}
 
 /*
   ========================================
