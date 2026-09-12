@@ -50,8 +50,14 @@
                 <div id="mapaCarrera" class="mapa-carrera"></div>
 
                 <div class="mapa-cargando" id="mapaCargando">
-                    <div class="mini-spinner blanco"></div>
-                    <span>Ubicando tu taxi...</span>
+                    <div class="mini-spinner blanco" id="spinnerUbicacion"></div>
+                    <span id="textoMapaCargando">Ubicando tu taxi...</span>
+                    <button type="button" class="boton-activar-ubicacion oculto" id="botonActivarUbicacion">
+                        ACTIVAR UBICACIÓN
+                    </button>
+                    <small class="ayuda-ubicacion oculto" id="ayudaUbicacion">
+                        En iPhone toca este botón para autorizar la ubicación de Rapitaxi.
+                    </small>
                 </div>
 
                 <header class="dashboard-header-flotante">

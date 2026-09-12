@@ -324,6 +324,13 @@ const botonFinalizar =
         "botonFinalizar"
     );
 
+const botonActivarUbicacion = document.getElementById("botonActivarUbicacion");
+const textoMapaCargando = document.getElementById("textoMapaCargando");
+const spinnerUbicacion = document.getElementById("spinnerUbicacion");
+const ayudaUbicacion = document.getElementById("ayudaUbicacion");
+let timerMostrarBotonUbicacion = null;
+
+
 const botonCentrar =
     document.getElementById(
         "botonCentrar"
@@ -1290,6 +1297,8 @@ async function procesarUbicacion(
         heading,
     };
 
+    ocultarSolicitudUbicacion();
+
     actualizarEstadoGps(
         "activo",
         "UBICACIÓN ACTIVA"
@@ -1389,82 +1398,134 @@ function errorGps(
   INICIAR GPS
 */
 
+function mostrarBotonUbicacion(mensaje = "Toca para permitir tu ubicación") {
+
+    if (textoMapaCargando) {
+        textoMapaCargando.textContent = mensaje;
+    }
+
+    spinnerUbicacion?.classList.add("oculto");
+    botonActivarUbicacion?.classList.remove("oculto");
+    ayudaUbicacion?.classList.remove("oculto");
+    mapaCargando?.classList.remove("oculto");
+}
+
+
+function ocultarSolicitudUbicacion() {
+
+    if (timerMostrarBotonUbicacion) {
+        clearTimeout(timerMostrarBotonUbicacion);
+        timerMostrarBotonUbicacion = null;
+    }
+
+    botonActivarUbicacion?.classList.add("oculto");
+    ayudaUbicacion?.classList.add("oculto");
+    spinnerUbicacion?.classList.remove("oculto");
+
+    if (ultimaUbicacion) {
+        mapaCargando?.classList.add("oculto");
+    }
+}
+
+
+function iniciarWatchGps() {
+
+    if (gpsWatchId !== null || !navigator.geolocation) {
+        return;
+    }
+
+    gpsWatchId = navigator.geolocation.watchPosition(
+        (posicion) => {
+            ocultarSolicitudUbicacion();
+            procesarUbicacion(posicion);
+        },
+        (error) => {
+            errorGps(error);
+
+            if (error?.code === 1) {
+                mostrarBotonUbicacion("Rapitaxi necesita permiso de ubicación");
+            }
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 5000,
+        }
+    );
+}
+
+
+function solicitarUbicacion(porUsuario = false) {
+
+    if (!navigator.geolocation) {
+        actualizarEstadoGps("error", "Este dispositivo no permite GPS.");
+        mostrarBotonUbicacion("GPS no disponible en este dispositivo");
+        return;
+    }
+
+    if (textoMapaCargando) {
+        textoMapaCargando.textContent = porUsuario
+            ? "Autorizando ubicación..."
+            : "Ubicando tu taxi...";
+    }
+
+    spinnerUbicacion?.classList.remove("oculto");
+
+    navigator.geolocation.getCurrentPosition(
+        (posicion) => {
+            ocultarSolicitudUbicacion();
+            procesarUbicacion(posicion);
+            iniciarWatchGps();
+        },
+        (error) => {
+            errorGps(error);
+
+            // iOS instalado como PWA puede necesitar que la primera
+            // solicitud se produzca directamente desde un toque.
+            if (porUsuario || error?.code === 1 || error?.code === 2 || error?.code === 3) {
+                mostrarBotonUbicacion(
+                    error?.code === 1
+                        ? "Permite la ubicación para continuar"
+                        : "No pudimos obtener tu ubicación. Toca para reintentar"
+                );
+            }
+        },
+        {
+            // La primera posición no necesita alta precisión: esto hace
+            // más confiable la autorización inicial en iPhone. El watch
+            // posterior sí usa alta precisión.
+            enableHighAccuracy: porUsuario ? false : true,
+            timeout: porUsuario ? 12000 : 15000,
+            maximumAge: porUsuario ? 60000 : 3000,
+        }
+    );
+}
+
+
 function iniciarGpsCarrera() {
 
-    if (
-        gpsWatchId !==
-        null
-    ) {
-
+    if (gpsWatchId !== null) {
         return;
-
     }
 
+    actualizarEstadoGps("normal", "Solicitando ubicación...");
 
-    if (
-        !navigator.geolocation
-    ) {
+    solicitarUbicacion(false);
 
-        actualizarEstadoGps(
-            "error",
-            "Este dispositivo no permite GPS."
-        );
+    // Si iOS no muestra el diálogo al iniciar automáticamente,
+    // ofrecemos una acción explícita. El toque cuenta como gesto
+    // del usuario y permite a WebKit abrir el permiso correctamente.
+    if (!ultimaUbicacion) {
+        if (timerMostrarBotonUbicacion) {
+            clearTimeout(timerMostrarBotonUbicacion);
+        }
 
-        return;
-
-    }
-
-
-    actualizarEstadoGps(
-        "normal",
-        "Solicitando ubicación..."
-    );
-
-
-    /*
-      Primero obtenemos una ubicación
-      inmediata.
-    */
-
-    navigator.geolocation
-        .getCurrentPosition(
-            procesarUbicacion,
-            errorGps,
-            {
-                enableHighAccuracy:
-                    true,
-
-                timeout:
-                    15000,
-
-                maximumAge:
-                    3000,
+        timerMostrarBotonUbicacion = setTimeout(() => {
+            if (!ultimaUbicacion && gpsWatchId === null) {
+                mostrarBotonUbicacion();
             }
-        );
-
-
-    /*
-      Después mantenemos seguimiento
-      mientras la PWA siga activa.
-    */
-
-    gpsWatchId =
-        navigator.geolocation
-            .watchPosition(
-                procesarUbicacion,
-                errorGps,
-                {
-                    enableHighAccuracy:
-                        true,
-
-                    timeout:
-                        20000,
-
-                    maximumAge:
-                        5000,
-                }
-            );
-
+        }, 1800);
+    }
 }
 
 
@@ -1547,7 +1608,7 @@ function estadoHumanoWeb(
 ) {
 
     switch (
-    estado
+        estado
     ) {
 
         case "ASIGNADA":
@@ -3284,6 +3345,15 @@ botonWhatsapp.addEventListener(
 
     }
 );
+
+if (botonActivarUbicacion) {
+    botonActivarUbicacion.addEventListener("click", () => {
+        // Muy importante para iOS: getCurrentPosition se llama
+        // directamente desde el gesto del usuario.
+        solicitarUbicacion(true);
+    });
+}
+
 
 /*
   VISIBILIDAD
