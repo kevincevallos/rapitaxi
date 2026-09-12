@@ -1,0 +1,985 @@
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent
+}
+
+:root {
+    color-scheme: light only
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #17111f;
+    color: #21172c
+}
+
+body {
+    min-height: 100dvh;
+    overflow: hidden
+}
+
+button,
+input {
+    font: inherit
+}
+
+button {
+    border: 0
+}
+
+.oculto {
+    display: none !important
+}
+
+#app {
+    min-height: 100dvh
+}
+
+.rapi {
+    color: #fff
+}
+
+.taxi {
+    color: #ffd600
+}
+
+/* carga/login */
+.logo-texto {
+    font-size: 44px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -2px
+}
+
+.subtitulo {
+    margin-top: 8px;
+    color: rgba(255, 255, 255, .72);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 4px
+}
+
+.pantalla-carga,
+.pantalla-login {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(25px + env(safe-area-inset-top)) 20px calc(22px + env(safe-area-inset-bottom));
+    background: linear-gradient(160deg, #6828bd 0%, #4b168f 100%)
+}
+
+.pantalla-carga {
+    color: #fff
+}
+
+.pantalla-carga p {
+    margin-top: 20px;
+    color: rgba(255, 255, 255, .75);
+    font-size: 14px
+}
+
+.cargando-spinner,
+.mini-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #eee8f4;
+    border-top-color: #5a22a8;
+    border-radius: 50%;
+    animation: girar .8s linear infinite
+}
+
+.cargando-spinner {
+    margin-top: 30px;
+    border: 4px solid rgba(255, 255, 255, .25);
+    border-top-color: #fff
+}
+
+.mini-spinner.blanco {
+    border-color: rgba(255, 255, 255, .25);
+    border-top-color: #fff
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.marca {
+    text-align: center;
+    margin-bottom: 30px
+}
+
+.tarjeta {
+    background: #fff;
+    border-radius: 27px;
+    box-shadow: 0 22px 60px rgba(21, 6, 45, .25)
+}
+
+.login-card {
+    width: min(100%, 420px);
+    padding: 30px 24px
+}
+
+.icono-taxi {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+    background: #f2eaff;
+    font-size: 37px
+}
+
+.login-card h1 {
+    margin: 0 0 9px;
+    text-align: center;
+    font-size: 27px;
+    font-weight: 900;
+    color: #25183a
+}
+
+.descripcion {
+    max-width: 310px;
+    margin: 0 auto 27px;
+    text-align: center;
+    color: #71697e;
+    font-size: 14px;
+    line-height: 1.5
+}
+
+.label-codigo {
+    display: block;
+    margin: 0 0 9px;
+    color: #40394a;
+    font-size: 13px;
+    font-weight: 800
+}
+
+.input-codigo {
+    display: block;
+    width: 100%;
+    height: 61px;
+    border: 2px solid #e6e0ed;
+    border-radius: 17px;
+    outline: none;
+    background: #faf9fc;
+    text-align: center;
+    color: #241832;
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: 10px
+}
+
+.input-codigo:focus {
+    border-color: #6628b9;
+    box-shadow: 0 0 0 4px rgba(90, 34, 168, .09)
+}
+
+.input-codigo::placeholder {
+    color: #c7c0ce
+}
+
+.mensaje-error {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #fff0f0;
+    color: #bc3434;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center
+}
+
+.boton-principal {
+    width: 100%;
+    height: 58px;
+    margin-top: 20px;
+    border-radius: 17px;
+    background: #5a22a8;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: .4px
+}
+
+.boton-principal:active {
+    transform: scale(.985)
+}
+
+.boton-principal:disabled {
+    opacity: .65
+}
+
+.seguridad {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 19px;
+    color: #8b8392;
+    font-size: 11px;
+    font-weight: 600
+}
+
+.version {
+    margin: 22px 0 0;
+    color: rgba(255, 255, 255, .68);
+    font-size: 12px;
+    text-align: center
+}
+
+/* dashboard permanente */
+.pantalla-app {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    background: #17111f;
+    overflow: hidden
+}
+
+.dashboard-mapa-shell {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #17111f
+}
+
+.mapa-carrera {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #17111f
+}
+
+.mapa-cargando {
+    position: absolute;
+    inset: 0;
+    z-index: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(20, 12, 35, .72);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    pointer-events: none
+}
+
+.dashboard-header-flotante {
+    position: absolute;
+    z-index: 900;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: calc(16px + env(safe-area-inset-top)) 18px 30px;
+    background: linear-gradient(180deg, rgba(18, 10, 29, .92) 0%, rgba(18, 10, 29, .58) 60%, rgba(18, 10, 29, 0) 100%);
+    pointer-events: none
+}
+
+.dashboard-header-flotante>* {
+    pointer-events: auto
+}
+
+.dashboard-logo {
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: -1.3px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, .25)
+}
+
+.dashboard-taxista-nombre {
+    margin-top: 5px;
+    color: rgba(255, 255, 255, .78);
+    font-size: 11px;
+    font-weight: 800
+}
+
+.dashboard-salir {
+    padding: 9px 14px;
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 13px;
+    background: rgba(35, 21, 49, .74);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800
+}
+
+.dashboard-estado-flotante {
+    position: absolute;
+    z-index: 880;
+    top: calc(96px + env(safe-area-inset-top));
+    left: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 11px 14px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 18px;
+    background: rgba(30, 20, 40, .84);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 7px 22px rgba(0, 0, 0, .22);
+    color: #fff
+}
+
+.conexion-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: .7px
+}
+
+.conexion-textos p {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, .68);
+    font-size: 10px
+}
+
+.indicador-conexion {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #a49baa
+}
+
+.indicador-conexion.activo {
+    background: #36c66c;
+    box-shadow: 0 0 0 4px rgba(54, 198, 108, .15)
+}
+
+.switch {
+    position: relative;
+    width: 54px;
+    height: 31px;
+    flex-shrink: 0
+}
+
+.switch input {
+    width: 0;
+    height: 0;
+    opacity: 0
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #73697c;
+    transition: .2s
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .18);
+    transition: .2s
+}
+
+.switch input:checked+.slider {
+    background: #36c66c
+}
+
+.switch input:checked+.slider::before {
+    transform: translateX(23px)
+}
+
+/* ruta/gps/centrar */
+.estado-ruta-web {
+    position: absolute;
+    z-index: 875;
+    top: calc(158px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: calc(100% - 120px);
+    padding: 9px 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, .13);
+    border-radius: 999px;
+    background: rgba(30, 18, 44, .91);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .26)
+}
+
+.estado-ruta-web strong {
+    color: #f2c94c
+}
+
+.gps-chip {
+    position: absolute;
+    z-index: 875;
+    left: 15px;
+    bottom: calc(282px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 999px;
+    background: rgba(27, 20, 34, .85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .4px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, .22)
+}
+
+.gps-punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d7a62d
+}
+
+.gps-punto.activo {
+    background: #2ed264;
+    box-shadow: 0 0 0 4px rgba(46, 210, 100, .14)
+}
+
+.gps-punto.error {
+    background: #e34b4b
+}
+
+.boton-centrar {
+    position: absolute;
+    z-index: 875;
+    right: 15px;
+    bottom: calc(282px + env(safe-area-inset-bottom));
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 50%;
+    background: rgba(36, 23, 49, .91);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 30px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .28)
+}
+
+.boton-centrar:active {
+    transform: scale(.95)
+}
+
+/* panel inferior Android-like */
+.dashboard-panel-inferior {
+    position: absolute;
+    z-index: 1000;
+    left: 12px;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    max-height: 44dvh;
+    overflow: auto;
+    padding: 13px 15px 10px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, .985);
+    color: #21172c;
+    box-shadow: 0 12px 35px rgba(17, 7, 29, .26);
+    -webkit-overflow-scrolling: touch
+}
+
+.datos-ocultos {
+    display: none
+}
+
+.dashboard-sin-carreras {
+    text-align: center;
+    padding: 9px 8px 4px
+}
+
+.dashboard-sin-carreras h3 {
+    margin: 10px 0 5px;
+    color: #2a1c37;
+    font-size: 17px;
+    font-weight: 900
+}
+
+.dashboard-sin-carreras p {
+    margin: 0;
+    color: #847b8b;
+    font-size: 12px;
+    line-height: 1.45
+}
+
+.dashboard-taxi-circulo,
+.dashboard-offline-icono {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #eee5f8;
+    color: #5a22a8;
+    font-size: 26px
+}
+
+.dashboard-offline-icono {
+    font-size: 23px
+}
+
+.dashboard-conexion-fila {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 10px;
+    color: #7c7285;
+    font-size: 10px;
+    font-weight: 800
+}
+
+.push-punto,
+.oferta-punto {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #35bf67;
+    box-shadow: 0 0 0 4px rgba(53, 191, 103, .12)
+}
+
+.dashboard-oferta {
+    padding: 2px 1px 0
+}
+
+.dashboard-oferta-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px
+}
+
+.dashboard-oferta-etiqueta-fila {
+    display: flex;
+    align-items: center;
+    gap: 7px
+}
+
+.dashboard-oferta-etiqueta {
+    color: #5a22a8;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px
+}
+
+.dashboard-oferta-numero {
+    color: #5a22a8;
+    font-size: 22px;
+    font-weight: 900
+}
+
+.dashboard-oferta-label {
+    display: block;
+    color: #93899a;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1.2px
+}
+
+.dashboard-oferta-referencia,
+.dashboard-oferta-pago {
+    display: block;
+    margin-top: 4px;
+    color: #2a1c37;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.25
+}
+
+.dashboard-oferta-pago {
+    color: #5a22a8
+}
+
+.dashboard-oferta-separador {
+    height: 1px;
+    margin: 11px 0;
+    background: #eee9f1
+}
+
+.dashboard-aceptar {
+    width: 100%;
+    min-height: 52px;
+    margin-top: 12px;
+    border-radius: 16px;
+    background: #21a957;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .4px;
+    box-shadow: 0 7px 18px rgba(33, 169, 87, .2)
+}
+
+.dashboard-aceptar:active {
+    transform: scale(.985)
+}
+
+.dashboard-aceptar:disabled {
+    opacity: .55
+}
+
+.paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 9px
+}
+
+.boton-paginacion {
+    min-height: 34px;
+    padding: 0 10px;
+    border-radius: 11px;
+    background: #eee6f7;
+    color: #5a22a8;
+    font-size: 9px;
+    font-weight: 900
+}
+
+.boton-paginacion:disabled {
+    opacity: .32
+}
+
+#textoPaginacion {
+    min-width: 48px;
+    text-align: center;
+    color: #706779;
+    font-size: 10px;
+    font-weight: 800
+}
+
+.dashboard-vehiculo-texto {
+    margin-top: 8px;
+    color: #978e9e;
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center
+}
+
+/* carrera activa dentro del mismo panel */
+.carrera-activa-panel {
+    padding: 0
+}
+
+.sheet-handle {
+    width: 38px;
+    height: 4px;
+    margin: 0 auto 9px;
+    border-radius: 999px;
+    background: #d8d1dc
+}
+
+.sheet-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px
+}
+
+.sheet-cabecera>div {
+    display: flex;
+    align-items: baseline;
+    gap: 7px
+}
+
+.sheet-label {
+    color: #968b9e;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: 1.25px
+}
+
+.sheet-numero {
+    color: #281737;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 900
+}
+
+.sheet-estado {
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #eee5f8;
+    color: #5a22a8;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .55px
+}
+
+.sheet-destino {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 11px;
+    border-radius: 16px;
+    background: #f6f3f8
+}
+
+.sheet-pin {
+    width: 35px;
+    height: 35px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #e9ddf8;
+    font-size: 18px
+}
+
+.sheet-destino-texto {
+    min-width: 0;
+    flex: 1
+}
+
+.sheet-destino-texto strong {
+    display: block;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #2a1c37;
+    font-size: 14px;
+    font-weight: 900
+}
+
+.sheet-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 0 3px
+}
+
+.sheet-meta strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #5a22a8;
+    font-size: 12px;
+    font-weight: 900
+}
+
+.accion-principal {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 10px;
+    padding: 0 14px;
+    border-radius: 16px;
+    background: #5a22a8;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .45px;
+    box-shadow: 0 7px 18px rgba(90, 34, 168, .22)
+}
+
+.accion-finalizar {
+    background: #fff;
+    color: #c83838;
+    border: 2px solid #d94b4b;
+    box-shadow: none
+}
+
+.acciones-secundarias {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 9px
+}
+
+.accion-secundaria {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .35px
+}
+
+.accion-secundaria span {
+    font-size: 16px
+}
+
+.accion-whatsapp {
+    background: #e8f7ed;
+    color: #168445
+}
+
+.accion-maps {
+    background: #fff3c6;
+    color: #5b4720
+}
+
+.sheet-aviso {
+    margin-top: 7px;
+    color: #948a9b;
+    font-size: 8.5px;
+    line-height: 1.3;
+    text-align: center
+}
+
+/* map markers */
+.marcador-personalizado {
+    background: transparent !important;
+    border: 0 !important
+}
+
+.taxi-wrapper-web {
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.taxi-marker-web {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f2c94c;
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 7px rgba(242, 201, 76, .22), 0 6px 16px rgba(0, 0, 0, .45);
+    font-size: 25px
+}
+
+.cliente-wrapper-web {
+    width: 46px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.cliente-marker-web {
+    width: 34px;
+    height: 34px;
+    border-radius: 50% 50% 50% 8px;
+    transform: rotate(-45deg);
+    background: #6d28d9;
+    border: 4px solid #fff;
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .40)
+}
+
+.cliente-centro-web {
+    width: 10px;
+    height: 10px;
+    margin: 8px;
+    border-radius: 50%;
+    background: #fff
+}
+
+.leaflet-control-attribution {
+    margin-bottom: calc(220px + env(safe-area-inset-bottom)) !important;
+    padding: 2px 4px !important;
+    background: rgba(18, 18, 22, .58) !important;
+    color: rgba(255, 255, 255, .65) !important;
+    font-size: 7px !important;
+    line-height: 9px !important
+}
+
+.leaflet-control-attribution a {
+    color: rgba(255, 255, 255, .84) !important
+}
+
+@media(max-height:700px) {
+    .dashboard-panel-inferior {
+        max-height: 48dvh;
+        padding-top: 10px
+    }
+
+    .dashboard-header-flotante {
+        padding-bottom: 24px
+    }
+
+    .dashboard-estado-flotante {
+        top: calc(88px + env(safe-area-inset-top))
+    }
+
+    .estado-ruta-web {
+        top: calc(148px + env(safe-area-inset-top))
+    }
+
+    .gps-chip,
+    .boton-centrar {
+        bottom: calc(250px + env(safe-area-inset-bottom))
+    }
+
+    .leaflet-control-attribution {
+        margin-bottom: 220px !important
+    }
+
+    .sheet-aviso {
+        display: none
+    }
+}
+
+@media(max-width:360px) {
+    .dashboard-panel-inferior {
+        left: 8px;
+        right: 8px;
+        padding-left: 12px;
+        padding-right: 12px
+    }
+
+    .dashboard-logo {
+        font-size: 27px
+    }
+
+    .sheet-numero {
+        font-size: 20px
+    }
+
+    .dashboard-oferta-referencia {
+        font-size: 14px
+    }
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#17111F">
+    <meta name="color-scheme" content="light only">
+    <meta name="description" content="Rapitaxi Taxista">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Rapitaxi">
+    <link rel="apple-touch-icon" href="/taxista/apple-touch-icon.png">
+    <link rel="manifest" href="/taxista/manifest.webmanifest">
+    <link rel="icon" type="image/png" href="/taxista/icon-192.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/taxista/app.css">
+    <title>Rapitaxi Taxista</title>
+</head>
+
+<body>
+    <main id="app">
+        <section class="pantalla-carga" id="pantallaCarga">
+            <div class="logo-texto"><span class="rapi">Rapi</span><span class="taxi">taxi</span></div>
+            <div class="cargando-spinner"></div>
+            <p>Cargando Rapitaxi...</p>
+        </section>
+
+        <section class="pantalla-login oculto" id="pantallaLogin">
+            <div class="marca">
+                <div class="logo-texto"><span class="rapi">Rapi</span><span class="taxi">taxi</span></div>
+                <div class="subtitulo">TAXISTA</div>
+            </div>
+            <div class="tarjeta login-card">
+                <div class="icono-taxi">🚕</div>
+                <h1>Iniciar sesión</h1>
+                <p class="descripcion">Ingresa tu código de taxista para comenzar a trabajar.</p>
+                <label class="label-codigo" for="codigoTaxista">Código de taxista</label>
+                <input id="codigoTaxista" class="input-codigo" type="tel" inputmode="numeric" pattern="[0-9]*"
+                    maxlength="3" autocomplete="off" placeholder="000">
+                <div class="mensaje-error oculto" id="mensajeLogin"></div>
+                <button class="boton-principal" id="botonIngresar" type="button">INGRESAR</button>
+                <div class="seguridad"><span>🔒</span><span>Acceso exclusivo para taxistas Rapitaxi</span></div>
+            </div>
+            <p class="version">Rapitaxi · Taxista para iPhone</p>
+        </section>
+
+        <section class="pantalla-app oculto" id="pantallaApp">
+            <div class="dashboard-mapa-shell">
+                <div id="mapaCarrera" class="mapa-carrera"></div>
+
+                <div class="mapa-cargando" id="mapaCargando">
+                    <div class="mini-spinner blanco"></div>
+                    <span>Ubicando tu taxi...</span>
+                </div>
+
+                <header class="dashboard-header-flotante">
+                    <div>
+                        <div class="dashboard-logo"><span class="rapi">Rapi</span><span class="taxi">taxi</span></div>
+                        <div class="dashboard-taxista-nombre" id="nombreTaxista">Taxista</div>
+                    </div>
+                    <button type="button" class="dashboard-salir" id="botonSalir">Salir</button>
+                </header>
+
+                <div class="dashboard-estado-flotante">
+                    <div class="conexion-textos">
+                        <div class="conexion-titulo">
+                            <span class="indicador-conexion" id="indicadorConexion"></span>
+                            <strong id="textoConexion">EN LÍNEA</strong>
+                        </div>
+                        <p id="descripcionConexion">Recibiendo solicitudes</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="switchEnLinea">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="estado-ruta-web oculto" id="estadoRutaWeb">Calculando <strong>ruta...</strong></div>
+
+                <div class="gps-chip oculto" id="gpsChip">
+                    <span class="gps-punto" id="gpsPunto"></span>
+                    <span id="gpsTexto">INICIANDO GPS</span>
+                </div>
+
+                <button type="button" class="boton-centrar" id="botonCentrar"
+                    aria-label="Centrar mi ubicación">◎</button>
+
+                <section class="dashboard-panel-inferior" id="dashboardPanel">
+                    <!-- valores conservados para la lógica actual -->
+                    <div class="datos-ocultos" aria-hidden="true">
+                        <span id="codigoMostrado">---</span>
+                        <span id="vehiculoTaxista">---</span>
+                        <span id="placaTaxista">---</span>
+                    </div>
+
+                    <!-- ESTADOS DE ESPERA / OFERTAS -->
+                    <section class="zona-carreras">
+                        <span class="contador-carreras oculto" id="contadorCarreras">0</span>
+
+                        <div class="dashboard-sin-carreras oculto" id="cargandoCarreras">
+                            <div class="mini-spinner"></div>
+                            <h3>Buscando carreras</h3>
+                            <p>Te avisaremos cuando aparezca una nueva solicitud.</p>
+                        </div>
+
+                        <div class="dashboard-sin-carreras oculto" id="estadoOffline">
+                            <div class="dashboard-offline-icono">◉</div>
+                            <h3>Estás fuera de línea</h3>
+                            <p>Activa el switch para volver a recibir solicitudes.</p>
+                        </div>
+
+                        <div class="dashboard-sin-carreras oculto" id="sinCarreras">
+                            <div class="dashboard-taxi-circulo">🚕</div>
+                            <h3>No hay solicitudes por el momento</h3>
+                            <p>Estás conectado y listo para recibir carreras.</p>
+                            <div class="dashboard-conexion-fila">
+                                <span class="push-punto"></span>
+                                <span>Rapitaxi está listo</span>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-oferta oculto" id="carreraCard">
+                            <div class="dashboard-oferta-header">
+                                <div class="dashboard-oferta-etiqueta-fila">
+                                    <span class="oferta-punto"></span>
+                                    <span class="dashboard-oferta-etiqueta">NUEVA SOLICITUD</span>
+                                </div>
+                                <strong class="dashboard-oferta-numero" id="numeroCarrera">#---</strong>
+                            </div>
+
+                            <span class="dashboard-oferta-label">RECOGER EN</span>
+                            <strong class="dashboard-oferta-referencia" id="referenciaCarrera">---</strong>
+                            <div class="dashboard-oferta-separador"></div>
+                            <span class="dashboard-oferta-label">FORMA DE PAGO</span>
+                            <strong class="dashboard-oferta-pago" id="pagoCarrera">---</strong>
+
+                            <button class="dashboard-aceptar" id="botonAceptar" type="button"
+                                onclick="aceptarCarrera()">ACEPTAR CARRERA</button>
+
+                            <div class="paginacion oculto" id="paginacion">
+                                <button id="carreraAnterior" type="button" class="boton-paginacion">‹ ANTERIOR</button>
+                                <span id="textoPaginacion">1 de 1</span>
+                                <button id="carreraSiguiente" type="button" class="boton-paginacion">SIGUIENTE
+                                    ›</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CARRERA ACTIVA, MISMO MAPA -->
+                    <section class="carrera-activa-panel oculto" id="carreraActiva">
+                        <div class="sheet-handle"></div>
+                        <div class="sheet-cabecera">
+                            <div>
+                                <span class="sheet-label">CARRERA</span>
+                                <strong class="sheet-numero" id="tituloCarreraActiva">#---</strong>
+                            </div>
+                            <span class="sheet-estado" id="estadoCarreraActiva">ASIGNADA</span>
+                        </div>
+
+                        <div class="sheet-destino">
+                            <div class="sheet-pin">📍</div>
+                            <div class="sheet-destino-texto">
+                                <span class="sheet-label">PUNTO DE RECOGIDA</span>
+                                <strong id="referenciaActiva">---</strong>
+                            </div>
+                        </div>
+
+                        <div class="sheet-meta">
+                            <span class="sheet-label">FORMA DE PAGO</span>
+                            <strong id="pagoActivo">---</strong>
+                        </div>
+
+                        <button type="button" class="accion-principal" id="botonLlegue">LLEGUÉ AL PUNTO</button>
+                        <button type="button" class="accion-principal accion-finalizar oculto"
+                            id="botonFinalizar">FINALIZAR CARRERA</button>
+
+                        <div class="acciones-secundarias">
+                            <button type="button" class="accion-secundaria accion-whatsapp"
+                                id="botonWhatsapp"><span>💬</span><strong>CLIENTE</strong></button>
+                            <button type="button" class="accion-secundaria accion-maps"
+                                id="botonMaps"><span>🧭</span><strong>GOOGLE MAPS</strong></button>
+                        </div>
+
+                        <div class="sheet-aviso">Mantén Rapitaxi abierta durante la carrera para compartir tu ubicación.
+                        </div>
+                    </section>
+
+                    <div class="dashboard-vehiculo-texto"><span id="vehiculoResumen">Vehículo</span> · <span
+                            id="placaResumen">---</span></div>
+                </section>
+            </div>
+        </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/taxista/app.js"></script>
+</body>
+
+</html>

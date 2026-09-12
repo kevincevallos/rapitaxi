@@ -1,0 +1,25 @@
+{
+  "name": "Rapitaxi Taxista",
+  "short_name": "Rapitaxi",
+  "description": "Aplicación de trabajo para taxistas Rapitaxi",
+  "start_url": "/taxista/",
+  "scope": "/taxista/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#5A22A8",
+  "theme_color": "#5A22A8",
+  "icons": [
+    {
+      "src": "/taxista/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/taxista/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
