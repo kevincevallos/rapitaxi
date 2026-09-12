@@ -290,6 +290,7 @@ export type TaxistaWhereInput = {
   cuentaGuayaquil?: Prisma.StringNullableFilter<"Taxista"> | string | null
   carreras?: Prisma.CarreraListRelationFilter
   dispositivos?: Prisma.DispositivoTaxistaListRelationFilter
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushListRelationFilter
 }
 
 export type TaxistaOrderByWithRelationInput = {
@@ -309,6 +310,7 @@ export type TaxistaOrderByWithRelationInput = {
   cuentaGuayaquil?: Prisma.SortOrderInput | Prisma.SortOrder
   carreras?: Prisma.CarreraOrderByRelationAggregateInput
   dispositivos?: Prisma.DispositivoTaxistaOrderByRelationAggregateInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushOrderByRelationAggregateInput
 }
 
 export type TaxistaWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +333,7 @@ export type TaxistaWhereUniqueInput = Prisma.AtLeast<{
   cuentaGuayaquil?: Prisma.StringNullableFilter<"Taxista"> | string | null
   carreras?: Prisma.CarreraListRelationFilter
   dispositivos?: Prisma.DispositivoTaxistaListRelationFilter
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushListRelationFilter
 }, "id" | "codigo" | "placa">
 
 export type TaxistaOrderByWithAggregationInput = {
@@ -391,6 +394,7 @@ export type TaxistaCreateInput = {
   cuentaGuayaquil?: string | null
   carreras?: Prisma.CarreraCreateNestedManyWithoutTaxistaInput
   dispositivos?: Prisma.DispositivoTaxistaCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaUncheckedCreateInput = {
@@ -410,6 +414,7 @@ export type TaxistaUncheckedCreateInput = {
   cuentaGuayaquil?: string | null
   carreras?: Prisma.CarreraUncheckedCreateNestedManyWithoutTaxistaInput
   dispositivos?: Prisma.DispositivoTaxistaUncheckedCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaUpdateInput = {
@@ -428,6 +433,7 @@ export type TaxistaUpdateInput = {
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   carreras?: Prisma.CarreraUpdateManyWithoutTaxistaNestedInput
   dispositivos?: Prisma.DispositivoTaxistaUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUpdateManyWithoutTaxistaNestedInput
 }
 
 export type TaxistaUncheckedUpdateInput = {
@@ -447,6 +453,7 @@ export type TaxistaUncheckedUpdateInput = {
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   carreras?: Prisma.CarreraUncheckedUpdateManyWithoutTaxistaNestedInput
   dispositivos?: Prisma.DispositivoTaxistaUncheckedUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedUpdateManyWithoutTaxistaNestedInput
 }
 
 export type TaxistaCreateManyInput = {
@@ -602,6 +609,20 @@ export type TaxistaUpdateOneRequiredWithoutDispositivosNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TaxistaUpdateToOneWithWhereWithoutDispositivosInput, Prisma.TaxistaUpdateWithoutDispositivosInput>, Prisma.TaxistaUncheckedUpdateWithoutDispositivosInput>
 }
 
+export type TaxistaCreateNestedOneWithoutSuscripcionesWebPushInput = {
+  create?: Prisma.XOR<Prisma.TaxistaCreateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput>
+  connectOrCreate?: Prisma.TaxistaCreateOrConnectWithoutSuscripcionesWebPushInput
+  connect?: Prisma.TaxistaWhereUniqueInput
+}
+
+export type TaxistaUpdateOneRequiredWithoutSuscripcionesWebPushNestedInput = {
+  create?: Prisma.XOR<Prisma.TaxistaCreateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput>
+  connectOrCreate?: Prisma.TaxistaCreateOrConnectWithoutSuscripcionesWebPushInput
+  upsert?: Prisma.TaxistaUpsertWithoutSuscripcionesWebPushInput
+  connect?: Prisma.TaxistaWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TaxistaUpdateToOneWithWhereWithoutSuscripcionesWebPushInput, Prisma.TaxistaUpdateWithoutSuscripcionesWebPushInput>, Prisma.TaxistaUncheckedUpdateWithoutSuscripcionesWebPushInput>
+}
+
 export type TaxistaCreateWithoutCarrerasInput = {
   codigo: string
   nombre: string
@@ -617,6 +638,7 @@ export type TaxistaCreateWithoutCarrerasInput = {
   titularGuayaquil?: string | null
   cuentaGuayaquil?: string | null
   dispositivos?: Prisma.DispositivoTaxistaCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaUncheckedCreateWithoutCarrerasInput = {
@@ -635,6 +657,7 @@ export type TaxistaUncheckedCreateWithoutCarrerasInput = {
   titularGuayaquil?: string | null
   cuentaGuayaquil?: string | null
   dispositivos?: Prisma.DispositivoTaxistaUncheckedCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaCreateOrConnectWithoutCarrerasInput = {
@@ -668,6 +691,7 @@ export type TaxistaUpdateWithoutCarrerasInput = {
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dispositivos?: Prisma.DispositivoTaxistaUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUpdateManyWithoutTaxistaNestedInput
 }
 
 export type TaxistaUncheckedUpdateWithoutCarrerasInput = {
@@ -686,6 +710,7 @@ export type TaxistaUncheckedUpdateWithoutCarrerasInput = {
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dispositivos?: Prisma.DispositivoTaxistaUncheckedUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedUpdateManyWithoutTaxistaNestedInput
 }
 
 export type TaxistaCreateWithoutDispositivosInput = {
@@ -703,6 +728,7 @@ export type TaxistaCreateWithoutDispositivosInput = {
   titularGuayaquil?: string | null
   cuentaGuayaquil?: string | null
   carreras?: Prisma.CarreraCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaUncheckedCreateWithoutDispositivosInput = {
@@ -721,6 +747,7 @@ export type TaxistaUncheckedCreateWithoutDispositivosInput = {
   titularGuayaquil?: string | null
   cuentaGuayaquil?: string | null
   carreras?: Prisma.CarreraUncheckedCreateNestedManyWithoutTaxistaInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedCreateNestedManyWithoutTaxistaInput
 }
 
 export type TaxistaCreateOrConnectWithoutDispositivosInput = {
@@ -754,6 +781,7 @@ export type TaxistaUpdateWithoutDispositivosInput = {
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   carreras?: Prisma.CarreraUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUpdateManyWithoutTaxistaNestedInput
 }
 
 export type TaxistaUncheckedUpdateWithoutDispositivosInput = {
@@ -772,6 +800,97 @@ export type TaxistaUncheckedUpdateWithoutDispositivosInput = {
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   carreras?: Prisma.CarreraUncheckedUpdateManyWithoutTaxistaNestedInput
+  suscripcionesWebPush?: Prisma.SuscripcionWebPushUncheckedUpdateManyWithoutTaxistaNestedInput
+}
+
+export type TaxistaCreateWithoutSuscripcionesWebPushInput = {
+  codigo: string
+  nombre: string
+  placa: string
+  vehiculo: string
+  colorVehiculo?: string | null
+  cooperativa?: string | null
+  telefono?: string | null
+  activo?: boolean
+  fechaRegistro?: Date | string
+  titularPichincha?: string | null
+  cuentaPichincha?: string | null
+  titularGuayaquil?: string | null
+  cuentaGuayaquil?: string | null
+  carreras?: Prisma.CarreraCreateNestedManyWithoutTaxistaInput
+  dispositivos?: Prisma.DispositivoTaxistaCreateNestedManyWithoutTaxistaInput
+}
+
+export type TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput = {
+  id?: number
+  codigo: string
+  nombre: string
+  placa: string
+  vehiculo: string
+  colorVehiculo?: string | null
+  cooperativa?: string | null
+  telefono?: string | null
+  activo?: boolean
+  fechaRegistro?: Date | string
+  titularPichincha?: string | null
+  cuentaPichincha?: string | null
+  titularGuayaquil?: string | null
+  cuentaGuayaquil?: string | null
+  carreras?: Prisma.CarreraUncheckedCreateNestedManyWithoutTaxistaInput
+  dispositivos?: Prisma.DispositivoTaxistaUncheckedCreateNestedManyWithoutTaxistaInput
+}
+
+export type TaxistaCreateOrConnectWithoutSuscripcionesWebPushInput = {
+  where: Prisma.TaxistaWhereUniqueInput
+  create: Prisma.XOR<Prisma.TaxistaCreateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput>
+}
+
+export type TaxistaUpsertWithoutSuscripcionesWebPushInput = {
+  update: Prisma.XOR<Prisma.TaxistaUpdateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedUpdateWithoutSuscripcionesWebPushInput>
+  create: Prisma.XOR<Prisma.TaxistaCreateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput>
+  where?: Prisma.TaxistaWhereInput
+}
+
+export type TaxistaUpdateToOneWithWhereWithoutSuscripcionesWebPushInput = {
+  where?: Prisma.TaxistaWhereInput
+  data: Prisma.XOR<Prisma.TaxistaUpdateWithoutSuscripcionesWebPushInput, Prisma.TaxistaUncheckedUpdateWithoutSuscripcionesWebPushInput>
+}
+
+export type TaxistaUpdateWithoutSuscripcionesWebPushInput = {
+  codigo?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  placa?: Prisma.StringFieldUpdateOperationsInput | string
+  vehiculo?: Prisma.StringFieldUpdateOperationsInput | string
+  colorVehiculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cooperativa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreras?: Prisma.CarreraUpdateManyWithoutTaxistaNestedInput
+  dispositivos?: Prisma.DispositivoTaxistaUpdateManyWithoutTaxistaNestedInput
+}
+
+export type TaxistaUncheckedUpdateWithoutSuscripcionesWebPushInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  codigo?: Prisma.StringFieldUpdateOperationsInput | string
+  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  placa?: Prisma.StringFieldUpdateOperationsInput | string
+  vehiculo?: Prisma.StringFieldUpdateOperationsInput | string
+  colorVehiculo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cooperativa?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuentaGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  carreras?: Prisma.CarreraUncheckedUpdateManyWithoutTaxistaNestedInput
+  dispositivos?: Prisma.DispositivoTaxistaUncheckedUpdateManyWithoutTaxistaNestedInput
 }
 
 
@@ -782,11 +901,13 @@ export type TaxistaUncheckedUpdateWithoutDispositivosInput = {
 export type TaxistaCountOutputType = {
   carreras: number
   dispositivos: number
+  suscripcionesWebPush: number
 }
 
 export type TaxistaCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carreras?: boolean | TaxistaCountOutputTypeCountCarrerasArgs
   dispositivos?: boolean | TaxistaCountOutputTypeCountDispositivosArgs
+  suscripcionesWebPush?: boolean | TaxistaCountOutputTypeCountSuscripcionesWebPushArgs
 }
 
 /**
@@ -813,6 +934,13 @@ export type TaxistaCountOutputTypeCountDispositivosArgs<ExtArgs extends runtime.
   where?: Prisma.DispositivoTaxistaWhereInput
 }
 
+/**
+ * TaxistaCountOutputType without action
+ */
+export type TaxistaCountOutputTypeCountSuscripcionesWebPushArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SuscripcionWebPushWhereInput
+}
+
 
 export type TaxistaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -831,6 +959,7 @@ export type TaxistaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   cuentaGuayaquil?: boolean
   carreras?: boolean | Prisma.Taxista$carrerasArgs<ExtArgs>
   dispositivos?: boolean | Prisma.Taxista$dispositivosArgs<ExtArgs>
+  suscripcionesWebPush?: boolean | Prisma.Taxista$suscripcionesWebPushArgs<ExtArgs>
   _count?: boolean | Prisma.TaxistaCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["taxista"]>
 
@@ -889,6 +1018,7 @@ export type TaxistaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type TaxistaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carreras?: boolean | Prisma.Taxista$carrerasArgs<ExtArgs>
   dispositivos?: boolean | Prisma.Taxista$dispositivosArgs<ExtArgs>
+  suscripcionesWebPush?: boolean | Prisma.Taxista$suscripcionesWebPushArgs<ExtArgs>
   _count?: boolean | Prisma.TaxistaCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TaxistaIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -899,6 +1029,7 @@ export type $TaxistaPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     carreras: Prisma.$CarreraPayload<ExtArgs>[]
     dispositivos: Prisma.$DispositivoTaxistaPayload<ExtArgs>[]
+    suscripcionesWebPush: Prisma.$SuscripcionWebPushPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1311,6 +1442,7 @@ export interface Prisma__TaxistaClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   carreras<T extends Prisma.Taxista$carrerasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Taxista$carrerasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CarreraPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   dispositivos<T extends Prisma.Taxista$dispositivosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Taxista$dispositivosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DispositivoTaxistaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  suscripcionesWebPush<T extends Prisma.Taxista$suscripcionesWebPushArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Taxista$suscripcionesWebPushArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SuscripcionWebPushPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1790,6 +1922,30 @@ export type Taxista$dispositivosArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.DispositivoTaxistaScalarFieldEnum | Prisma.DispositivoTaxistaScalarFieldEnum[]
+}
+
+/**
+ * Taxista.suscripcionesWebPush
+ */
+export type Taxista$suscripcionesWebPushArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SuscripcionWebPush
+   */
+  select?: Prisma.SuscripcionWebPushSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SuscripcionWebPush
+   */
+  omit?: Prisma.SuscripcionWebPushOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SuscripcionWebPushInclude<ExtArgs> | null
+  where?: Prisma.SuscripcionWebPushWhereInput
+  orderBy?: Prisma.SuscripcionWebPushOrderByWithRelationInput | Prisma.SuscripcionWebPushOrderByWithRelationInput[]
+  cursor?: Prisma.SuscripcionWebPushWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SuscripcionWebPushScalarFieldEnum | Prisma.SuscripcionWebPushScalarFieldEnum[]
 }
 
 /**

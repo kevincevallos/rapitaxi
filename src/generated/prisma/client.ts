@@ -64,3 +64,8 @@ export type DispositivoTaxista = Prisma.DispositivoTaxistaModel
  * 
  */
 export type ConversacionWhatsApp = Prisma.ConversacionWhatsAppModel
+/**
+ * Model SuscripcionWebPush
+ * 
+ */
+export type SuscripcionWebPush = Prisma.SuscripcionWebPushModel

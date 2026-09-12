@@ -401,7 +401,8 @@ export const ModelName = {
   Carrera: 'Carrera',
   Taxista: 'Taxista',
   DispositivoTaxista: 'DispositivoTaxista',
-  ConversacionWhatsApp: 'ConversacionWhatsApp'
+  ConversacionWhatsApp: 'ConversacionWhatsApp',
+  SuscripcionWebPush: 'SuscripcionWebPush'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "cliente" | "carrera" | "taxista" | "dispositivoTaxista" | "conversacionWhatsApp"
+    modelProps: "cliente" | "carrera" | "taxista" | "dispositivoTaxista" | "conversacionWhatsApp" | "suscripcionWebPush"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -791,6 +792,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SuscripcionWebPush: {
+      payload: Prisma.$SuscripcionWebPushPayload<ExtArgs>
+      fields: Prisma.SuscripcionWebPushFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SuscripcionWebPushFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SuscripcionWebPushFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        findFirst: {
+          args: Prisma.SuscripcionWebPushFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SuscripcionWebPushFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        findMany: {
+          args: Prisma.SuscripcionWebPushFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>[]
+        }
+        create: {
+          args: Prisma.SuscripcionWebPushCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        createMany: {
+          args: Prisma.SuscripcionWebPushCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SuscripcionWebPushCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>[]
+        }
+        delete: {
+          args: Prisma.SuscripcionWebPushDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        update: {
+          args: Prisma.SuscripcionWebPushUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        deleteMany: {
+          args: Prisma.SuscripcionWebPushDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SuscripcionWebPushUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SuscripcionWebPushUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>[]
+        }
+        upsert: {
+          args: Prisma.SuscripcionWebPushUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SuscripcionWebPushPayload>
+        }
+        aggregate: {
+          args: Prisma.SuscripcionWebPushAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSuscripcionWebPush>
+        }
+        groupBy: {
+          args: Prisma.SuscripcionWebPushGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SuscripcionWebPushGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SuscripcionWebPushCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SuscripcionWebPushCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -918,6 +993,20 @@ export const ConversacionWhatsAppScalarFieldEnum = {
 } as const
 
 export type ConversacionWhatsAppScalarFieldEnum = (typeof ConversacionWhatsAppScalarFieldEnum)[keyof typeof ConversacionWhatsAppScalarFieldEnum]
+
+
+export const SuscripcionWebPushScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  activo: 'activo',
+  fechaRegistro: 'fechaRegistro',
+  fechaActualizacion: 'fechaActualizacion',
+  taxistaId: 'taxistaId'
+} as const
+
+export type SuscripcionWebPushScalarFieldEnum = (typeof SuscripcionWebPushScalarFieldEnum)[keyof typeof SuscripcionWebPushScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1146,6 +1235,7 @@ export type GlobalOmitConfig = {
   taxista?: Prisma.TaxistaOmit
   dispositivoTaxista?: Prisma.DispositivoTaxistaOmit
   conversacionWhatsApp?: Prisma.ConversacionWhatsAppOmit
+  suscripcionWebPush?: Prisma.SuscripcionWebPushOmit
 }
 
 /* Types for Logging */

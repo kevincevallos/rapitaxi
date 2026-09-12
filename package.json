@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "tsx watch src/server.ts",
-  "build": "prisma generate && tsc",
-  "start": "prisma migrate deploy && node dist/server.js"
-},
+    "dev": "tsx watch src/server.ts",
+    "build": "prisma generate && tsc",
+    "start": "prisma migrate deploy && node dist/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.12.0",
     "prisma": "^7.10.0",
+    "web-push": "^3.6.7",
     "zod": "^4.5.4"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.4.1",
+    "@types/web-push": "^3.6.4",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2"
   }

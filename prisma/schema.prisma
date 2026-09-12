@@ -77,8 +77,9 @@ model Taxista {
   titularGuayaquil String?
   cuentaGuayaquil  String?
 
-  carreras      Carrera[]
-  dispositivos  DispositivoTaxista[]
+  carreras             Carrera[]
+  dispositivos         DispositivoTaxista[]
+  suscripcionesWebPush SuscripcionWebPush[]
 }
 
 model DispositivoTaxista {
@@ -89,7 +90,7 @@ model DispositivoTaxista {
 
   expoPushToken String? @unique
 
-  activo Boolean @default(true)
+  activo  Boolean @default(true)
   enLinea Boolean @default(true)
 
   fechaRegistro      DateTime @default(now())
@@ -138,4 +139,19 @@ enum EstadoConversacion {
   BUSCANDO_TAXI
   CARRERA_ACTIVA
   ESPERANDO_CALIFICACION
+}
+
+model SuscripcionWebPush {
+  id                 Int      @id @default(autoincrement())
+  endpoint           String   @unique
+  p256dh             String
+  auth               String
+  activo             Boolean  @default(true)
+  fechaRegistro      DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  taxistaId Int
+  taxista   Taxista @relation(fields: [taxistaId], references: [id], onDelete: Cascade)
+
+  @@index([taxistaId])
 }

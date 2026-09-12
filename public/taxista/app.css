@@ -1015,3 +1015,45 @@ button {
     font-size: 11px;
     line-height: 1.4
 }
+
+.dashboard-header-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.boton-notificaciones {
+    min-height: 36px;
+    padding: 0 11px;
+
+    border: 1px solid rgba(255, 255, 255, 0.24);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.14);
+
+    color: #ffffff;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    backdrop-filter:
+        blur(12px);
+
+    -webkit-backdrop-filter:
+        blur(12px);
+}
+
+.boton-notificaciones.activo {
+    background:
+        rgba(38, 180, 91, 0.9);
+
+    border-color:
+        rgba(255, 255, 255, 0.2);
+}
+
+.boton-notificaciones.bloqueado {
+    background:
+        rgba(190, 55, 55, 0.88);
+}

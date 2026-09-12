@@ -9,6 +9,7 @@ import path from "path";
 import carreraRoutes from "./routes/carrera.routes";
 import taxistaRoutes from "./routes/taxista.routes";
 import whatsappRoutes from "./routes/whatsapp.routes";
+import webPushRoutes from "./routes/web-push.routes";   
 
 import {
   finalizarCarrerasVencidas,
@@ -51,6 +52,11 @@ app.use(
 app.use(
   "/api/taxistas",
   taxistaRoutes
+);
+
+app.use(
+  "/api/web-push",
+  webPushRoutes
 );
 
 app.use(

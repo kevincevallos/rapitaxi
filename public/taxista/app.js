@@ -328,6 +328,10 @@ const botonActivarUbicacion = document.getElementById("botonActivarUbicacion");
 const textoMapaCargando = document.getElementById("textoMapaCargando");
 const spinnerUbicacion = document.getElementById("spinnerUbicacion");
 const ayudaUbicacion = document.getElementById("ayudaUbicacion");
+const botonNotificaciones =
+    document.getElementById(
+        "botonNotificaciones"
+    );
 let timerMostrarBotonUbicacion = null;
 
 
@@ -1608,7 +1612,7 @@ function estadoHumanoWeb(
 ) {
 
     switch (
-        estado
+    estado
     ) {
 
         case "ASIGNADA":
@@ -3176,10 +3180,436 @@ function centrarMapaEnTaxi() {
 
 }
 
+/*
+  ======================================
+  WEB PUSH IPHONE
+  ======================================
+*/
+
+
+function convertirBase64UrlAUint8Array(
+    base64String
+) {
+
+    const padding =
+        "=".repeat(
+            (
+                4 -
+                base64String.length %
+                4
+            ) % 4
+        );
+
+
+    const base64 =
+        (
+            base64String +
+            padding
+        )
+            .replace(
+                /-/g,
+                "+"
+            )
+            .replace(
+                /_/g,
+                "/"
+            );
+
+
+    const rawData =
+        window.atob(
+            base64
+        );
+
+
+    return Uint8Array.from(
+        [...rawData].map(
+            caracter =>
+                caracter.charCodeAt(
+                    0
+                )
+        )
+    );
+
+}
+
+
+async function obtenerRegistroServiceWorker() {
+
+    if (
+        !(
+            "serviceWorker"
+            in navigator
+        )
+    ) {
+
+        throw new Error(
+            "SERVICE_WORKER_NO_DISPONIBLE"
+        );
+
+    }
+
+
+    await navigator
+        .serviceWorker
+        .register(
+            "/taxista/sw.js",
+            {
+                scope:
+                    "/taxista/",
+            }
+        );
+
+
+    return navigator
+        .serviceWorker
+        .ready;
+
+}
+
+
+async function actualizarEstadoNotificaciones() {
+
+    if (
+        !botonNotificaciones
+    ) {
+        return;
+    }
+
+
+    if (
+        !(
+            "Notification"
+            in window
+        ) ||
+        !(
+            "PushManager"
+            in window
+        ) ||
+        !(
+            "serviceWorker"
+            in navigator
+        )
+    ) {
+
+        botonNotificaciones
+            .textContent =
+            "🔕 NO DISPONIBLE";
+
+        botonNotificaciones
+            .disabled =
+            true;
+
+        return;
+
+    }
+
+
+    if (
+        Notification.permission ===
+        "denied"
+    ) {
+
+        botonNotificaciones
+            .textContent =
+            "🔕 BLOQUEADAS";
+
+        botonNotificaciones
+            .classList
+            .add(
+                "bloqueado"
+            );
+
+        return;
+
+    }
+
+
+    try {
+
+        const registration =
+            await obtenerRegistroServiceWorker();
+
+
+        const subscription =
+            await registration
+                .pushManager
+                .getSubscription();
+
+
+        if (
+            Notification.permission ===
+            "granted" &&
+            subscription
+        ) {
+
+            botonNotificaciones
+                .textContent =
+                "🔔 ACTIVAS";
+
+            botonNotificaciones
+                .classList
+                .add(
+                    "activo"
+                );
+
+            return;
+
+        }
+
+    } catch (
+    error
+    ) {
+
+        console.log(
+            "Estado Web Push:",
+            error
+        );
+
+    }
+
+
+    botonNotificaciones
+        .textContent =
+        "🔔 ACTIVAR";
+
+}
+
+
+async function activarNotificaciones() {
+
+    if (
+        !sessionToken
+    ) {
+
+        window.alert(
+            "Inicia sesión antes de activar las notificaciones."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !(
+            "Notification"
+            in window
+        ) ||
+        !(
+            "PushManager"
+            in window
+        ) ||
+        !(
+            "serviceWorker"
+            in navigator
+        )
+    ) {
+
+        window.alert(
+            "Este dispositivo no admite notificaciones Web Push."
+        );
+
+        return;
+
+    }
+
+
+    botonNotificaciones.disabled =
+        true;
+
+    botonNotificaciones.textContent =
+        "ACTIVANDO...";
+
+
+    try {
+
+        /*
+          En iPhone este permiso debe
+          pedirse como consecuencia directa
+          del toque del taxista.
+        */
+
+        const permission =
+            await Notification
+                .requestPermission();
+
+
+        if (
+            permission !==
+            "granted"
+        ) {
+
+            if (
+                permission ===
+                "denied"
+            ) {
+
+                window.alert(
+                    "Las notificaciones están bloqueadas. Debes habilitarlas en Ajustes de iPhone para Rapitaxi."
+                );
+
+            }
+
+
+            await actualizarEstadoNotificaciones();
+
+            return;
+
+        }
+
+
+        const registration =
+            await obtenerRegistroServiceWorker();
+
+
+        let subscription =
+            await registration
+                .pushManager
+                .getSubscription();
+
+
+        if (!subscription) {
+
+            const responseKey =
+                await fetch(
+                    `${API_BASE_URL}/api/web-push/public-key`
+                );
+
+
+            const dataKey =
+                await responseKey
+                    .json();
+
+
+            if (
+                !responseKey.ok ||
+                !dataKey?.publicKey
+            ) {
+
+                throw new Error(
+                    "No se pudo obtener la clave Web Push."
+                );
+
+            }
+
+
+            subscription =
+                await registration
+                    .pushManager
+                    .subscribe({
+                        userVisibleOnly:
+                            true,
+
+                        applicationServerKey:
+                            convertirBase64UrlAUint8Array(
+                                dataKey.publicKey
+                            ),
+                    });
+
+        }
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/web-push/subscribe`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+
+                        Authorization:
+                            `Bearer ${sessionToken}`,
+                    },
+
+                    body:
+                        JSON.stringify({
+                            subscription:
+                                subscription.toJSON(),
+                        }),
+                }
+            );
+
+
+        const data =
+            await response
+                .json()
+                .catch(
+                    () => null
+                );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                data?.message ||
+                "No se pudo registrar el iPhone."
+            );
+
+        }
+
+
+        botonNotificaciones
+            .textContent =
+            "🔔 ACTIVAS";
+
+        botonNotificaciones
+            .classList
+            .remove(
+                "bloqueado"
+            );
+
+        botonNotificaciones
+            .classList
+            .add(
+                "activo"
+            );
+
+
+        window.alert(
+            "Notificaciones activadas correctamente. Rapitaxi podrá avisarte cuando llegue una nueva carrera."
+        );
+
+    } catch (
+    error
+    ) {
+
+        console.error(
+            "Error activando Web Push:",
+            error
+        );
+
+
+        window.alert(
+            error?.message ||
+            "No fue posible activar las notificaciones."
+        );
+
+
+        await actualizarEstadoNotificaciones();
+
+    } finally {
+
+        botonNotificaciones.disabled =
+            false;
+
+    }
+
+}
 
 /*
   EVENTOS
 */
+botonNotificaciones
+    ?.addEventListener(
+        "click",
+        activarNotificaciones
+    );
 
 botonCentrar.addEventListener(
     "click",
@@ -3438,7 +3868,32 @@ if (
 
 }
 
+if (
+  "serviceWorker" in navigator
+) {
 
+  navigator
+    .serviceWorker
+    .register(
+      "/taxista/sw.js",
+      {
+        scope:
+          "/taxista/",
+      }
+    )
+    .then(
+      () =>
+        actualizarEstadoNotificaciones()
+    )
+    .catch(
+      error =>
+        console.log(
+          "Service Worker:",
+          error
+        )
+    );
+
+}
 /*
   INICIO
 */

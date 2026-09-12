@@ -4,6 +4,10 @@ import {
     enviarPushNuevaCarrera,
 } from "./push.service";
 
+import {
+    enviarWebPushNuevaCarrera,
+} from "./web-push.service";
+
 import { prisma } from "../config/prisma";
 
 import {
@@ -192,17 +196,47 @@ export async function crearCarrera(
                     "BUSCANDO",
             },
         });
-    enviarPushNuevaCarrera(
-        carrera.numero,
-        carrera.token,
-        carrera.referencia,
-        carrera.formaPago
-    ).catch(
-        (error) => {
-            console.error(
-                "Error lanzando push:",
-                error
+    Promise.allSettled([
+        enviarPushNuevaCarrera(
+            carrera.numero,
+            carrera.token,
+            carrera.referencia,
+            carrera.formaPago
+        ),
+
+        enviarWebPushNuevaCarrera(
+            carrera.numero,
+            carrera.token,
+            carrera.referencia,
+            carrera.formaPago
+        ),
+    ]).then(
+        (resultados) => {
+
+            resultados.forEach(
+                (
+                    resultado,
+                    indice
+                ) => {
+
+                    if (
+                        resultado.status ===
+                        "rejected"
+                    ) {
+
+                        console.error(
+                            indice === 0
+                                ? "Error lanzando Expo Push:"
+                                : "Error lanzando Web Push:",
+
+                            resultado.reason
+                        );
+
+                    }
+
+                }
             );
+
         }
     );
 

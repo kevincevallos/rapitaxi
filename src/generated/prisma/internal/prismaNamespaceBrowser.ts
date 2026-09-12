@@ -55,7 +55,8 @@ export const ModelName = {
   Carrera: 'Carrera',
   Taxista: 'Taxista',
   DispositivoTaxista: 'DispositivoTaxista',
-  ConversacionWhatsApp: 'ConversacionWhatsApp'
+  ConversacionWhatsApp: 'ConversacionWhatsApp',
+  SuscripcionWebPush: 'SuscripcionWebPush'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -162,6 +163,20 @@ export const ConversacionWhatsAppScalarFieldEnum = {
 } as const
 
 export type ConversacionWhatsAppScalarFieldEnum = (typeof ConversacionWhatsAppScalarFieldEnum)[keyof typeof ConversacionWhatsAppScalarFieldEnum]
+
+
+export const SuscripcionWebPushScalarFieldEnum = {
+  id: 'id',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  activo: 'activo',
+  fechaRegistro: 'fechaRegistro',
+  fechaActualizacion: 'fechaActualizacion',
+  taxistaId: 'taxistaId'
+} as const
+
+export type SuscripcionWebPushScalarFieldEnum = (typeof SuscripcionWebPushScalarFieldEnum)[keyof typeof SuscripcionWebPushScalarFieldEnum]
 
 
 export const SortOrder = {
