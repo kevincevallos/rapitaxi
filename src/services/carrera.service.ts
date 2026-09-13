@@ -508,7 +508,7 @@ export async function aceptarCarrera(
 
     let mensajeCliente =
 
-        `Ok ${taxista.nombre} ira a recogerte.\n` +
+        `Ok ${taxista.nombre} irá a recogerte.\n` +
 
         `Vehiculo: ${descripcionVehiculo}\n` +
 
@@ -952,7 +952,7 @@ export async function finalizarCarrerasVencidas() {
                 await enviarBotonesWhatsApp(
                     telefonoCliente,
 
-                    "Que tal estuvo tu taxista?",
+                    "⭐ ¿Qué tal estuvo tu taxista?\n\n😏 Después de calificar, prueba escribiéndome: \"Rapi, opina sobre mí\".\n\n✏️ ¿Tu nombre está incorrecto? Escríbeme: \"Me llamo [tu nombre]\".",
 
                     [
                         {
@@ -1657,18 +1657,19 @@ export async function actualizarUbicacionTaxista(
     ) {
 
         mensajeAutomatico =
-            `Tu taxi esta cerca. ` +
-            `Se encuentra a aproximadamente ` +
-            `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
+            `🚕 Tu taxi está cerca. ` +
+            `Se encuentra aproximadamente a ` +
+            `${etaMinutos} min de tu ubicación.`;
 
     } else if (
-        hanPasadoCincoMinutos
+        hanPasadoCincoMinutos &&
+        nuevoEstado === "CERCA"
     ) {
 
         mensajeAutomatico =
-            `Tu taxi esta cerca. ` +
-            `Se encuentra a aproximadamente ` +
-            `${Math.round(distanciaKm * 1000)} metros de tu ubicacion.`;
+            `🚕 Tu taxi está cerca. ` +
+            `Se encuentra aproximadamente a ` +
+            `${etaMinutos} min de tu ubicación.`;
 
     } else if (
         hanPasadoCincoMinutos &&
@@ -1676,10 +1677,9 @@ export async function actualizarUbicacionTaxista(
     ) {
 
         mensajeAutomatico =
-            `Actualizacion Rapitaxi: ` +
-            `tu taxi se encuentra a aproximadamente ` +
-            `${distanciaKm.toFixed(1)} km ` +
-            `y ${etaMinutos} min de tu ubicacion.`;
+            `🚕 Actualización Rapitaxi: ` +
+            `tu taxi se encuentra aproximadamente a ` +
+            `${etaMinutos} min de tu ubicación.`;
     }
 
 
@@ -2263,7 +2263,7 @@ export async function finalizarCarreraTaxista(
         await enviarBotonesWhatsApp(
             telefonoCliente,
 
-            "Que tal estuvo tu taxista?",
+            "⭐ ¿Qué tal estuvo tu taxista?\n\n😏 Después de calificar, prueba escribiéndome: \"Rapi, opina sobre mí\".\n\n✏️ ¿Tu nombre está incorrecto? Escríbeme: \"Me llamo [tu nombre]\".",
 
             [
                 {

@@ -641,13 +641,21 @@ function esSolicitudOpinionRapi(
 
     const frases = [
         "rapi opina de mi",
+        "rapi opina sobre mi",
         "rapi que opinas de mi",
+        "rapi que opinas sobre mi",
         "que opinas de mi",
+        "que opinas sobre mi",
         "opina de mi",
+        "opina sobre mi",
         "dime que opinas de mi",
+        "dime que opinas sobre mi",
         "dime que piensas de mi",
+        "dime que piensas sobre mi",
         "que piensas de mi",
+        "que piensas sobre mi",
         "rapi dime que piensas de mi",
+        "rapi dime que piensas sobre mi",
     ];
 
 
@@ -841,8 +849,13 @@ async function guardarNuevoNombre(
     nuevoNombre: string
 ) {
     /*
-      Actualizamos Cliente y conversación
-      en una sola transacción.
+      Actualizamos:
+
+      1. Cliente
+      2. Conversación
+      3. Cualquier carrera que siga activa
+
+      No modificamos el estado de nada.
     */
 
     await prisma.$transaction([
@@ -868,7 +881,30 @@ async function guardarNuevoNombre(
                     nuevoNombre,
             },
         }),
+
+        prisma.carrera.updateMany({
+            where: {
+                whatsappCliente:
+                    telefono,
+
+                estado: {
+                    in: [
+                        "BUSCANDO",
+                        "ASIGNADA",
+                        "EN_CAMINO",
+                        "CERCA",
+                        "LLEGO",
+                    ],
+                },
+            },
+
+            data: {
+                nombreCliente:
+                    nuevoNombre,
+            },
+        }),
     ]);
+
 }
 
 /*
@@ -1756,9 +1792,19 @@ export async function procesarMensajeWhatsApp(
       ======================================
       RAPI OPINA DE TI
       ======================================
+    
+      Solo funciona cuando el cliente está
+      libre.
+    
+      Si está pidiendo ubicación, pagando,
+      buscando taxi o en carrera, dejamos que
+      continúe el flujo normal de Rapitaxi.
     */
 
     if (
+        conversacion.estado ===
+        "NUEVO" &&
+
         esSolicitudOpinionRapi(
             input
         )
@@ -1767,7 +1813,6 @@ export async function procesarMensajeWhatsApp(
             cliente,
             telefono
         );
-
 
         return;
     }
@@ -1920,7 +1965,7 @@ export async function procesarMensajeWhatsApp(
         await solicitarUbicacionWhatsApp(
             telefono,
 
-            `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi.`
+            `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi. 📍\n\nSi tu nombre no es correcto, escríbeme: "Me llamo [tu nombre]".`
         );
 
 
@@ -1946,7 +1991,7 @@ export async function procesarMensajeWhatsApp(
             await solicitarUbicacionWhatsApp(
                 telefono,
 
-                "📍 Necesito que me envíes tu ubicación actual para continuar."
+                `Hola ${cliente.nombre}, 📍 necesito que me envíes tu ubicación actual para continuar.`
             );
 
 
@@ -2320,7 +2365,7 @@ export async function procesarMensajeWhatsApp(
         await solicitarUbicacionWhatsApp(
             telefono,
 
-            `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi.`
+            `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi. 📍\n\nSi tu nombre no es correcto, escríbeme: "Me llamo [tu nombre]".`
         );
 
 
@@ -2364,6 +2409,6 @@ export async function procesarMensajeWhatsApp(
     await solicitarUbicacionWhatsApp(
         telefono,
 
-        `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi.`
+        `Hola ${cliente.nombre} 👋🚖 Envíame tu ubicación actual para pedir un taxi. 📍\n\nSi tu nombre no es correcto, escríbeme: "Me llamo [tu nombre]".`
     );
 }
