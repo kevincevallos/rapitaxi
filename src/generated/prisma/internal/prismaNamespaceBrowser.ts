@@ -76,7 +76,9 @@ export const ClienteScalarFieldEnum = {
   id: 'id',
   whatsapp: 'whatsapp',
   nombre: 'nombre',
-  fechaRegistro: 'fechaRegistro'
+  fechaRegistro: 'fechaRegistro',
+  ultimaOpinionRapi: 'ultimaOpinionRapi',
+  ultimaOpinionId: 'ultimaOpinionId'
 } as const
 
 export type ClienteScalarFieldEnum = (typeof ClienteScalarFieldEnum)[keyof typeof ClienteScalarFieldEnum]

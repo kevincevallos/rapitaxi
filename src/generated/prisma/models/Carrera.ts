@@ -896,10 +896,6 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type FloatFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -910,14 +906,6 @@ export type FloatFieldUpdateOperationsInput = {
 
 export type EnumEstadoCarreraFieldUpdateOperationsInput = {
   set?: $Enums.EstadoCarrera
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type CarreraCreateNestedManyWithoutTaxistaInput = {

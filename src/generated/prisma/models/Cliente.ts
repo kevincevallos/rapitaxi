@@ -28,10 +28,12 @@ export type AggregateCliente = {
 
 export type ClienteAvgAggregateOutputType = {
   id: number | null
+  ultimaOpinionId: number | null
 }
 
 export type ClienteSumAggregateOutputType = {
   id: number | null
+  ultimaOpinionId: number | null
 }
 
 export type ClienteMinAggregateOutputType = {
@@ -39,6 +41,8 @@ export type ClienteMinAggregateOutputType = {
   whatsapp: string | null
   nombre: string | null
   fechaRegistro: Date | null
+  ultimaOpinionRapi: Date | null
+  ultimaOpinionId: number | null
 }
 
 export type ClienteMaxAggregateOutputType = {
@@ -46,6 +50,8 @@ export type ClienteMaxAggregateOutputType = {
   whatsapp: string | null
   nombre: string | null
   fechaRegistro: Date | null
+  ultimaOpinionRapi: Date | null
+  ultimaOpinionId: number | null
 }
 
 export type ClienteCountAggregateOutputType = {
@@ -53,16 +59,20 @@ export type ClienteCountAggregateOutputType = {
   whatsapp: number
   nombre: number
   fechaRegistro: number
+  ultimaOpinionRapi: number
+  ultimaOpinionId: number
   _all: number
 }
 
 
 export type ClienteAvgAggregateInputType = {
   id?: true
+  ultimaOpinionId?: true
 }
 
 export type ClienteSumAggregateInputType = {
   id?: true
+  ultimaOpinionId?: true
 }
 
 export type ClienteMinAggregateInputType = {
@@ -70,6 +80,8 @@ export type ClienteMinAggregateInputType = {
   whatsapp?: true
   nombre?: true
   fechaRegistro?: true
+  ultimaOpinionRapi?: true
+  ultimaOpinionId?: true
 }
 
 export type ClienteMaxAggregateInputType = {
@@ -77,6 +89,8 @@ export type ClienteMaxAggregateInputType = {
   whatsapp?: true
   nombre?: true
   fechaRegistro?: true
+  ultimaOpinionRapi?: true
+  ultimaOpinionId?: true
 }
 
 export type ClienteCountAggregateInputType = {
@@ -84,6 +98,8 @@ export type ClienteCountAggregateInputType = {
   whatsapp?: true
   nombre?: true
   fechaRegistro?: true
+  ultimaOpinionRapi?: true
+  ultimaOpinionId?: true
   _all?: true
 }
 
@@ -178,6 +194,8 @@ export type ClienteGroupByOutputType = {
   whatsapp: string
   nombre: string
   fechaRegistro: Date
+  ultimaOpinionRapi: Date | null
+  ultimaOpinionId: number | null
   _count: ClienteCountAggregateOutputType | null
   _avg: ClienteAvgAggregateOutputType | null
   _sum: ClienteSumAggregateOutputType | null
@@ -208,6 +226,8 @@ export type ClienteWhereInput = {
   whatsapp?: Prisma.StringFilter<"Cliente"> | string
   nombre?: Prisma.StringFilter<"Cliente"> | string
   fechaRegistro?: Prisma.DateTimeFilter<"Cliente"> | Date | string
+  ultimaOpinionRapi?: Prisma.DateTimeNullableFilter<"Cliente"> | Date | string | null
+  ultimaOpinionId?: Prisma.IntNullableFilter<"Cliente"> | number | null
   carreras?: Prisma.CarreraListRelationFilter
   conversacion?: Prisma.XOR<Prisma.ConversacionWhatsAppNullableScalarRelationFilter, Prisma.ConversacionWhatsAppWhereInput> | null
 }
@@ -217,6 +237,8 @@ export type ClienteOrderByWithRelationInput = {
   whatsapp?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaOpinionRapi?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrderInput | Prisma.SortOrder
   carreras?: Prisma.CarreraOrderByRelationAggregateInput
   conversacion?: Prisma.ConversacionWhatsAppOrderByWithRelationInput
 }
@@ -229,6 +251,8 @@ export type ClienteWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ClienteWhereInput | Prisma.ClienteWhereInput[]
   nombre?: Prisma.StringFilter<"Cliente"> | string
   fechaRegistro?: Prisma.DateTimeFilter<"Cliente"> | Date | string
+  ultimaOpinionRapi?: Prisma.DateTimeNullableFilter<"Cliente"> | Date | string | null
+  ultimaOpinionId?: Prisma.IntNullableFilter<"Cliente"> | number | null
   carreras?: Prisma.CarreraListRelationFilter
   conversacion?: Prisma.XOR<Prisma.ConversacionWhatsAppNullableScalarRelationFilter, Prisma.ConversacionWhatsAppWhereInput> | null
 }, "id" | "whatsapp">
@@ -238,6 +262,8 @@ export type ClienteOrderByWithAggregationInput = {
   whatsapp?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaOpinionRapi?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ClienteCountOrderByAggregateInput
   _avg?: Prisma.ClienteAvgOrderByAggregateInput
   _max?: Prisma.ClienteMaxOrderByAggregateInput
@@ -253,12 +279,16 @@ export type ClienteScalarWhereWithAggregatesInput = {
   whatsapp?: Prisma.StringWithAggregatesFilter<"Cliente"> | string
   nombre?: Prisma.StringWithAggregatesFilter<"Cliente"> | string
   fechaRegistro?: Prisma.DateTimeWithAggregatesFilter<"Cliente"> | Date | string
+  ultimaOpinionRapi?: Prisma.DateTimeNullableWithAggregatesFilter<"Cliente"> | Date | string | null
+  ultimaOpinionId?: Prisma.IntNullableWithAggregatesFilter<"Cliente"> | number | null
 }
 
 export type ClienteCreateInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   carreras?: Prisma.CarreraCreateNestedManyWithoutClienteInput
   conversacion?: Prisma.ConversacionWhatsAppCreateNestedOneWithoutClienteInput
 }
@@ -268,6 +298,8 @@ export type ClienteUncheckedCreateInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   carreras?: Prisma.CarreraUncheckedCreateNestedManyWithoutClienteInput
   conversacion?: Prisma.ConversacionWhatsAppUncheckedCreateNestedOneWithoutClienteInput
 }
@@ -276,6 +308,8 @@ export type ClienteUpdateInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   carreras?: Prisma.CarreraUpdateManyWithoutClienteNestedInput
   conversacion?: Prisma.ConversacionWhatsAppUpdateOneWithoutClienteNestedInput
 }
@@ -285,6 +319,8 @@ export type ClienteUncheckedUpdateInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   carreras?: Prisma.CarreraUncheckedUpdateManyWithoutClienteNestedInput
   conversacion?: Prisma.ConversacionWhatsAppUncheckedUpdateOneWithoutClienteNestedInput
 }
@@ -294,12 +330,16 @@ export type ClienteCreateManyInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
 }
 
 export type ClienteUpdateManyMutationInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ClienteUncheckedUpdateManyInput = {
@@ -307,6 +347,8 @@ export type ClienteUncheckedUpdateManyInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ClienteCountOrderByAggregateInput = {
@@ -314,10 +356,13 @@ export type ClienteCountOrderByAggregateInput = {
   whatsapp?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaOpinionRapi?: Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrder
 }
 
 export type ClienteAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrder
 }
 
 export type ClienteMaxOrderByAggregateInput = {
@@ -325,6 +370,8 @@ export type ClienteMaxOrderByAggregateInput = {
   whatsapp?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaOpinionRapi?: Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrder
 }
 
 export type ClienteMinOrderByAggregateInput = {
@@ -332,10 +379,13 @@ export type ClienteMinOrderByAggregateInput = {
   whatsapp?: Prisma.SortOrder
   nombre?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaOpinionRapi?: Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrder
 }
 
 export type ClienteSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ultimaOpinionId?: Prisma.SortOrder
 }
 
 export type ClienteNullableScalarRelationFilter = {
@@ -349,6 +399,18 @@ export type StringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -395,6 +457,8 @@ export type ClienteCreateWithoutCarrerasInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   conversacion?: Prisma.ConversacionWhatsAppCreateNestedOneWithoutClienteInput
 }
 
@@ -403,6 +467,8 @@ export type ClienteUncheckedCreateWithoutCarrerasInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   conversacion?: Prisma.ConversacionWhatsAppUncheckedCreateNestedOneWithoutClienteInput
 }
 
@@ -426,6 +492,8 @@ export type ClienteUpdateWithoutCarrerasInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   conversacion?: Prisma.ConversacionWhatsAppUpdateOneWithoutClienteNestedInput
 }
 
@@ -434,6 +502,8 @@ export type ClienteUncheckedUpdateWithoutCarrerasInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   conversacion?: Prisma.ConversacionWhatsAppUncheckedUpdateOneWithoutClienteNestedInput
 }
 
@@ -441,6 +511,8 @@ export type ClienteCreateWithoutConversacionInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   carreras?: Prisma.CarreraCreateNestedManyWithoutClienteInput
 }
 
@@ -449,6 +521,8 @@ export type ClienteUncheckedCreateWithoutConversacionInput = {
   whatsapp: string
   nombre: string
   fechaRegistro?: Date | string
+  ultimaOpinionRapi?: Date | string | null
+  ultimaOpinionId?: number | null
   carreras?: Prisma.CarreraUncheckedCreateNestedManyWithoutClienteInput
 }
 
@@ -472,6 +546,8 @@ export type ClienteUpdateWithoutConversacionInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   carreras?: Prisma.CarreraUpdateManyWithoutClienteNestedInput
 }
 
@@ -480,6 +556,8 @@ export type ClienteUncheckedUpdateWithoutConversacionInput = {
   whatsapp?: Prisma.StringFieldUpdateOperationsInput | string
   nombre?: Prisma.StringFieldUpdateOperationsInput | string
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaOpinionRapi?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaOpinionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   carreras?: Prisma.CarreraUncheckedUpdateManyWithoutClienteNestedInput
 }
 
@@ -519,6 +597,8 @@ export type ClienteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   whatsapp?: boolean
   nombre?: boolean
   fechaRegistro?: boolean
+  ultimaOpinionRapi?: boolean
+  ultimaOpinionId?: boolean
   carreras?: boolean | Prisma.Cliente$carrerasArgs<ExtArgs>
   conversacion?: boolean | Prisma.Cliente$conversacionArgs<ExtArgs>
   _count?: boolean | Prisma.ClienteCountOutputTypeDefaultArgs<ExtArgs>
@@ -529,6 +609,8 @@ export type ClienteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   whatsapp?: boolean
   nombre?: boolean
   fechaRegistro?: boolean
+  ultimaOpinionRapi?: boolean
+  ultimaOpinionId?: boolean
 }, ExtArgs["result"]["cliente"]>
 
 export type ClienteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -536,6 +618,8 @@ export type ClienteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   whatsapp?: boolean
   nombre?: boolean
   fechaRegistro?: boolean
+  ultimaOpinionRapi?: boolean
+  ultimaOpinionId?: boolean
 }, ExtArgs["result"]["cliente"]>
 
 export type ClienteSelectScalar = {
@@ -543,9 +627,11 @@ export type ClienteSelectScalar = {
   whatsapp?: boolean
   nombre?: boolean
   fechaRegistro?: boolean
+  ultimaOpinionRapi?: boolean
+  ultimaOpinionId?: boolean
 }
 
-export type ClienteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsapp" | "nombre" | "fechaRegistro", ExtArgs["result"]["cliente"]>
+export type ClienteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "whatsapp" | "nombre" | "fechaRegistro" | "ultimaOpinionRapi" | "ultimaOpinionId", ExtArgs["result"]["cliente"]>
 export type ClienteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carreras?: boolean | Prisma.Cliente$carrerasArgs<ExtArgs>
   conversacion?: boolean | Prisma.Cliente$conversacionArgs<ExtArgs>
@@ -565,6 +651,8 @@ export type $ClientePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     whatsapp: string
     nombre: string
     fechaRegistro: Date
+    ultimaOpinionRapi: Date | null
+    ultimaOpinionId: number | null
   }, ExtArgs["result"]["cliente"]>
   composites: {}
 }
@@ -994,6 +1082,8 @@ export interface ClienteFieldRefs {
   readonly whatsapp: Prisma.FieldRef<"Cliente", 'String'>
   readonly nombre: Prisma.FieldRef<"Cliente", 'String'>
   readonly fechaRegistro: Prisma.FieldRef<"Cliente", 'DateTime'>
+  readonly ultimaOpinionRapi: Prisma.FieldRef<"Cliente", 'DateTime'>
+  readonly ultimaOpinionId: Prisma.FieldRef<"Cliente", 'Int'>
 }
     
 

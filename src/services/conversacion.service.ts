@@ -295,7 +295,581 @@ async function enviarOpcionesPago(
         ]
     );
 }
+/*
+  ========================================
+  NOMBRE DEL CLIENTE + MARKETING RAPI
+  ========================================
+*/
 
+const LIMITE_OPINION_RAPI_MS =
+    6 * 60 * 60 * 1000;
+
+
+const OPINIONES_RAPI = [
+    {
+        id: 1,
+        texto:
+            "Tú dices «ya voy» y todavía estás buscando las llaves. 😂",
+    },
+    {
+        id: 2,
+        texto:
+            "Tienes cara de decir «cinco minutos más» y despertar una hora después. 😂",
+    },
+    {
+        id: 3,
+        texto:
+            "Tú no llegas tarde... haces una entrada especial. 😎😂",
+    },
+    {
+        id: 4,
+        texto:
+            "Tu batería puede estar en 2%, pero tú sigues diciendo «aguanta un poquito más». 😂",
+    },
+    {
+        id: 5,
+        texto:
+            "Eres de los que abre WhatsApp para responder un mensaje y termina viendo estados media hora. 😂",
+    },
+    {
+        id: 6,
+        texto:
+            "Tú dices «hoy sí me duermo temprano» como si alguien todavía te creyera. 😂",
+    },
+    {
+        id: 7,
+        texto:
+            "Si posponer las cosas fuera deporte, ya tendrías medalla. 🥇😂",
+    },
+    {
+        id: 8,
+        texto:
+            "Seguro desbloqueas el teléfono y a los tres segundos olvidas para qué lo hiciste. 😂",
+    },
+    {
+        id: 9,
+        texto:
+            "Tú no tienes hambre... solamente necesitas revisar qué hay en la cocina cada veinte minutos. 😂",
+    },
+    {
+        id: 10,
+        texto:
+            "Eres de los que dice «no voy a gastar» justo antes de comprar algo que no necesitaba. 😂",
+    },
+    {
+        id: 11,
+        texto:
+            "Cuando dices «rapidito», todos saben que eso puede durar bastante. 😂",
+    },
+    {
+        id: 12,
+        texto:
+            "Tú empiezas a ordenar una cosa y terminas encontrando recuerdos de hace cinco años. 😂",
+    },
+    {
+        id: 13,
+        texto:
+            "Tienes un talento especial para buscar algo que estaba justo frente a ti. 😂",
+    },
+    {
+        id: 14,
+        texto:
+            "Tú dices «una última vez» con demasiada facilidad. 😂",
+    },
+    {
+        id: 15,
+        texto:
+            "Si te mandan un audio de cuatro minutos, primero necesitas prepararte emocionalmente. 😂",
+    },
+    {
+        id: 16,
+        texto:
+            "Tú también practicas conversaciones completas en tu cabeza que nunca suceden. 😂",
+    },
+    {
+        id: 17,
+        texto:
+            "Eres de los que revisa el refrigerador otra vez esperando que aparezca comida nueva. 😂",
+    },
+    {
+        id: 18,
+        texto:
+            "Puedes tardar veinte minutos eligiendo qué ver y luego decir que ya no tienes tiempo. 😂",
+    },
+    {
+        id: 19,
+        texto:
+            "Tú dices «mañana comienzo» con una confianza impresionante. 😂",
+    },
+    {
+        id: 20,
+        texto:
+            "Si perder el cargador fuera profesión, ya tendrías experiencia laboral. 😂",
+    },
+];
+
+
+function normalizarTextoMarketing(
+    valor: string
+) {
+    return String(
+        valor || ""
+    )
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .toLowerCase()
+        .replace(
+            /[¿?¡!.,;:]+/g,
+            " "
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim();
+}
+
+
+function formatearNombre(
+    valor: string
+) {
+    let nombre =
+        String(
+            valor || ""
+        )
+            .trim()
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .replace(
+                /\s+(por favor|gracias)$/i,
+                ""
+            )
+            .trim();
+
+
+    /*
+      Evitamos guardar frases,
+      números o textos demasiado largos
+      como si fueran nombres.
+    */
+
+    if (
+        nombre.length < 2 ||
+        nombre.length > 60
+    ) {
+        return null;
+    }
+
+
+    if (
+        /\d/.test(
+            nombre
+        )
+    ) {
+        return null;
+    }
+
+
+    const palabras =
+        nombre.split(
+            /\s+/
+        );
+
+
+    if (
+        palabras.length > 5
+    ) {
+        return null;
+    }
+
+
+    if (
+        !/^[\p{L}'’\-\s]+$/u.test(
+            nombre
+        )
+    ) {
+        return null;
+    }
+
+
+    nombre =
+        palabras
+            .map(
+                palabra => {
+                    if (!palabra) {
+                        return palabra;
+                    }
+
+
+                    return (
+                        palabra
+                            .charAt(0)
+                            .toLocaleUpperCase(
+                                "es"
+                            ) +
+                        palabra
+                            .slice(1)
+                            .toLocaleLowerCase(
+                                "es"
+                            )
+                    );
+                }
+            )
+            .join(
+                " "
+            );
+
+
+    return nombre;
+}
+
+
+function extraerNombreExplicito(
+    input: MensajeWhatsAppInput
+) {
+    const texto =
+        String(
+            input.texto || ""
+        ).trim();
+
+
+    if (!texto) {
+        return null;
+    }
+
+
+    /*
+      Ejemplos reconocidos:
+
+      Me llamo Kevin
+      Mi nombre es Kevin
+      Cámbiame el nombre a Kevin
+      Cambia mi nombre a Kevin
+      Quiero que me llames Kevin
+
+      Si escribe:
+      "No me llamo Pedro, me llamo Kevin"
+
+      tomamos la última coincidencia.
+    */
+
+    const expresion =
+        /(?:me llamo|mi nombre es|c[aá]mbiame el nombre a|cambia mi nombre a|quiero que me llames)\s+([\p{L}'’\-]+(?:\s+[\p{L}'’\-]+){0,4})/giu;
+
+
+    const coincidencias =
+        Array.from(
+            texto.matchAll(
+                expresion
+            )
+        );
+
+
+    if (
+        coincidencias.length === 0
+    ) {
+        return null;
+    }
+
+
+    const ultima =
+        coincidencias[
+        coincidencias.length - 1
+        ];
+
+
+    return formatearNombre(
+        ultima[1] || ""
+    );
+}
+
+
+function solicitaCorregirNombre(
+    input: MensajeWhatsAppInput
+) {
+    const texto =
+        normalizarTextoMarketing(
+            input.texto || ""
+        );
+
+
+    if (!texto) {
+        return false;
+    }
+
+
+    const frases = [
+        "ese no es mi nombre",
+        "ese no es mi nombre correcto",
+        "no me llamo asi",
+        "mi nombre esta mal",
+        "me llamas mal",
+        "quiero cambiar mi nombre",
+        "quiero corregir mi nombre",
+        "cambia mi nombre",
+        "corrige mi nombre",
+    ];
+
+
+    return frases.some(
+        frase =>
+            texto.includes(
+                frase
+            )
+    );
+}
+
+
+function esSolicitudOpinionRapi(
+    input: MensajeWhatsAppInput
+) {
+    const texto =
+        normalizarTextoMarketing(
+            input.texto || ""
+        );
+
+
+    if (!texto) {
+        return false;
+    }
+
+
+    const frases = [
+        "rapi opina de mi",
+        "rapi que opinas de mi",
+        "que opinas de mi",
+        "opina de mi",
+        "dime que opinas de mi",
+        "dime que piensas de mi",
+        "que piensas de mi",
+        "rapi dime que piensas de mi",
+    ];
+
+
+    return frases.some(
+        frase =>
+            texto === frase ||
+            texto.includes(
+                frase
+            )
+    );
+}
+
+
+function elegirOpinionRapi(
+    ultimaOpinionId:
+        number | null
+) {
+    const disponibles =
+        OPINIONES_RAPI.filter(
+            opinion =>
+                opinion.id !==
+                ultimaOpinionId
+        );
+
+
+    const lista =
+        disponibles.length > 0
+            ? disponibles
+            : OPINIONES_RAPI;
+
+
+    const indice =
+        Math.floor(
+            Math.random() *
+            lista.length
+        );
+
+
+    return lista[
+        indice
+    ];
+}
+
+
+function tiempoRestanteOpinion(
+    ultimaOpinion:
+        Date
+) {
+    const transcurrido =
+        Date.now() -
+        ultimaOpinion.getTime();
+
+
+    const restante =
+        Math.max(
+            0,
+            LIMITE_OPINION_RAPI_MS -
+            transcurrido
+        );
+
+
+    const minutos =
+        Math.ceil(
+            restante /
+            60000
+        );
+
+
+    const horas =
+        Math.floor(
+            minutos /
+            60
+        );
+
+
+    const minutosRestantes =
+        minutos % 60;
+
+
+    if (
+        horas > 0 &&
+        minutosRestantes > 0
+    ) {
+        return (
+            `${horas} h ` +
+            `${minutosRestantes} min`
+        );
+    }
+
+
+    if (
+        horas > 0
+    ) {
+        return `${horas} h`;
+    }
+
+
+    return `${minutosRestantes} min`;
+}
+
+
+async function procesarOpinionRapi(
+    cliente: {
+        id: number;
+
+        ultimaOpinionRapi:
+        Date | null;
+
+        ultimaOpinionId:
+        number | null;
+    },
+
+    telefono: string
+) {
+    const ultima =
+        cliente.ultimaOpinionRapi;
+
+
+    if (ultima) {
+        const transcurrido =
+            Date.now() -
+            ultima.getTime();
+
+
+        if (
+            transcurrido <
+            LIMITE_OPINION_RAPI_MS
+        ) {
+            const restante =
+                tiempoRestanteOpinion(
+                    ultima
+                );
+
+
+            await enviarTextoWhatsApp(
+                telefono,
+
+                `😂 Rapi ya opinó de ti hace poquito. Vuelve en ${restante} y te digo otra. 🚕💜`
+            );
+
+
+            return;
+        }
+    }
+
+
+    const opinion =
+        elegirOpinionRapi(
+            cliente.ultimaOpinionId
+        );
+
+
+    /*
+      Primero guardamos el uso.
+
+      Así si Kapso reintenta el webhook,
+      queda aplicado el límite.
+    */
+
+    await prisma.cliente.update({
+        where: {
+            id:
+                cliente.id,
+        },
+
+        data: {
+            ultimaOpinionRapi:
+                new Date(),
+
+            ultimaOpinionId:
+                opinion.id,
+        },
+    });
+
+
+    /*
+      Chiste + CTA van en UN SOLO mensaje.
+    */
+
+    await enviarTextoWhatsApp(
+        telefono,
+
+        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”\n\n¿Te dolió? 😏😂 Súbelo a tu historia y comparte tu resultado de RapiTaxi. 💜🚕`
+    );
+}
+
+
+async function guardarNuevoNombre(
+    clienteId: number,
+    telefono: string,
+    nuevoNombre: string
+) {
+    /*
+      Actualizamos Cliente y conversación
+      en una sola transacción.
+    */
+
+    await prisma.$transaction([
+        prisma.cliente.update({
+            where: {
+                id:
+                    clienteId,
+            },
+
+            data: {
+                nombre:
+                    nuevoNombre,
+            },
+        }),
+
+        prisma.conversacionWhatsApp.updateMany({
+            where: {
+                telefono,
+            },
+
+            data: {
+                nombre:
+                    nuevoNombre,
+            },
+        }),
+    ]);
+}
 
 /*
   ========================================
@@ -819,10 +1393,14 @@ export async function procesarMensajeWhatsApp(
             "ESPERANDO_NOMBRE"
         ) {
             const nombre =
-                String(
-                    input.texto || ""
-                ).trim();
-
+                extraerNombreExplicito(
+                    input
+                ) ||
+                formatearNombre(
+                    String(
+                        input.texto || ""
+                    )
+                );
 
             if (!nombre) {
                 await enviarTextoWhatsApp(
@@ -969,7 +1547,230 @@ export async function procesarMensajeWhatsApp(
                     },
                 });
     }
+    /*
+      ======================================
+      CAMBIO DE NOMBRE
+      ======================================
+    */
 
+
+    /*
+      Si previamente dijo algo como:
+      "Ese no es mi nombre"
+    
+      y estaba en estado NUEVO,
+      esperamos solamente su nombre.
+    */
+
+    if (
+        conversacion.estado ===
+        "ESPERANDO_CAMBIO_NOMBRE"
+    ) {
+        const nuevoNombre =
+            extraerNombreExplicito(
+                input
+            ) ||
+            formatearNombre(
+                String(
+                    input.texto || ""
+                )
+            );
+
+
+        if (!nuevoNombre) {
+            await enviarTextoWhatsApp(
+                telefono,
+
+                "😊 Dime solamente tu nombre. Por ejemplo: Kevin."
+            );
+
+
+            return;
+        }
+
+
+        await guardarNuevoNombre(
+            cliente.id,
+            telefono,
+            nuevoNombre
+        );
+
+
+        conversacion =
+            await prisma
+                .conversacionWhatsApp
+                .update({
+
+                    where: {
+                        telefono,
+                    },
+
+                    data: {
+                        nombre:
+                            nuevoNombre,
+
+                        estado:
+                            "NUEVO",
+                    },
+                });
+
+
+        cliente =
+            await prisma
+                .cliente
+                .findUnique({
+                    where: {
+                        id:
+                            cliente.id,
+                    },
+                });
+
+
+        await enviarTextoWhatsApp(
+            telefono,
+
+            `✅ Listo. Desde ahora te llamaré ${nuevoNombre}. 😊`
+        );
+
+
+        return;
+    }
+
+
+    /*
+      Cambio directo:
+    
+      "Mi nombre es Kevin"
+      "Me llamo Kevin"
+      "Cámbiame el nombre a Kevin"
+    */
+
+    const nuevoNombreExplicito =
+        extraerNombreExplicito(
+            input
+        );
+
+
+    if (
+        nuevoNombreExplicito &&
+        nuevoNombreExplicito !==
+        cliente.nombre
+    ) {
+        await guardarNuevoNombre(
+            cliente.id,
+            telefono,
+            nuevoNombreExplicito
+        );
+
+
+        /*
+          Actualizamos también el objeto local
+          porque podría seguir utilizándose
+          durante este mismo webhook.
+        */
+
+        cliente = {
+            ...cliente,
+
+            nombre:
+                nuevoNombreExplicito,
+        };
+
+
+        await enviarTextoWhatsApp(
+            telefono,
+
+            `✅ Listo. Desde ahora te llamaré ${nuevoNombreExplicito}. 😊`
+        );
+
+
+        return;
+    }
+
+
+    /*
+      Si solo dice:
+    
+      "Ese no es mi nombre"
+      "No me llamo así"
+    
+      podemos usar un estado especial siempre
+      que no esté en mitad de la solicitud de taxi.
+    */
+
+    if (
+        solicitaCorregirNombre(
+            input
+        )
+    ) {
+        if (
+            conversacion.estado ===
+            "NUEVO"
+        ) {
+            conversacion =
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+
+                        where: {
+                            telefono,
+                        },
+
+                        data: {
+                            estado:
+                                "ESPERANDO_CAMBIO_NOMBRE",
+                        },
+                    });
+
+
+            await enviarTextoWhatsApp(
+                telefono,
+
+                "😊 Claro. ¿Cómo te llamas?"
+            );
+
+
+            return;
+        }
+
+
+        /*
+          Si estaba seleccionando ubicación,
+          pago o tenía otro proceso en curso,
+          NO cambiamos el estado y no dañamos
+          la solicitud de taxi.
+        */
+
+        await enviarTextoWhatsApp(
+            telefono,
+
+            '😊 Claro. Escríbeme por ejemplo: "Mi nombre es Kevin" y lo corregiré.'
+        );
+
+
+        return;
+    }
+
+
+    /*
+      ======================================
+      RAPI OPINA DE TI
+      ======================================
+    */
+
+    if (
+        esSolicitudOpinionRapi(
+            input
+        )
+    ) {
+        await procesarOpinionRapi(
+            cliente,
+            telefono
+        );
+
+
+        return;
+    }
 
     /*
       ======================================

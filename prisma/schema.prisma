@@ -8,13 +8,14 @@ datasource db {
 }
 
 model Cliente {
-  id            Int      @id @default(autoincrement())
-  whatsapp      String   @unique
-  nombre        String
-  fechaRegistro DateTime @default(now())
-
-  carreras     Carrera[]
-  conversacion ConversacionWhatsApp?
+  id                Int                   @id @default(autoincrement())
+  whatsapp          String                @unique
+  nombre            String
+  fechaRegistro     DateTime              @default(now())
+  ultimaOpinionRapi DateTime?
+  ultimaOpinionId   Int?
+  carreras          Carrera[]
+  conversacion      ConversacionWhatsApp?
 }
 
 model Carrera {
@@ -139,6 +140,7 @@ enum EstadoConversacion {
   BUSCANDO_TAXI
   CARRERA_ACTIVA
   ESPERANDO_CALIFICACION
+  ESPERANDO_CAMBIO_NOMBRE
 }
 
 model SuscripcionWebPush {
