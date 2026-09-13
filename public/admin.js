@@ -302,7 +302,7 @@ async function cargarCarreras() {
 
     /*
       ========================================
-      RESUMEN RAPICUPON
+      RESUMEN CÓDIGOS ÚNICOS
       ========================================
 
       Limite tecnico: 55.
@@ -316,8 +316,9 @@ async function cargarCarreras() {
     const usadosCupon =
       carreras.filter(
         carrera =>
-          carrera.cuponCodigo ===
-          "RAPICUPON" &&
+          Boolean(
+            carrera.cuponCodigo
+          ) &&
           carrera.estado ===
           "COMPLETADA"
       ).length;
@@ -326,8 +327,9 @@ async function cargarCarreras() {
     const reservadosCupon =
       carreras.filter(
         carrera =>
-          carrera.cuponCodigo ===
-          "RAPICUPON" &&
+          Boolean(
+            carrera.cuponCodigo
+          ) &&
           carrera.estado !==
           "COMPLETADA" &&
           carrera.estado !==
@@ -353,11 +355,11 @@ async function cargarCarreras() {
     if (resumenCupon) {
 
       resumenCupon.innerHTML =
-        `🎟️ <strong>RAPICUPON</strong>` +
+        `🎟️ <strong>CÓDIGOS ÚNICOS</strong>` +
         ` · Usados: ${usadosCupon}` +
         ` · Reservados: ${reservadosCupon}` +
         ` · Disponibles técnicos: ${disponiblesCupon}/55` +
-        ` · 5 cupos previstos para pruebas`;
+        ` · 50 campaña + 5 pruebas`;
 
     }
 
@@ -428,13 +430,14 @@ async function cargarCarreras() {
 
       /*
         ========================================
-        RAPICUPON DE ESTA CARRERA
+        CUPÓN ÚNICO DE ESTA CARRERA
         ========================================
       */
 
       const tieneCupon =
-        carrera.cuponCodigo ===
-        "RAPICUPON";
+        Boolean(
+          carrera.cuponCodigo
+        );
 
 
       const telefonoTaxista =
@@ -465,7 +468,7 @@ async function cargarCarreras() {
       /*
         El boton CUPON aparece solamente cuando:
 
-        1. La carrera tiene RAPICUPON.
+        1. La carrera tiene un código de cupón.
         2. Ya existe un taxista asignado.
         3. El taxista tiene telefono registrado.
       */
@@ -517,7 +520,9 @@ async function cargarCarreras() {
                 white-space:nowrap;
               "
             >
-              🚨 RAPICUPON<br>
+              🚨 CUPÓN ${escaparHtml(
+                carrera.cuponCodigo
+              )}<br>
               CLIENTE PAGA $1,00
             </div>
           `

@@ -195,175 +195,78 @@ function esCancelar(
 
 /*
   ========================================
-  RAPICUPON
+  CUPONES ÚNICOS RAPITAXI
   ========================================
+
+  5 códigos internos de prueba +
+  50 códigos reales de campaña.
+
+  Cada código puede quedar RESERVADO/USADO
+  una sola vez globalmente.
 */
 
-const CODIGO_CUPON =
-    "RAPICUPON";
+const CODIGOS_CUPON = [
+    "TESTRAPI1",
+    "TESTRAPI2",
+    "TESTRAPI3",
+    "TESTRAPI4",
+    "TESTRAPI5",
+    "RAPI3FEE",
+    "RAPIYEDK",
+    "RAPIPFHA",
+    "RAPIHMK3",
+    "RAPI3EE9",
+    "RAPI95HU",
+    "RAPIAHNP",
+    "RAPI8LP7",
+    "RAPIWAGK",
+    "RAPI22YC",
+    "RAPIV8CU",
+    "RAPI75MJ",
+    "RAPILTDQ",
+    "RAPIMDGP",
+    "RAPIB226",
+    "RAPIGVX9",
+    "RAPIH848",
+    "RAPIM4R6",
+    "RAPI9UWG",
+    "RAPI7MRB",
+    "RAPIHYKF",
+    "RAPIAY82",
+    "RAPINAPF",
+    "RAPIY3R4",
+    "RAPIPMHV",
+    "RAPI9JFE",
+    "RAPIB8CS",
+    "RAPI592V",
+    "RAPIACYW",
+    "RAPIRFL2",
+    "RAPIBQ95",
+    "RAPIABRC",
+    "RAPIHNU3",
+    "RAPI5S36",
+    "RAPIRP3L",
+    "RAPIBL3Q",
+    "RAPIPHKU",
+    "RAPIUHM8",
+    "RAPIH3SH",
+    "RAPIKXJ4",
+    "RAPIAK8J",
+    "RAPI2CFE",
+    "RAPID5K3",
+    "RAPIA6LP",
+    "RAPILURR",
+    "RAPIRQBU",
+    "RAPI5RV4",
+    "RAPIHDF3",
+    "RAPICKDN",
+    "RAPIA7MD"
+] as const;
 
-const LIMITE_GLOBAL_CUPON =
-    55;
+const CODIGOS_CUPON_SET =
+    new Set<string>(CODIGOS_CUPON);
 
-async function reservarRapiCupon(
-    telefono: string
-) {
-    return prisma.$transaction(
-        async (tx) => {
-
-            const existente =
-                await tx.cuponUso.findUnique({
-                    where: {
-                        codigo_whatsapp: {
-                            codigo:
-                                CODIGO_CUPON,
-
-                            whatsapp:
-                                telefono,
-                        },
-                    },
-                });
-
-
-            /*
-              Ya lo utilizó en una carrera
-              completada.
-            */
-
-            if (
-                existente?.estado ===
-                "USADO"
-            ) {
-                return false;
-            }
-
-
-            /*
-              Si por algún reintento ya estaba
-              reservado, no creamos otro.
-            */
-
-            if (
-                existente?.estado ===
-                "RESERVADO"
-            ) {
-                return true;
-            }
-
-
-            const comprometidos =
-                await tx.cuponUso.count({
-                    where: {
-                        codigo:
-                            CODIGO_CUPON,
-
-                        estado: {
-                            in: [
-                                "RESERVADO",
-                                "USADO",
-                            ],
-                        },
-                    },
-                });
-
-
-            if (
-                comprometidos >=
-                LIMITE_GLOBAL_CUPON
-            ) {
-                return false;
-            }
-
-
-            /*
-              Puede ser:
-              - cliente nuevo en campaña
-              - cliente que había reservado,
-                canceló y quedó LIBERADO
-            */
-
-            await tx.cuponUso.upsert({
-                where: {
-                    codigo_whatsapp: {
-                        codigo:
-                            CODIGO_CUPON,
-
-                        whatsapp:
-                            telefono,
-                    },
-                },
-
-                create: {
-                    codigo:
-                        CODIGO_CUPON,
-
-                    whatsapp:
-                        telefono,
-
-                    estado:
-                        "RESERVADO",
-
-                    descuento:
-                        0.50,
-                },
-
-                update: {
-                    estado:
-                        "RESERVADO",
-
-                    descuento:
-                        0.50,
-
-                    fechaReserva:
-                        new Date(),
-
-                    fechaUso:
-                        null,
-
-                    fechaLiberado:
-                        null,
-
-                    carreraId:
-                        null,
-                },
-            });
-
-
-            return true;
-        }
-    );
-}
-
-
-async function liberarReservaRapiCupon(
-    telefono: string
-) {
-    await prisma.cuponUso.updateMany({
-        where: {
-            codigo:
-                CODIGO_CUPON,
-
-            whatsapp:
-                telefono,
-
-            estado:
-                "RESERVADO",
-
-            carreraId:
-                null,
-        },
-
-        data: {
-            estado:
-                "LIBERADO",
-
-            fechaLiberado:
-                new Date(),
-        },
-    });
-}
-
-function contieneRapiCupon(
+function extraerCodigoCupon(
     input: MensajeWhatsAppInput
 ) {
     const texto =
@@ -373,60 +276,47 @@ function contieneRapiCupon(
             .trim()
             .toUpperCase();
 
+    if (!texto) {
+        return null;
+    }
 
-    return texto.includes(
-        CODIGO_CUPON
-    );
+    for (
+        const codigo
+        of CODIGOS_CUPON
+    ) {
+        if (
+            texto.includes(
+                codigo
+            )
+        ) {
+            return codigo;
+        }
+    }
+
+    return null;
 }
 
-
-async function obtenerEstadoRapiCupon(
+async function obtenerEstadoCuponUnico(
+    codigo: string,
     telefono: string
 ) {
-    /*
-      1. Revisamos si este número ya lo usó
-         definitivamente.
-    */
-
-    const usoDelCliente =
-        await prisma.cuponUso.findUnique({
-            where: {
-                codigo_whatsapp: {
-                    codigo:
-                        CODIGO_CUPON,
-
-                    whatsapp:
-                        telefono,
-                },
-            },
-        });
-
-
     if (
-        usoDelCliente?.estado ===
-        "USADO"
+        !CODIGOS_CUPON_SET.has(
+            codigo
+        )
     ) {
         return {
             valido: false as const,
             motivo:
-                "YA_USADO" as const,
+                "INVALIDO" as const,
         };
     }
 
-
-    /*
-      2. Contamos USADOS + RESERVADOS.
-
-      Así nunca comprometemos más de
-      los 50 descuentos disponibles.
-    */
-
-    const comprometidos =
-        await prisma.cuponUso.count({
+    const usoDelWhatsapp =
+        await prisma.cuponUso.findFirst({
             where: {
-                codigo:
-                    CODIGO_CUPON,
-
+                whatsapp:
+                    telefono,
                 estado: {
                     in: [
                         "RESERVADO",
@@ -436,36 +326,64 @@ async function obtenerEstadoRapiCupon(
             },
         });
 
-
-    /*
-      Si el mismo cliente ya tiene una
-      reserva vigente, no lo contamos como
-      una reserva nueva.
-    */
-
     if (
-        usoDelCliente?.estado ===
-        "RESERVADO"
-    ) {
-        return {
-            valido: true as const,
-            motivo:
-                "YA_RESERVADO" as const,
-        };
-    }
-
-
-    if (
-        comprometidos >=
-        LIMITE_GLOBAL_CUPON
+        usoDelWhatsapp &&
+        usoDelWhatsapp.codigo !==
+        codigo
     ) {
         return {
             valido: false as const,
             motivo:
-                "AGOTADO" as const,
+                "YA_USADO" as const,
         };
     }
 
+
+    const usoGlobal =
+        await prisma.cuponUso.findFirst({
+            where: {
+                codigo,
+                estado: {
+                    in: [
+                        "RESERVADO",
+                        "USADO",
+                    ],
+                },
+            },
+        });
+
+    if (
+        usoGlobal?.estado ===
+        "USADO"
+    ) {
+        return {
+            valido: false as const,
+            motivo:
+                "YA_USADO" as const,
+        };
+    }
+
+    if (
+        usoGlobal?.estado ===
+        "RESERVADO"
+    ) {
+        if (
+            usoGlobal.whatsapp ===
+            telefono
+        ) {
+            return {
+                valido: true as const,
+                motivo:
+                    "YA_RESERVADO" as const,
+            };
+        }
+
+        return {
+            valido: false as const,
+            motivo:
+                "YA_USADO" as const,
+        };
+    }
 
     return {
         valido: true as const,
@@ -474,31 +392,166 @@ async function obtenerEstadoRapiCupon(
     };
 }
 
+async function reservarCuponUnico(
+    codigo: string,
+    telefono: string
+) {
+    return prisma.$transaction(
+        async (tx) => {
+            if (
+                !CODIGOS_CUPON_SET.has(
+                    codigo
+                )
+            ) {
+                return false;
+            }
+
+            const otroUsoDelWhatsapp =
+                await tx.cuponUso.findFirst({
+                    where: {
+                        whatsapp:
+                            telefono,
+                        estado: {
+                            in: [
+                                "RESERVADO",
+                                "USADO",
+                            ],
+                        },
+                        NOT: {
+                            codigo,
+                        },
+                    },
+                });
+
+            if (otroUsoDelWhatsapp) {
+                return false;
+            }
+
+
+            const ocupado =
+                await tx.cuponUso.findFirst({
+                    where: {
+                        codigo,
+                        estado: {
+                            in: [
+                                "RESERVADO",
+                                "USADO",
+                            ],
+                        },
+                    },
+                });
+
+            if (ocupado) {
+                return (
+                    ocupado.estado ===
+                    "RESERVADO" &&
+                    ocupado.whatsapp ===
+                    telefono
+                );
+            }
+
+            const existenteCliente =
+                await tx.cuponUso.findUnique({
+                    where: {
+                        codigo_whatsapp: {
+                            codigo,
+                            whatsapp:
+                                telefono,
+                        },
+                    },
+                });
+
+            if (
+                existenteCliente?.estado ===
+                "USADO"
+            ) {
+                return false;
+            }
+
+            await tx.cuponUso.upsert({
+                where: {
+                    codigo_whatsapp: {
+                        codigo,
+                        whatsapp:
+                            telefono,
+                    },
+                },
+
+                create: {
+                    codigo,
+                    whatsapp:
+                        telefono,
+                    estado:
+                        "RESERVADO",
+                    descuento:
+                        0.50,
+                },
+
+                update: {
+                    estado:
+                        "RESERVADO",
+                    descuento:
+                        0.50,
+                    fechaReserva:
+                        new Date(),
+                    fechaUso:
+                        null,
+                    fechaLiberado:
+                        null,
+                    carreraId:
+                        null,
+                },
+            });
+
+            return true;
+        }
+    );
+}
+
+async function liberarReservaCuponUnico(
+    codigo: string,
+    telefono: string
+) {
+    await prisma.cuponUso.updateMany({
+        where: {
+            codigo,
+            whatsapp:
+                telefono,
+            estado:
+                "RESERVADO",
+            carreraId:
+                null,
+        },
+
+        data: {
+            estado:
+                "LIBERADO",
+            fechaLiberado:
+                new Date(),
+        },
+    });
+}
 
 async function responderCuponNoDisponible(
     telefono: string,
     motivo:
         "YA_USADO" |
-        "AGOTADO"
+        "INVALIDO"
 ) {
     if (
         motivo ===
-        "YA_USADO"
+        "INVALIDO"
     ) {
         await enviarTextoWhatsApp(
             telefono,
-
-            "🎟️ Este número ya utilizó la promoción RAPICUPON anteriormente. 💜🚕"
+            "🎟️ Ese código promocional no es válido. Revisa el código personal que recibiste de Rapitaxi. 💜🚕"
         );
-
         return;
     }
 
-
     await enviarTextoWhatsApp(
         telefono,
-
-        "🎟️ La promoción RAPICUPON ya no tiene cupos disponibles. Gracias por participar. 💜🚕"
+        "🎟️ Ese código promocional ya fue reservado o utilizado. Cada código personal funciona una sola vez. 💜🚕"
     );
 }
 
@@ -1676,17 +1729,43 @@ export async function procesarMensajeWhatsApp(
       Quiero usar el cupón RAPICUPON
     */
 
-    const mensajeTieneCupon =
-        contieneRapiCupon(
+    const codigoCuponMensaje =
+        extraerCodigoCupon(
             input
         );
 
+    const mensajeTieneCupon =
+        Boolean(
+            codigoCuponMensaje
+        );
+
+    const textoCuponNormalizado =
+        String(
+            input.texto || ""
+        )
+            .trim()
+            .toUpperCase();
 
     if (
-        mensajeTieneCupon
+        !codigoCuponMensaje &&
+        textoCuponNormalizado.includes(
+            "RAPICUPON"
+        )
+    ) {
+        await enviarTextoWhatsApp(
+            telefono,
+            "🎟️ El código general RAPICUPON fue desactivado. Para obtener el descuento necesitas tu código personal entregado por Rapitaxi. 💜🚕"
+        );
+        return;
+    }
+
+
+    if (
+        codigoCuponMensaje
     ) {
         const estadoCupon =
-            await obtenerEstadoRapiCupon(
+            await obtenerEstadoCuponUnico(
+                codigoCuponMensaje,
                 telefono
             );
 
@@ -1696,7 +1775,7 @@ export async function procesarMensajeWhatsApp(
                 telefono,
                 estadoCupon.motivo === "YA_USADO"
                     ? "YA_USADO"
-                    : "AGOTADO"
+                    : "INVALIDO"
             );
 
 
@@ -1723,7 +1802,7 @@ export async function procesarMensajeWhatsApp(
             await enviarTextoWhatsApp(
                 telefono,
 
-                "🎟️ RAPICUPON es válido, pero debes ingresarlo antes de que se genere tu carrera. Podrás usarlo en tu próxima solicitud. 🚕"
+                `🎟️ Tu código ${codigoCuponMensaje} es válido, pero debes ingresarlo antes de que se genere tu carrera. Podrás usarlo en tu próxima solicitud. 🚕`
             );
 
 
@@ -1748,7 +1827,7 @@ export async function procesarMensajeWhatsApp(
 
                         data: {
                             cuponPendiente:
-                                CODIGO_CUPON,
+                                codigoCuponMensaje,
                         },
                     });
         }
@@ -1936,9 +2015,7 @@ export async function procesarMensajeWhatsApp(
                                 "ESPERANDO_NOMBRE",
 
                             cuponPendiente:
-                                mensajeTieneCupon
-                                    ? CODIGO_CUPON
-                                    : null,
+                                codigoCuponMensaje,
 
                             latitud:
                                 ubicacionDentroDeChone
@@ -1970,7 +2047,7 @@ export async function procesarMensajeWhatsApp(
                 telefono,
 
                 mensajeTieneCupon
-                    ? "🎟️ ¡RAPICUPON reconocido! Tendrás $0,50 de descuento y pagarás solo $1,00 en esta carrera. ✅\n\n👋 Para registrarte, ¿cómo te llamas?"
+                    ? `🎟️ ¡Código ${codigoCuponMensaje} reconocido! Tendrás $0,50 de descuento y pagarás solo $1,00 en esta carrera. ✅\n\n👋 Para registrarte, ¿cómo te llamas?`
                     : "👋 ¡Hola! Bienvenido a Rapitaxi.\nPara registrarte, ¿cómo te llamas?");
 
 
@@ -2059,13 +2136,15 @@ export async function procesarMensajeWhatsApp(
               volvemos a pedir.
             */
             if (
-                conversacion.cuponPendiente ===
-                CODIGO_CUPON
+                conversacion.cuponPendiente &&
+                CODIGOS_CUPON_SET.has(
+                    conversacion.cuponPendiente
+                )
             ) {
                 await solicitarUbicacionWhatsApp(
                     telefono,
 
-                    `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+                    `🎟️ ¡Código ${conversacion.cuponPendiente} reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
                 );
 
 
@@ -2082,7 +2161,7 @@ export async function procesarMensajeWhatsApp(
                                 "ESPERANDO_UBICACION",
 
                             cuponPendiente:
-                                CODIGO_CUPON,
+                                conversacion.cuponPendiente,
 
                             latitud:
                                 null,
@@ -2446,7 +2525,7 @@ export async function procesarMensajeWhatsApp(
                                 "ESPERANDO_UBICACION",
 
                             cuponPendiente:
-                                CODIGO_CUPON,
+                                codigoCuponMensaje,
 
                             latitud:
                                 null,
@@ -2463,7 +2542,7 @@ export async function procesarMensajeWhatsApp(
             await solicitarUbicacionWhatsApp(
                 telefono,
 
-                `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+                `🎟️ ¡Código promocional reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
             );
 
 
@@ -2603,7 +2682,7 @@ export async function procesarMensajeWhatsApp(
                 telefono,
 
                 mensajeTieneCupon
-                    ? `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+                    ? `🎟️ ¡Código promocional reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
                     : `Hola ${cliente.nombre}, 📍 necesito que me envíes tu ubicación actual para continuar.`
             );
 
@@ -2812,19 +2891,27 @@ export async function procesarMensajeWhatsApp(
         let cuponReservado =
             false;
 
+        const codigoCuponPendiente =
+            conversacion.cuponPendiente;
+
 
         try {
 
             const quiereUsarCupon =
-                conversacion.cuponPendiente ===
-                CODIGO_CUPON;
+                Boolean(
+                    codigoCuponPendiente &&
+                    CODIGOS_CUPON_SET.has(
+                        codigoCuponPendiente
+                    )
+                );
 
 
             if (
                 quiereUsarCupon
             ) {
                 cuponReservado =
-                    await reservarRapiCupon(
+                    await reservarCuponUnico(
+                        codigoCuponPendiente!,
                         telefono
                     );
 
@@ -2833,7 +2920,7 @@ export async function procesarMensajeWhatsApp(
                     await enviarTextoWhatsApp(
                         telefono,
 
-                        "🎟️ RAPICUPON ya no se encuentra disponible para esta carrera. Tu solicitud continuará con la tarifa normal de $1,50. 🚕"
+                        "🎟️ Ese código ya fue reservado o utilizado. Tu solicitud continuará con la tarifa normal de $1,50. 🚕"
                     );
                 }
             }
@@ -2884,7 +2971,7 @@ export async function procesarMensajeWhatsApp(
 
                             cuponCodigo:
                                 cuponReservado
-                                    ? CODIGO_CUPON
+                                    ? codigoCuponPendiente
                                     : null,
 
                             descuentoCupon:
@@ -2902,7 +2989,7 @@ export async function procesarMensajeWhatsApp(
                             where: {
                                 codigo_whatsapp: {
                                     codigo:
-                                        CODIGO_CUPON,
+                                        codigoCuponPendiente!,
 
                                     whatsapp:
                                         telefono,
@@ -2952,7 +3039,7 @@ export async function procesarMensajeWhatsApp(
             await enviarTextoWhatsApp(
                 telefono,
 
-                `🚖 Listo ${cliente.nombre}, ahora estoy buscando taxi, enseguida te confirmo.`
+                `🚖 Listo ${cliente.nombre}, Ahora estoy buscando taxi, enseguida te confirmo.`
             );
 
 
@@ -2978,9 +3065,12 @@ export async function procesarMensajeWhatsApp(
             if (
                 cuponReservado
             ) {
-                await liberarReservaRapiCupon(
-                    telefono
-                );
+                if (codigoCuponPendiente) {
+                    await liberarReservaCuponUnico(
+                        codigoCuponPendiente,
+                        telefono
+                    );
+                }
             }
 
 
