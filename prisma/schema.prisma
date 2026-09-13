@@ -56,6 +56,10 @@ model Carrera {
 
   taxistaId Int?
   taxista   Taxista? @relation(fields: [taxistaId], references: [id])
+
+  cuponCodigo    String?
+  descuentoCupon Float?
+  cuponUso       CuponUso?
 }
 
 model Taxista {
@@ -120,6 +124,8 @@ model ConversacionWhatsApp {
 
   fechaCreacion      DateTime @default(now())
   fechaActualizacion DateTime @updatedAt
+
+  cuponPendiente String?
 }
 
 enum EstadoCarrera {
@@ -156,4 +162,31 @@ model SuscripcionWebPush {
   taxista   Taxista @relation(fields: [taxistaId], references: [id], onDelete: Cascade)
 
   @@index([taxistaId])
+}
+
+enum EstadoCuponUso {
+  RESERVADO
+  USADO
+  LIBERADO
+}
+
+model CuponUso {
+  id Int @id @default(autoincrement())
+
+  codigo   String
+  whatsapp String
+
+  estado EstadoCuponUso @default(RESERVADO)
+
+  descuento Float @default(0.50)
+
+  fechaReserva  DateTime  @default(now())
+  fechaUso      DateTime?
+  fechaLiberado DateTime?
+
+  carreraId Int?     @unique
+  carrera   Carrera? @relation(fields: [carreraId], references: [id])
+
+  @@unique([codigo, whatsapp])
+  @@index([codigo, estado])
 }

@@ -34,3 +34,12 @@ export const EstadoConversacion = {
 } as const
 
 export type EstadoConversacion = (typeof EstadoConversacion)[keyof typeof EstadoConversacion]
+
+
+export const EstadoCuponUso = {
+  RESERVADO: 'RESERVADO',
+  USADO: 'USADO',
+  LIBERADO: 'LIBERADO'
+} as const
+
+export type EstadoCuponUso = (typeof EstadoCuponUso)[keyof typeof EstadoCuponUso]

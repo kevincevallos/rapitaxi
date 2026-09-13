@@ -286,6 +286,23 @@ export type EnumEstadoConversacionWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumEstadoConversacionFilter<$PrismaModel>
 }
 
+export type EnumEstadoCuponUsoFilter<$PrismaModel = never> = {
+  equals?: $Enums.EstadoCuponUso | Prisma.EnumEstadoCuponUsoFieldRefInput<$PrismaModel>
+  in?: $Enums.EstadoCuponUso[]
+  notIn?: $Enums.EstadoCuponUso[]
+  not?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel> | $Enums.EstadoCuponUso
+}
+
+export type EnumEstadoCuponUsoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EstadoCuponUso | Prisma.EnumEstadoCuponUsoFieldRefInput<$PrismaModel>
+  in?: $Enums.EstadoCuponUso[]
+  notIn?: $Enums.EstadoCuponUso[]
+  not?: Prisma.NestedEnumEstadoCuponUsoWithAggregatesFilter<$PrismaModel> | $Enums.EstadoCuponUso
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel>
+}
+
 export type NestedIntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[]
@@ -551,6 +568,23 @@ export type NestedEnumEstadoConversacionWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumEstadoConversacionFilter<$PrismaModel>
   _max?: Prisma.NestedEnumEstadoConversacionFilter<$PrismaModel>
+}
+
+export type NestedEnumEstadoCuponUsoFilter<$PrismaModel = never> = {
+  equals?: $Enums.EstadoCuponUso | Prisma.EnumEstadoCuponUsoFieldRefInput<$PrismaModel>
+  in?: $Enums.EstadoCuponUso[]
+  notIn?: $Enums.EstadoCuponUso[]
+  not?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel> | $Enums.EstadoCuponUso
+}
+
+export type NestedEnumEstadoCuponUsoWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.EstadoCuponUso | Prisma.EnumEstadoCuponUsoFieldRefInput<$PrismaModel>
+  in?: $Enums.EstadoCuponUso[]
+  notIn?: $Enums.EstadoCuponUso[]
+  not?: Prisma.NestedEnumEstadoCuponUsoWithAggregatesFilter<$PrismaModel> | $Enums.EstadoCuponUso
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumEstadoCuponUsoFilter<$PrismaModel>
 }
 
 

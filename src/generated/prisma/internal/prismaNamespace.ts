@@ -402,7 +402,8 @@ export const ModelName = {
   Taxista: 'Taxista',
   DispositivoTaxista: 'DispositivoTaxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp',
-  SuscripcionWebPush: 'SuscripcionWebPush'
+  SuscripcionWebPush: 'SuscripcionWebPush',
+  CuponUso: 'CuponUso'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "cliente" | "carrera" | "taxista" | "dispositivoTaxista" | "conversacionWhatsApp" | "suscripcionWebPush"
+    modelProps: "cliente" | "carrera" | "taxista" | "dispositivoTaxista" | "conversacionWhatsApp" | "suscripcionWebPush" | "cuponUso"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +867,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CuponUso: {
+      payload: Prisma.$CuponUsoPayload<ExtArgs>
+      fields: Prisma.CuponUsoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CuponUsoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CuponUsoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        findFirst: {
+          args: Prisma.CuponUsoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CuponUsoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        findMany: {
+          args: Prisma.CuponUsoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>[]
+        }
+        create: {
+          args: Prisma.CuponUsoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        createMany: {
+          args: Prisma.CuponUsoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CuponUsoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>[]
+        }
+        delete: {
+          args: Prisma.CuponUsoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        update: {
+          args: Prisma.CuponUsoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        deleteMany: {
+          args: Prisma.CuponUsoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CuponUsoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CuponUsoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>[]
+        }
+        upsert: {
+          args: Prisma.CuponUsoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CuponUsoPayload>
+        }
+        aggregate: {
+          args: Prisma.CuponUsoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCuponUso>
+        }
+        groupBy: {
+          args: Prisma.CuponUsoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CuponUsoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CuponUsoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CuponUsoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -939,7 +1014,9 @@ export const CarreraScalarFieldEnum = {
   calificacion: 'calificacion',
   canceladaPor: 'canceladaPor',
   clienteId: 'clienteId',
-  taxistaId: 'taxistaId'
+  taxistaId: 'taxistaId',
+  cuponCodigo: 'cuponCodigo',
+  descuentoCupon: 'descuentoCupon'
 } as const
 
 export type CarreraScalarFieldEnum = (typeof CarreraScalarFieldEnum)[keyof typeof CarreraScalarFieldEnum]
@@ -991,7 +1068,8 @@ export const ConversacionWhatsAppScalarFieldEnum = {
   carreraId: 'carreraId',
   clienteId: 'clienteId',
   fechaCreacion: 'fechaCreacion',
-  fechaActualizacion: 'fechaActualizacion'
+  fechaActualizacion: 'fechaActualizacion',
+  cuponPendiente: 'cuponPendiente'
 } as const
 
 export type ConversacionWhatsAppScalarFieldEnum = (typeof ConversacionWhatsAppScalarFieldEnum)[keyof typeof ConversacionWhatsAppScalarFieldEnum]
@@ -1009,6 +1087,21 @@ export const SuscripcionWebPushScalarFieldEnum = {
 } as const
 
 export type SuscripcionWebPushScalarFieldEnum = (typeof SuscripcionWebPushScalarFieldEnum)[keyof typeof SuscripcionWebPushScalarFieldEnum]
+
+
+export const CuponUsoScalarFieldEnum = {
+  id: 'id',
+  codigo: 'codigo',
+  whatsapp: 'whatsapp',
+  estado: 'estado',
+  descuento: 'descuento',
+  fechaReserva: 'fechaReserva',
+  fechaUso: 'fechaUso',
+  fechaLiberado: 'fechaLiberado',
+  carreraId: 'carreraId'
+} as const
+
+export type CuponUsoScalarFieldEnum = (typeof CuponUsoScalarFieldEnum)[keyof typeof CuponUsoScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1079,6 +1172,13 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'EstadoConversacion'
  */
 export type EnumEstadoConversacionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoConversacion'>
+    
+
+
+/**
+ * Reference to a field of type 'EstadoCuponUso'
+ */
+export type EnumEstadoCuponUsoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EstadoCuponUso'>
     
 
 /**
@@ -1238,6 +1338,7 @@ export type GlobalOmitConfig = {
   dispositivoTaxista?: Prisma.DispositivoTaxistaOmit
   conversacionWhatsApp?: Prisma.ConversacionWhatsAppOmit
   suscripcionWebPush?: Prisma.SuscripcionWebPushOmit
+  cuponUso?: Prisma.CuponUsoOmit
 }
 
 /* Types for Logging */

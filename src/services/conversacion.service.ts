@@ -193,6 +193,314 @@ function esCancelar(
     );
 }
 
+/*
+  ========================================
+  RAPICUPON
+  ========================================
+*/
+
+const CODIGO_CUPON =
+    "RAPICUPON";
+
+const LIMITE_GLOBAL_CUPON =
+    55;
+
+async function reservarRapiCupon(
+    telefono: string
+) {
+    return prisma.$transaction(
+        async (tx) => {
+
+            const existente =
+                await tx.cuponUso.findUnique({
+                    where: {
+                        codigo_whatsapp: {
+                            codigo:
+                                CODIGO_CUPON,
+
+                            whatsapp:
+                                telefono,
+                        },
+                    },
+                });
+
+
+            /*
+              Ya lo utilizó en una carrera
+              completada.
+            */
+
+            if (
+                existente?.estado ===
+                "USADO"
+            ) {
+                return false;
+            }
+
+
+            /*
+              Si por algún reintento ya estaba
+              reservado, no creamos otro.
+            */
+
+            if (
+                existente?.estado ===
+                "RESERVADO"
+            ) {
+                return true;
+            }
+
+
+            const comprometidos =
+                await tx.cuponUso.count({
+                    where: {
+                        codigo:
+                            CODIGO_CUPON,
+
+                        estado: {
+                            in: [
+                                "RESERVADO",
+                                "USADO",
+                            ],
+                        },
+                    },
+                });
+
+
+            if (
+                comprometidos >=
+                LIMITE_GLOBAL_CUPON
+            ) {
+                return false;
+            }
+
+
+            /*
+              Puede ser:
+              - cliente nuevo en campaña
+              - cliente que había reservado,
+                canceló y quedó LIBERADO
+            */
+
+            await tx.cuponUso.upsert({
+                where: {
+                    codigo_whatsapp: {
+                        codigo:
+                            CODIGO_CUPON,
+
+                        whatsapp:
+                            telefono,
+                    },
+                },
+
+                create: {
+                    codigo:
+                        CODIGO_CUPON,
+
+                    whatsapp:
+                        telefono,
+
+                    estado:
+                        "RESERVADO",
+
+                    descuento:
+                        0.50,
+                },
+
+                update: {
+                    estado:
+                        "RESERVADO",
+
+                    descuento:
+                        0.50,
+
+                    fechaReserva:
+                        new Date(),
+
+                    fechaUso:
+                        null,
+
+                    fechaLiberado:
+                        null,
+
+                    carreraId:
+                        null,
+                },
+            });
+
+
+            return true;
+        }
+    );
+}
+
+
+async function liberarReservaRapiCupon(
+    telefono: string
+) {
+    await prisma.cuponUso.updateMany({
+        where: {
+            codigo:
+                CODIGO_CUPON,
+
+            whatsapp:
+                telefono,
+
+            estado:
+                "RESERVADO",
+
+            carreraId:
+                null,
+        },
+
+        data: {
+            estado:
+                "LIBERADO",
+
+            fechaLiberado:
+                new Date(),
+        },
+    });
+}
+
+function contieneRapiCupon(
+    input: MensajeWhatsAppInput
+) {
+    const texto =
+        String(
+            input.texto || ""
+        )
+            .trim()
+            .toUpperCase();
+
+
+    return texto.includes(
+        CODIGO_CUPON
+    );
+}
+
+
+async function obtenerEstadoRapiCupon(
+    telefono: string
+) {
+    /*
+      1. Revisamos si este número ya lo usó
+         definitivamente.
+    */
+
+    const usoDelCliente =
+        await prisma.cuponUso.findUnique({
+            where: {
+                codigo_whatsapp: {
+                    codigo:
+                        CODIGO_CUPON,
+
+                    whatsapp:
+                        telefono,
+                },
+            },
+        });
+
+
+    if (
+        usoDelCliente?.estado ===
+        "USADO"
+    ) {
+        return {
+            valido: false as const,
+            motivo:
+                "YA_USADO" as const,
+        };
+    }
+
+
+    /*
+      2. Contamos USADOS + RESERVADOS.
+
+      Así nunca comprometemos más de
+      los 50 descuentos disponibles.
+    */
+
+    const comprometidos =
+        await prisma.cuponUso.count({
+            where: {
+                codigo:
+                    CODIGO_CUPON,
+
+                estado: {
+                    in: [
+                        "RESERVADO",
+                        "USADO",
+                    ],
+                },
+            },
+        });
+
+
+    /*
+      Si el mismo cliente ya tiene una
+      reserva vigente, no lo contamos como
+      una reserva nueva.
+    */
+
+    if (
+        usoDelCliente?.estado ===
+        "RESERVADO"
+    ) {
+        return {
+            valido: true as const,
+            motivo:
+                "YA_RESERVADO" as const,
+        };
+    }
+
+
+    if (
+        comprometidos >=
+        LIMITE_GLOBAL_CUPON
+    ) {
+        return {
+            valido: false as const,
+            motivo:
+                "AGOTADO" as const,
+        };
+    }
+
+
+    return {
+        valido: true as const,
+        motivo:
+            "DISPONIBLE" as const,
+    };
+}
+
+
+async function responderCuponNoDisponible(
+    telefono: string,
+    motivo:
+        "YA_USADO" |
+        "AGOTADO"
+) {
+    if (
+        motivo ===
+        "YA_USADO"
+    ) {
+        await enviarTextoWhatsApp(
+            telefono,
+
+            "🎟️ Este número ya utilizó la promoción RAPICUPON anteriormente. 💜🚕"
+        );
+
+        return;
+    }
+
+
+    await enviarTextoWhatsApp(
+        telefono,
+
+        "🎟️ La promoción RAPICUPON ya no tiene cupos disponibles. Gracias por participar. 💜🚕"
+    );
+}
 
 /*
   ========================================
@@ -838,7 +1146,7 @@ async function procesarOpinionRapi(
     await enviarTextoWhatsApp(
         telefono,
 
-        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”\n\n¿Te dolió? 😏😂 Súbelo a tu historia y comparte tu resultado de RapiTaxi. 💜🚕`
+        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”\n\n¿Te gustó lo que Rapi opina de ti? 😏😂\n\n📲 Comparte tu captura en redes y etiqueta a @apprapitaxi.\n\n🎟️ Puedes ganar $0,50 de descuento y pagar solo $1 en tu próxima carrera. 💜🚕`
     );
 }
 
@@ -962,6 +1270,126 @@ async function enviarCarreraEnCurso(
   y aun así calificar una carrera anterior.
   ========================================
 */
+
+async function procesarBotonOpinionRapi(
+    input: MensajeWhatsAppInput,
+    telefono: string
+) {
+    const boton =
+        String(
+            input.botonId || ""
+        ).trim();
+
+
+    const coincidencia =
+        boton.match(
+            /^rapi_opinion_(\d+)$/
+        );
+
+
+    if (!coincidencia) {
+        return false;
+    }
+
+
+    const carreraId =
+        Number(
+            coincidencia[1]
+        );
+
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                id:
+                    carreraId,
+            },
+
+            select: {
+                id:
+                    true,
+
+                numero:
+                    true,
+
+                estado:
+                    true,
+
+                whatsappCliente:
+                    true,
+
+                clienteId:
+                    true,
+            },
+        });
+
+
+    /*
+      Si la carrera ya no existe,
+      absorbemos igualmente el botón
+      para que no entre al flujo normal.
+    */
+
+    if (!carrera) {
+        return true;
+    }
+
+
+    /*
+      Seguridad:
+      el botón debe pertenecer al mismo
+      número que hizo la carrera.
+    */
+
+    if (
+        normalizarTelefono(
+            carrera.whatsappCliente
+        ) !== telefono
+    ) {
+        return true;
+    }
+
+
+    /*
+      La opinión solo corresponde a
+      una carrera que ya terminó.
+    */
+
+    if (
+        carrera.estado !==
+        "COMPLETADA"
+    ) {
+        return true;
+    }
+
+
+    if (!carrera.clienteId) {
+        return true;
+    }
+
+
+    const cliente =
+        await prisma.cliente.findUnique({
+            where: {
+                id:
+                    carrera.clienteId,
+            },
+        });
+
+
+    if (!cliente) {
+        return true;
+    }
+
+
+    await procesarOpinionRapi(
+        cliente,
+        telefono
+    );
+
+
+    return true;
+}
 
 async function procesarCalificacion(
     input: MensajeWhatsAppInput,
@@ -1175,7 +1603,16 @@ export async function procesarMensajeWhatsApp(
         return;
     }
 
+    const fueOpinionRapi =
+        await procesarBotonOpinionRapi(
+            input,
+            telefono
+        );
 
+
+    if (fueOpinionRapi) {
+        return;
+    }
     /*
       ======================================
       1. CALIFICACIONES
@@ -1225,7 +1662,97 @@ export async function procesarMensajeWhatsApp(
                 },
             });
 
+    /*
+      ======================================
+      RAPICUPON EN MENSAJE
+      ======================================
+    
+      Puede venir como:
+    
+      RAPICUPON
+    
+      Hola tengo RAPICUPON
+    
+      Quiero usar el cupón RAPICUPON
+    */
 
+    const mensajeTieneCupon =
+        contieneRapiCupon(
+            input
+        );
+
+
+    if (
+        mensajeTieneCupon
+    ) {
+        const estadoCupon =
+            await obtenerEstadoRapiCupon(
+                telefono
+            );
+
+
+        if (!estadoCupon.valido) {
+            await responderCuponNoDisponible(
+                telefono,
+                estadoCupon.motivo === "YA_USADO"
+                    ? "YA_USADO"
+                    : "AGOTADO"
+            );
+
+
+            return;
+        }
+
+
+        /*
+          Si ya tiene una carrera creada,
+          es demasiado tarde para aplicar
+          descuento a esa carrera.
+        */
+
+        if (
+            conversacion &&
+            (
+                conversacion.estado ===
+                "BUSCANDO_TAXI" ||
+
+                conversacion.estado ===
+                "CARRERA_ACTIVA"
+            )
+        ) {
+            await enviarTextoWhatsApp(
+                telefono,
+
+                "🎟️ RAPICUPON es válido, pero debes ingresarlo antes de que se genere tu carrera. Podrás usarlo en tu próxima solicitud. 🚕"
+            );
+
+
+            return;
+        }
+
+
+        /*
+          Si ya existe conversación,
+          guardamos inmediatamente el cupón.
+        */
+
+        if (conversacion) {
+            conversacion =
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+
+                        where: {
+                            telefono,
+                        },
+
+                        data: {
+                            cuponPendiente:
+                                CODIGO_CUPON,
+                        },
+                    });
+        }
+    }
     /*
       ======================================
       3. CANCELAR CARRERA
@@ -1273,6 +1800,28 @@ export async function procesarMensajeWhatsApp(
                 });
 
 
+                await prisma.cuponUso.updateMany({
+                    where: {
+                        carreraId:
+                            carrera.id,
+
+                        estado:
+                            "RESERVADO",
+                    },
+
+                    data: {
+                        estado:
+                            "LIBERADO",
+
+                        fechaLiberado:
+                            new Date(),
+
+                        carreraId:
+                            null,
+                    },
+                });
+
+
                 await prisma
                     .conversacionWhatsApp
                     .update({
@@ -1295,6 +1844,9 @@ export async function procesarMensajeWhatsApp(
                                 null,
 
                             referencia:
+                                null,
+
+                            cuponPendiente:
                                 null,
                         },
                     });
@@ -1383,6 +1935,11 @@ export async function procesarMensajeWhatsApp(
                             estado:
                                 "ESPERANDO_NOMBRE",
 
+                            cuponPendiente:
+                                mensajeTieneCupon
+                                    ? CODIGO_CUPON
+                                    : null,
+
                             latitud:
                                 ubicacionDentroDeChone
                                     ? input.latitud
@@ -1412,8 +1969,9 @@ export async function procesarMensajeWhatsApp(
             await enviarTextoWhatsApp(
                 telefono,
 
-                "👋 ¡Hola! Bienvenido a Rapitaxi.\nPara registrarte, ¿cómo te llamas?"
-            );
+                mensajeTieneCupon
+                    ? "🎟️ ¡RAPICUPON reconocido! Tendrás $0,50 de descuento y pagarás solo $1,00 en esta carrera. ✅\n\n👋 Para registrarte, ¿cómo te llamas?"
+                    : "👋 ¡Hola! Bienvenido a Rapitaxi.\nPara registrarte, ¿cómo te llamas?");
 
 
             return;
@@ -1500,7 +2058,46 @@ export async function procesarMensajeWhatsApp(
               decir el nombre, ya no la
               volvemos a pedir.
             */
+            if (
+                conversacion.cuponPendiente ===
+                CODIGO_CUPON
+            ) {
+                await solicitarUbicacionWhatsApp(
+                    telefono,
 
+                    `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+                );
+
+
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+
+                        where: {
+                            telefono,
+                        },
+
+                        data: {
+                            estado:
+                                "ESPERANDO_UBICACION",
+
+                            cuponPendiente:
+                                CODIGO_CUPON,
+
+                            latitud:
+                                null,
+
+                            longitud:
+                                null,
+
+                            referencia:
+                                null,
+                        },
+                    });
+
+
+                return;
+            }
             if (
                 yaTenemosUbicacion
             ) {
@@ -1788,34 +2385,7 @@ export async function procesarMensajeWhatsApp(
     }
 
 
-    /*
-      ======================================
-      RAPI OPINA DE TI
-      ======================================
-    
-      Solo funciona cuando el cliente está
-      libre.
-    
-      Si está pidiendo ubicación, pagando,
-      buscando taxi o en carrera, dejamos que
-      continúe el flujo normal de Rapitaxi.
-    */
 
-    if (
-        conversacion.estado ===
-        "NUEVO" &&
-
-        esSolicitudOpinionRapi(
-            input
-        )
-    ) {
-        await procesarOpinionRapi(
-            cliente,
-            telefono
-        );
-
-        return;
-    }
 
     /*
       ======================================
@@ -1860,6 +2430,47 @@ export async function procesarMensajeWhatsApp(
         conversacion.estado ===
         "NUEVO"
     ) {
+        if (
+            mensajeTieneCupon
+        ) {
+            conversacion =
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+                        where: {
+                            telefono,
+                        },
+
+                        data: {
+                            estado:
+                                "ESPERANDO_UBICACION",
+
+                            cuponPendiente:
+                                CODIGO_CUPON,
+
+                            latitud:
+                                null,
+
+                            longitud:
+                                null,
+
+                            referencia:
+                                null,
+                        },
+                    });
+
+
+            await solicitarUbicacionWhatsApp(
+                telefono,
+
+                `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+            );
+
+
+            return;
+        }
+
+
         if (
             tieneUbicacion(input)
         ) {
@@ -1991,7 +2602,9 @@ export async function procesarMensajeWhatsApp(
             await solicitarUbicacionWhatsApp(
                 telefono,
 
-                `Hola ${cliente.nombre}, 📍 necesito que me envíes tu ubicación actual para continuar.`
+                mensajeTieneCupon
+                    ? `🎟️ ¡RAPICUPON reconocido, ${cliente.nombre}! ✅\n\nEn esta carrera pagarás solo $1,00 en lugar de $1,50.\n\n📍 Envíame tu ubicación actual para continuar.`
+                    : `Hola ${cliente.nombre}, 📍 necesito que me envíes tu ubicación actual para continuar.`
             );
 
 
@@ -2196,7 +2809,35 @@ export async function procesarMensajeWhatsApp(
         }
 
 
+        let cuponReservado =
+            false;
+
+
         try {
+
+            const quiereUsarCupon =
+                conversacion.cuponPendiente ===
+                CODIGO_CUPON;
+
+
+            if (
+                quiereUsarCupon
+            ) {
+                cuponReservado =
+                    await reservarRapiCupon(
+                        telefono
+                    );
+
+
+                if (!cuponReservado) {
+                    await enviarTextoWhatsApp(
+                        telefono,
+
+                        "🎟️ RAPICUPON ya no se encuentra disponible para esta carrera. Tu solicitud continuará con la tarifa normal de $1,50. 🚕"
+                    );
+                }
+            }
+
 
             /*
               Crear carrera.
@@ -2228,17 +2869,54 @@ export async function procesarMensajeWhatsApp(
               Asociar carrera con Cliente.
             */
 
-            await prisma.carrera.update({
-                where: {
-                    id:
-                        carrera.id,
-                },
+            await prisma.$transaction(
+                async (tx) => {
 
-                data: {
-                    clienteId:
-                        cliente.id,
-                },
-            });
+                    await tx.carrera.update({
+                        where: {
+                            id:
+                                carrera.id,
+                        },
+
+                        data: {
+                            clienteId:
+                                cliente.id,
+
+                            cuponCodigo:
+                                cuponReservado
+                                    ? CODIGO_CUPON
+                                    : null,
+
+                            descuentoCupon:
+                                cuponReservado
+                                    ? 0.50
+                                    : null,
+                        },
+                    });
+
+
+                    if (
+                        cuponReservado
+                    ) {
+                        await tx.cuponUso.update({
+                            where: {
+                                codigo_whatsapp: {
+                                    codigo:
+                                        CODIGO_CUPON,
+
+                                    whatsapp:
+                                        telefono,
+                                },
+                            },
+
+                            data: {
+                                carreraId:
+                                    carrera.id,
+                            },
+                        });
+                    }
+                }
+            );
 
 
             /*
@@ -2260,6 +2938,9 @@ export async function procesarMensajeWhatsApp(
 
                         estado:
                             "BUSCANDO_TAXI",
+
+                        cuponPendiente:
+                            null,
                     },
                 });
 
@@ -2271,7 +2952,7 @@ export async function procesarMensajeWhatsApp(
             await enviarTextoWhatsApp(
                 telefono,
 
-                `🚖 Listo ${cliente.nombre}, Ahora estoy buscando taxi, enseguida te confirmo.`
+                `🚖 Listo ${cliente.nombre}, ahora estoy buscando taxi, enseguida te confirmo.`
             );
 
 
@@ -2292,6 +2973,15 @@ export async function procesarMensajeWhatsApp(
                 "Error creando carrera desde WhatsApp:",
                 error
             );
+
+
+            if (
+                cuponReservado
+            ) {
+                await liberarReservaRapiCupon(
+                    telefono
+                );
+            }
 
 
             await prisma

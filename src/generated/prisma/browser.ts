@@ -47,3 +47,8 @@ export type ConversacionWhatsApp = Prisma.ConversacionWhatsAppModel
  * 
  */
 export type SuscripcionWebPush = Prisma.SuscripcionWebPushModel
+/**
+ * Model CuponUso
+ * 
+ */
+export type CuponUso = Prisma.CuponUsoModel

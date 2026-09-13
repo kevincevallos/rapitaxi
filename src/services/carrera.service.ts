@@ -869,6 +869,25 @@ export async function finalizarCarrerasVencidas() {
             }
 
 
+            await prisma.cuponUso.updateMany({
+                where: {
+                    carreraId:
+                        carrera.id,
+
+                    estado:
+                        "RESERVADO",
+                },
+
+                data: {
+                    estado:
+                        "USADO",
+
+                    fechaUso:
+                        new Date(),
+                },
+            });
+
+
             finalizadas++;
 
 
@@ -913,6 +932,9 @@ export async function finalizarCarrerasVencidas() {
 
                             referencia:
                                 null,
+
+                            cuponPendiente:
+                                null,
                         },
                     });
 
@@ -952,31 +974,15 @@ export async function finalizarCarrerasVencidas() {
                 await enviarBotonesWhatsApp(
                     telefonoCliente,
 
-                    "⭐ ¿Qué tal estuvo tu taxista?\n\n😏 Después de calificar, prueba escribiéndome: \"Rapi, opina sobre mí\".\n\n✏️ ¿Tu nombre está incorrecto? Escríbeme: \"Me llamo [tu nombre]\".",
+                    `Hola ${carrera.nombreCliente}. Vi que ya pediste 🚕✅\n¿Quieres saber qué opino de ti? 😂😂`,
 
                     [
                         {
                             id:
-                                `rating_excelente_${carrera.id}`,
+                                `rapi_opinion_${carrera.id}`,
 
                             titulo:
-                                "Excelente",
-                        },
-
-                        {
-                            id:
-                                `rating_bueno_${carrera.id}`,
-
-                            titulo:
-                                "Bueno",
-                        },
-
-                        {
-                            id:
-                                `rating_malo_${carrera.id}`,
-
-                            titulo:
-                                "Malo",
+                                "Ok dime jajaja 😂",
                         },
                     ]
                 );
@@ -1121,6 +1127,28 @@ export async function cancelarCarreraAdmin(
             });
 
 
+            await tx.cuponUso.updateMany({
+                where: {
+                    carreraId:
+                        carrera.id,
+
+                    estado:
+                        "RESERVADO",
+                },
+
+                data: {
+                    estado:
+                        "LIBERADO",
+
+                    fechaLiberado:
+                        new Date(),
+
+                    carreraId:
+                        null,
+                },
+            });
+
+
             const telefono =
                 carrera.whatsappCliente
                     .replace(/\D/g, "");
@@ -1152,7 +1180,8 @@ export async function cancelarCarreraAdmin(
                             carreraId: null,
                             latitud: null,
                             longitud: null,
-                            referencia: null
+                            referencia: null,
+                            cuponPendiente: null
                         }
                     });
 
@@ -2192,6 +2221,25 @@ export async function finalizarCarreraTaxista(
     }
 
 
+    await prisma.cuponUso.updateMany({
+        where: {
+            carreraId:
+                carrera.id,
+
+            estado:
+                "RESERVADO",
+        },
+
+        data: {
+            estado:
+                "USADO",
+
+            fechaUso:
+                ahora,
+        },
+    });
+
+
     const telefonoCliente =
         normalizarTelefono(
             carrera.whatsappCliente
@@ -2230,6 +2278,9 @@ export async function finalizarCarreraTaxista(
 
                     referencia:
                         null,
+
+                    cuponPendiente:
+                        null,
                 },
             });
 
@@ -2263,31 +2314,15 @@ export async function finalizarCarreraTaxista(
         await enviarBotonesWhatsApp(
             telefonoCliente,
 
-            "⭐ ¿Qué tal estuvo tu taxista?\n\n😏 Después de calificar, prueba escribiéndome: \"Rapi, opina sobre mí\".\n\n✏️ ¿Tu nombre está incorrecto? Escríbeme: \"Me llamo [tu nombre]\".",
+            `Hola ${carrera.nombreCliente}. Vi que ya pediste 🚕✅\n¿Quieres saber qué opino de ti? 😂😂`,
 
             [
                 {
                     id:
-                        `rating_excelente_${carrera.id}`,
+                        `rapi_opinion_${carrera.id}`,
 
                     titulo:
-                        "Excelente",
-                },
-
-                {
-                    id:
-                        `rating_bueno_${carrera.id}`,
-
-                    titulo:
-                        "Bueno",
-                },
-
-                {
-                    id:
-                        `rating_malo_${carrera.id}`,
-
-                    titulo:
-                        "Malo",
+                        "Ok dime jajaja 😂",
                 },
             ]
         );

@@ -35,6 +35,7 @@ export type CarreraAvgAggregateOutputType = {
   longitud: number | null
   clienteId: number | null
   taxistaId: number | null
+  descuentoCupon: number | null
 }
 
 export type CarreraSumAggregateOutputType = {
@@ -46,6 +47,7 @@ export type CarreraSumAggregateOutputType = {
   longitud: number | null
   clienteId: number | null
   taxistaId: number | null
+  descuentoCupon: number | null
 }
 
 export type CarreraMinAggregateOutputType = {
@@ -74,6 +76,8 @@ export type CarreraMinAggregateOutputType = {
   canceladaPor: string | null
   clienteId: number | null
   taxistaId: number | null
+  cuponCodigo: string | null
+  descuentoCupon: number | null
 }
 
 export type CarreraMaxAggregateOutputType = {
@@ -102,6 +106,8 @@ export type CarreraMaxAggregateOutputType = {
   canceladaPor: string | null
   clienteId: number | null
   taxistaId: number | null
+  cuponCodigo: string | null
+  descuentoCupon: number | null
 }
 
 export type CarreraCountAggregateOutputType = {
@@ -130,6 +136,8 @@ export type CarreraCountAggregateOutputType = {
   canceladaPor: number
   clienteId: number
   taxistaId: number
+  cuponCodigo: number
+  descuentoCupon: number
   _all: number
 }
 
@@ -143,6 +151,7 @@ export type CarreraAvgAggregateInputType = {
   longitud?: true
   clienteId?: true
   taxistaId?: true
+  descuentoCupon?: true
 }
 
 export type CarreraSumAggregateInputType = {
@@ -154,6 +163,7 @@ export type CarreraSumAggregateInputType = {
   longitud?: true
   clienteId?: true
   taxistaId?: true
+  descuentoCupon?: true
 }
 
 export type CarreraMinAggregateInputType = {
@@ -182,6 +192,8 @@ export type CarreraMinAggregateInputType = {
   canceladaPor?: true
   clienteId?: true
   taxistaId?: true
+  cuponCodigo?: true
+  descuentoCupon?: true
 }
 
 export type CarreraMaxAggregateInputType = {
@@ -210,6 +222,8 @@ export type CarreraMaxAggregateInputType = {
   canceladaPor?: true
   clienteId?: true
   taxistaId?: true
+  cuponCodigo?: true
+  descuentoCupon?: true
 }
 
 export type CarreraCountAggregateInputType = {
@@ -238,6 +252,8 @@ export type CarreraCountAggregateInputType = {
   canceladaPor?: true
   clienteId?: true
   taxistaId?: true
+  cuponCodigo?: true
+  descuentoCupon?: true
   _all?: true
 }
 
@@ -353,6 +369,8 @@ export type CarreraGroupByOutputType = {
   canceladaPor: string | null
   clienteId: number | null
   taxistaId: number | null
+  cuponCodigo: string | null
+  descuentoCupon: number | null
   _count: CarreraCountAggregateOutputType | null
   _avg: CarreraAvgAggregateOutputType | null
   _sum: CarreraSumAggregateOutputType | null
@@ -404,8 +422,11 @@ export type CarreraWhereInput = {
   canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
   clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  cuponCodigo?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  descuentoCupon?: Prisma.FloatNullableFilter<"Carrera"> | number | null
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   taxista?: Prisma.XOR<Prisma.TaxistaNullableScalarRelationFilter, Prisma.TaxistaWhereInput> | null
+  cuponUso?: Prisma.XOR<Prisma.CuponUsoNullableScalarRelationFilter, Prisma.CuponUsoWhereInput> | null
 }
 
 export type CarreraOrderByWithRelationInput = {
@@ -434,8 +455,11 @@ export type CarreraOrderByWithRelationInput = {
   canceladaPor?: Prisma.SortOrderInput | Prisma.SortOrder
   clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxistaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cuponCodigo?: Prisma.SortOrderInput | Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrderInput | Prisma.SortOrder
   cliente?: Prisma.ClienteOrderByWithRelationInput
   taxista?: Prisma.TaxistaOrderByWithRelationInput
+  cuponUso?: Prisma.CuponUsoOrderByWithRelationInput
 }
 
 export type CarreraWhereUniqueInput = Prisma.AtLeast<{
@@ -467,8 +491,11 @@ export type CarreraWhereUniqueInput = Prisma.AtLeast<{
   canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
   clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  cuponCodigo?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  descuentoCupon?: Prisma.FloatNullableFilter<"Carrera"> | number | null
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
   taxista?: Prisma.XOR<Prisma.TaxistaNullableScalarRelationFilter, Prisma.TaxistaWhereInput> | null
+  cuponUso?: Prisma.XOR<Prisma.CuponUsoNullableScalarRelationFilter, Prisma.CuponUsoWhereInput> | null
 }, "id" | "numero" | "token" | "trackingToken">
 
 export type CarreraOrderByWithAggregationInput = {
@@ -497,6 +524,8 @@ export type CarreraOrderByWithAggregationInput = {
   canceladaPor?: Prisma.SortOrderInput | Prisma.SortOrder
   clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   taxistaId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cuponCodigo?: Prisma.SortOrderInput | Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CarreraCountOrderByAggregateInput
   _avg?: Prisma.CarreraAvgOrderByAggregateInput
   _max?: Prisma.CarreraMaxOrderByAggregateInput
@@ -533,6 +562,8 @@ export type CarreraScalarWhereWithAggregatesInput = {
   canceladaPor?: Prisma.StringNullableWithAggregatesFilter<"Carrera"> | string | null
   clienteId?: Prisma.IntNullableWithAggregatesFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableWithAggregatesFilter<"Carrera"> | number | null
+  cuponCodigo?: Prisma.StringNullableWithAggregatesFilter<"Carrera"> | string | null
+  descuentoCupon?: Prisma.FloatNullableWithAggregatesFilter<"Carrera"> | number | null
 }
 
 export type CarreraCreateInput = {
@@ -558,8 +589,11 @@ export type CarreraCreateInput = {
   fechaFin?: Date | string | null
   calificacion?: string | null
   canceladaPor?: string | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
   cliente?: Prisma.ClienteCreateNestedOneWithoutCarrerasInput
   taxista?: Prisma.TaxistaCreateNestedOneWithoutCarrerasInput
+  cuponUso?: Prisma.CuponUsoCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraUncheckedCreateInput = {
@@ -588,6 +622,9 @@ export type CarreraUncheckedCreateInput = {
   canceladaPor?: string | null
   clienteId?: number | null
   taxistaId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
+  cuponUso?: Prisma.CuponUsoUncheckedCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraUpdateInput = {
@@ -613,8 +650,11 @@ export type CarreraUpdateInput = {
   fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   cliente?: Prisma.ClienteUpdateOneWithoutCarrerasNestedInput
   taxista?: Prisma.TaxistaUpdateOneWithoutCarrerasNestedInput
+  cuponUso?: Prisma.CuponUsoUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraUncheckedUpdateInput = {
@@ -643,6 +683,9 @@ export type CarreraUncheckedUpdateInput = {
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  cuponUso?: Prisma.CuponUsoUncheckedUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraCreateManyInput = {
@@ -671,6 +714,8 @@ export type CarreraCreateManyInput = {
   canceladaPor?: string | null
   clienteId?: number | null
   taxistaId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
 }
 
 export type CarreraUpdateManyMutationInput = {
@@ -696,6 +741,8 @@ export type CarreraUpdateManyMutationInput = {
   fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type CarreraUncheckedUpdateManyInput = {
@@ -724,6 +771,8 @@ export type CarreraUncheckedUpdateManyInput = {
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type CarreraListRelationFilter = {
@@ -762,6 +811,8 @@ export type CarreraCountOrderByAggregateInput = {
   canceladaPor?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
+  cuponCodigo?: Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrder
 }
 
 export type CarreraAvgOrderByAggregateInput = {
@@ -773,6 +824,7 @@ export type CarreraAvgOrderByAggregateInput = {
   longitud?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrder
 }
 
 export type CarreraMaxOrderByAggregateInput = {
@@ -801,6 +853,8 @@ export type CarreraMaxOrderByAggregateInput = {
   canceladaPor?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
+  cuponCodigo?: Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrder
 }
 
 export type CarreraMinOrderByAggregateInput = {
@@ -829,6 +883,8 @@ export type CarreraMinOrderByAggregateInput = {
   canceladaPor?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
+  cuponCodigo?: Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrder
 }
 
 export type CarreraSumOrderByAggregateInput = {
@@ -840,6 +896,12 @@ export type CarreraSumOrderByAggregateInput = {
   longitud?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   taxistaId?: Prisma.SortOrder
+  descuentoCupon?: Prisma.SortOrder
+}
+
+export type CarreraNullableScalarRelationFilter = {
+  is?: Prisma.CarreraWhereInput | null
+  isNot?: Prisma.CarreraWhereInput | null
 }
 
 export type CarreraCreateNestedManyWithoutClienteInput = {
@@ -950,6 +1012,22 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaNestedInput = {
   deleteMany?: Prisma.CarreraScalarWhereInput | Prisma.CarreraScalarWhereInput[]
 }
 
+export type CarreraCreateNestedOneWithoutCuponUsoInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutCuponUsoInput, Prisma.CarreraUncheckedCreateWithoutCuponUsoInput>
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutCuponUsoInput
+  connect?: Prisma.CarreraWhereUniqueInput
+}
+
+export type CarreraUpdateOneWithoutCuponUsoNestedInput = {
+  create?: Prisma.XOR<Prisma.CarreraCreateWithoutCuponUsoInput, Prisma.CarreraUncheckedCreateWithoutCuponUsoInput>
+  connectOrCreate?: Prisma.CarreraCreateOrConnectWithoutCuponUsoInput
+  upsert?: Prisma.CarreraUpsertWithoutCuponUsoInput
+  disconnect?: Prisma.CarreraWhereInput | boolean
+  delete?: Prisma.CarreraWhereInput | boolean
+  connect?: Prisma.CarreraWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CarreraUpdateToOneWithWhereWithoutCuponUsoInput, Prisma.CarreraUpdateWithoutCuponUsoInput>, Prisma.CarreraUncheckedUpdateWithoutCuponUsoInput>
+}
+
 export type CarreraCreateWithoutClienteInput = {
   numero: number
   token: string
@@ -973,7 +1051,10 @@ export type CarreraCreateWithoutClienteInput = {
   fechaFin?: Date | string | null
   calificacion?: string | null
   canceladaPor?: string | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
   taxista?: Prisma.TaxistaCreateNestedOneWithoutCarrerasInput
+  cuponUso?: Prisma.CuponUsoCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraUncheckedCreateWithoutClienteInput = {
@@ -1001,6 +1082,9 @@ export type CarreraUncheckedCreateWithoutClienteInput = {
   calificacion?: string | null
   canceladaPor?: string | null
   taxistaId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
+  cuponUso?: Prisma.CuponUsoUncheckedCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraCreateOrConnectWithoutClienteInput = {
@@ -1057,6 +1141,8 @@ export type CarreraScalarWhereInput = {
   canceladaPor?: Prisma.StringNullableFilter<"Carrera"> | string | null
   clienteId?: Prisma.IntNullableFilter<"Carrera"> | number | null
   taxistaId?: Prisma.IntNullableFilter<"Carrera"> | number | null
+  cuponCodigo?: Prisma.StringNullableFilter<"Carrera"> | string | null
+  descuentoCupon?: Prisma.FloatNullableFilter<"Carrera"> | number | null
 }
 
 export type CarreraCreateWithoutTaxistaInput = {
@@ -1082,7 +1168,10 @@ export type CarreraCreateWithoutTaxistaInput = {
   fechaFin?: Date | string | null
   calificacion?: string | null
   canceladaPor?: string | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
   cliente?: Prisma.ClienteCreateNestedOneWithoutCarrerasInput
+  cuponUso?: Prisma.CuponUsoCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraUncheckedCreateWithoutTaxistaInput = {
@@ -1110,6 +1199,9 @@ export type CarreraUncheckedCreateWithoutTaxistaInput = {
   calificacion?: string | null
   canceladaPor?: string | null
   clienteId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
+  cuponUso?: Prisma.CuponUsoUncheckedCreateNestedOneWithoutCarreraInput
 }
 
 export type CarreraCreateOrConnectWithoutTaxistaInput = {
@@ -1137,6 +1229,140 @@ export type CarreraUpdateManyWithWhereWithoutTaxistaInput = {
   data: Prisma.XOR<Prisma.CarreraUpdateManyMutationInput, Prisma.CarreraUncheckedUpdateManyWithoutTaxistaInput>
 }
 
+export type CarreraCreateWithoutCuponUsoInput = {
+  numero: number
+  token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
+  nombreCliente: string
+  whatsappCliente: string
+  latitud: number
+  longitud: number
+  referencia: string
+  formaPago: string
+  estado?: $Enums.EstadoCarrera
+  fechaCreacion?: Date | string
+  fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
+  cliente?: Prisma.ClienteCreateNestedOneWithoutCarrerasInput
+  taxista?: Prisma.TaxistaCreateNestedOneWithoutCarrerasInput
+}
+
+export type CarreraUncheckedCreateWithoutCuponUsoInput = {
+  id?: number
+  numero: number
+  token: string
+  trackingToken?: string | null
+  latitudTaxista?: number | null
+  longitudTaxista?: number | null
+  fechaUbicacionTaxista?: Date | string | null
+  ultimaNotificacionSeguimiento?: Date | string | null
+  nombreCliente: string
+  whatsappCliente: string
+  latitud: number
+  longitud: number
+  referencia: string
+  formaPago: string
+  estado?: $Enums.EstadoCarrera
+  fechaCreacion?: Date | string
+  fechaAceptacion?: Date | string | null
+  fechaEnCamino?: Date | string | null
+  fechaCerca?: Date | string | null
+  fechaLlegada?: Date | string | null
+  fechaFin?: Date | string | null
+  calificacion?: string | null
+  canceladaPor?: string | null
+  clienteId?: number | null
+  taxistaId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
+}
+
+export type CarreraCreateOrConnectWithoutCuponUsoInput = {
+  where: Prisma.CarreraWhereUniqueInput
+  create: Prisma.XOR<Prisma.CarreraCreateWithoutCuponUsoInput, Prisma.CarreraUncheckedCreateWithoutCuponUsoInput>
+}
+
+export type CarreraUpsertWithoutCuponUsoInput = {
+  update: Prisma.XOR<Prisma.CarreraUpdateWithoutCuponUsoInput, Prisma.CarreraUncheckedUpdateWithoutCuponUsoInput>
+  create: Prisma.XOR<Prisma.CarreraCreateWithoutCuponUsoInput, Prisma.CarreraUncheckedCreateWithoutCuponUsoInput>
+  where?: Prisma.CarreraWhereInput
+}
+
+export type CarreraUpdateToOneWithWhereWithoutCuponUsoInput = {
+  where?: Prisma.CarreraWhereInput
+  data: Prisma.XOR<Prisma.CarreraUpdateWithoutCuponUsoInput, Prisma.CarreraUncheckedUpdateWithoutCuponUsoInput>
+}
+
+export type CarreraUpdateWithoutCuponUsoInput = {
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  referencia?: Prisma.StringFieldUpdateOperationsInput | string
+  formaPago?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  cliente?: Prisma.ClienteUpdateOneWithoutCarrerasNestedInput
+  taxista?: Prisma.TaxistaUpdateOneWithoutCarrerasNestedInput
+}
+
+export type CarreraUncheckedUpdateWithoutCuponUsoInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  numero?: Prisma.IntFieldUpdateOperationsInput | number
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  trackingToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  longitudTaxista?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUbicacionTaxista?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ultimaNotificacionSeguimiento?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nombreCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappCliente?: Prisma.StringFieldUpdateOperationsInput | string
+  latitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  longitud?: Prisma.FloatFieldUpdateOperationsInput | number
+  referencia?: Prisma.StringFieldUpdateOperationsInput | string
+  formaPago?: Prisma.StringFieldUpdateOperationsInput | string
+  estado?: Prisma.EnumEstadoCarreraFieldUpdateOperationsInput | $Enums.EstadoCarrera
+  fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fechaAceptacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaEnCamino?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaCerca?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaLlegada?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+}
+
 export type CarreraCreateManyClienteInput = {
   id?: number
   numero: number
@@ -1162,6 +1388,8 @@ export type CarreraCreateManyClienteInput = {
   calificacion?: string | null
   canceladaPor?: string | null
   taxistaId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
 }
 
 export type CarreraUpdateWithoutClienteInput = {
@@ -1187,7 +1415,10 @@ export type CarreraUpdateWithoutClienteInput = {
   fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   taxista?: Prisma.TaxistaUpdateOneWithoutCarrerasNestedInput
+  cuponUso?: Prisma.CuponUsoUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraUncheckedUpdateWithoutClienteInput = {
@@ -1215,6 +1446,9 @@ export type CarreraUncheckedUpdateWithoutClienteInput = {
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  cuponUso?: Prisma.CuponUsoUncheckedUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraUncheckedUpdateManyWithoutClienteInput = {
@@ -1242,6 +1476,8 @@ export type CarreraUncheckedUpdateManyWithoutClienteInput = {
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   taxistaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 export type CarreraCreateManyTaxistaInput = {
@@ -1269,6 +1505,8 @@ export type CarreraCreateManyTaxistaInput = {
   calificacion?: string | null
   canceladaPor?: string | null
   clienteId?: number | null
+  cuponCodigo?: string | null
+  descuentoCupon?: number | null
 }
 
 export type CarreraUpdateWithoutTaxistaInput = {
@@ -1294,7 +1532,10 @@ export type CarreraUpdateWithoutTaxistaInput = {
   fechaFin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   cliente?: Prisma.ClienteUpdateOneWithoutCarrerasNestedInput
+  cuponUso?: Prisma.CuponUsoUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraUncheckedUpdateWithoutTaxistaInput = {
@@ -1322,6 +1563,9 @@ export type CarreraUncheckedUpdateWithoutTaxistaInput = {
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  cuponUso?: Prisma.CuponUsoUncheckedUpdateOneWithoutCarreraNestedInput
 }
 
 export type CarreraUncheckedUpdateManyWithoutTaxistaInput = {
@@ -1349,6 +1593,8 @@ export type CarreraUncheckedUpdateManyWithoutTaxistaInput = {
   calificacion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canceladaPor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  cuponCodigo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descuentoCupon?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
 }
 
 
@@ -1379,8 +1625,11 @@ export type CarreraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   canceladaPor?: boolean
   clienteId?: boolean
   taxistaId?: boolean
+  cuponCodigo?: boolean
+  descuentoCupon?: boolean
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
+  cuponUso?: boolean | Prisma.Carrera$cuponUsoArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
 
 export type CarreraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1409,6 +1658,8 @@ export type CarreraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   canceladaPor?: boolean
   clienteId?: boolean
   taxistaId?: boolean
+  cuponCodigo?: boolean
+  descuentoCupon?: boolean
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
@@ -1439,6 +1690,8 @@ export type CarreraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   canceladaPor?: boolean
   clienteId?: boolean
   taxistaId?: boolean
+  cuponCodigo?: boolean
+  descuentoCupon?: boolean
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
 }, ExtArgs["result"]["carrera"]>
@@ -1469,12 +1722,15 @@ export type CarreraSelectScalar = {
   canceladaPor?: boolean
   clienteId?: boolean
   taxistaId?: boolean
+  cuponCodigo?: boolean
+  descuentoCupon?: boolean
 }
 
-export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "trackingToken" | "latitudTaxista" | "longitudTaxista" | "fechaUbicacionTaxista" | "ultimaNotificacionSeguimiento" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "fechaEnCamino" | "fechaCerca" | "fechaLlegada" | "fechaFin" | "calificacion" | "canceladaPor" | "clienteId" | "taxistaId", ExtArgs["result"]["carrera"]>
+export type CarreraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "numero" | "token" | "trackingToken" | "latitudTaxista" | "longitudTaxista" | "fechaUbicacionTaxista" | "ultimaNotificacionSeguimiento" | "nombreCliente" | "whatsappCliente" | "latitud" | "longitud" | "referencia" | "formaPago" | "estado" | "fechaCreacion" | "fechaAceptacion" | "fechaEnCamino" | "fechaCerca" | "fechaLlegada" | "fechaFin" | "calificacion" | "canceladaPor" | "clienteId" | "taxistaId" | "cuponCodigo" | "descuentoCupon", ExtArgs["result"]["carrera"]>
 export type CarreraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
   taxista?: boolean | Prisma.Carrera$taxistaArgs<ExtArgs>
+  cuponUso?: boolean | Prisma.Carrera$cuponUsoArgs<ExtArgs>
 }
 export type CarreraIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cliente?: boolean | Prisma.Carrera$clienteArgs<ExtArgs>
@@ -1490,6 +1746,7 @@ export type $CarreraPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     cliente: Prisma.$ClientePayload<ExtArgs> | null
     taxista: Prisma.$TaxistaPayload<ExtArgs> | null
+    cuponUso: Prisma.$CuponUsoPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1517,6 +1774,8 @@ export type $CarreraPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     canceladaPor: string | null
     clienteId: number | null
     taxistaId: number | null
+    cuponCodigo: string | null
+    descuentoCupon: number | null
   }, ExtArgs["result"]["carrera"]>
   composites: {}
 }
@@ -1913,6 +2172,7 @@ export interface Prisma__CarreraClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   cliente<T extends Prisma.Carrera$clienteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Carrera$clienteArgs<ExtArgs>>): Prisma.Prisma__ClienteClient<runtime.Types.Result.GetResult<Prisma.$ClientePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   taxista<T extends Prisma.Carrera$taxistaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Carrera$taxistaArgs<ExtArgs>>): Prisma.Prisma__TaxistaClient<runtime.Types.Result.GetResult<Prisma.$TaxistaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  cuponUso<T extends Prisma.Carrera$cuponUsoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Carrera$cuponUsoArgs<ExtArgs>>): Prisma.Prisma__CuponUsoClient<runtime.Types.Result.GetResult<Prisma.$CuponUsoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1967,6 +2227,8 @@ export interface CarreraFieldRefs {
   readonly canceladaPor: Prisma.FieldRef<"Carrera", 'String'>
   readonly clienteId: Prisma.FieldRef<"Carrera", 'Int'>
   readonly taxistaId: Prisma.FieldRef<"Carrera", 'Int'>
+  readonly cuponCodigo: Prisma.FieldRef<"Carrera", 'String'>
+  readonly descuentoCupon: Prisma.FieldRef<"Carrera", 'Float'>
 }
     
 
@@ -2401,6 +2663,25 @@ export type Carrera$taxistaArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   include?: Prisma.TaxistaInclude<ExtArgs> | null
   where?: Prisma.TaxistaWhereInput
+}
+
+/**
+ * Carrera.cuponUso
+ */
+export type Carrera$cuponUsoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CuponUso
+   */
+  select?: Prisma.CuponUsoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CuponUso
+   */
+  omit?: Prisma.CuponUsoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CuponUsoInclude<ExtArgs> | null
+  where?: Prisma.CuponUsoWhereInput
 }
 
 /**

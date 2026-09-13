@@ -119,6 +119,7 @@ tabTaxistas.addEventListener(
   mostrarTaxistas
 );
 
+
 btnActualizarCarreras.addEventListener(
   "click",
   async () => {
@@ -147,6 +148,7 @@ btnActualizarCarreras.addEventListener(
     }
   }
 );
+
 
 /*
   ========================================
@@ -215,6 +217,41 @@ function claseEstadoCarrera(
 }
 
 
+function normalizarTelefonoWhatsapp(
+  telefono
+) {
+  const limpio =
+    String(
+      telefono || ""
+    ).replace(/\D/g, "");
+
+
+  if (!limpio) {
+    return "";
+  }
+
+
+  if (
+    limpio.startsWith("593")
+  ) {
+    return limpio;
+  }
+
+
+  if (
+    limpio.startsWith("0")
+  ) {
+    return (
+      "593" +
+      limpio.substring(1)
+    );
+  }
+
+
+  return limpio;
+}
+
+
 /*
   ========================================
   CARRERAS
@@ -222,7 +259,9 @@ function claseEstadoCarrera(
 */
 
 async function cargarCarreras() {
+
   try {
+
     const response =
       await fetch(
         "/api/carreras/admin/listado"
@@ -253,12 +292,80 @@ async function cargarCarreras() {
     tbody.innerHTML = "";
 
 
-    if (
-      !Array.isArray(
+    const carreras =
+      Array.isArray(
         data.carreras
-      ) ||
-      data.carreras.length === 0
+      )
+        ? data.carreras
+        : [];
+
+
+    /*
+      ========================================
+      RESUMEN RAPICUPON
+      ========================================
+
+      Limite tecnico: 55.
+
+      50 son para campaña.
+      5 quedan disponibles para pruebas.
+
+      CANCELADA no consume cupo.
+    */
+
+    const usadosCupon =
+      carreras.filter(
+        carrera =>
+          carrera.cuponCodigo ===
+          "RAPICUPON" &&
+          carrera.estado ===
+          "COMPLETADA"
+      ).length;
+
+
+    const reservadosCupon =
+      carreras.filter(
+        carrera =>
+          carrera.cuponCodigo ===
+          "RAPICUPON" &&
+          carrera.estado !==
+          "COMPLETADA" &&
+          carrera.estado !==
+          "CANCELADA"
+      ).length;
+
+
+    const disponiblesCupon =
+      Math.max(
+        0,
+        55 -
+        usadosCupon -
+        reservadosCupon
+      );
+
+
+    const resumenCupon =
+      document.getElementById(
+        "resumenCupon"
+      );
+
+
+    if (resumenCupon) {
+
+      resumenCupon.innerHTML =
+        `🎟️ <strong>RAPICUPON</strong>` +
+        ` · Usados: ${usadosCupon}` +
+        ` · Reservados: ${reservadosCupon}` +
+        ` · Disponibles técnicos: ${disponiblesCupon}/55` +
+        ` · 5 cupos previstos para pruebas`;
+
+    }
+
+
+    if (
+      carreras.length === 0
     ) {
+
       tbody.innerHTML = `
         <tr>
           <td
@@ -276,8 +383,9 @@ async function cargarCarreras() {
 
     for (
       const carrera
-      of data.carreras
+      of carreras
     ) {
+
       const taxista =
         carrera.taxista;
 
@@ -291,132 +399,310 @@ async function cargarCarreras() {
           "tr"
         );
 
+
       const puedeCancelar =
-        carrera.estado !== "COMPLETADA" &&
-        carrera.estado !== "CANCELADA";
+        carrera.estado !==
+        "COMPLETADA" &&
+        carrera.estado !==
+        "CANCELADA";
+
 
       const botonCancelar =
         puedeCancelar
           ? `
-      <button
-        class="btn btn-desactivar btn-cancelar-carrera"
-        data-id="${carrera.id}"
-        data-numero="${carrera.numero}"
-        type="button"
-      >
-        Cancelar
-      </button>
-    `
-          : "-";
+            <button
+              class="btn btn-desactivar btn-cancelar-carrera"
+              data-id="${escaparHtml(
+                carrera.id
+              )}"
+              data-numero="${escaparHtml(
+                carrera.numero
+              )}"
+              type="button"
+            >
+              Cancelar
+            </button>
+          `
+          : "";
+
+
+      /*
+        ========================================
+        RAPICUPON DE ESTA CARRERA
+        ========================================
+      */
+
+      const tieneCupon =
+        carrera.cuponCodigo ===
+        "RAPICUPON";
+
+
+      const telefonoTaxista =
+        normalizarTelefonoWhatsapp(
+          taxista?.telefono
+        );
+
+
+      const mensajeCupon =
+        `DESCUENTO APLICADO CARRERA ASIGNADA #${carrera.numero} 🚨✅\n\n` +
+        `El cliente recibió $0,50 de descuento.\n` +
+        `Cobra solo $1,00.\n\n` +
+        `Rapitaxi te acreditará $0,50 al finalizar.\n\n` +
+        `Por favor, no cobres ningún valor adicional. 🚕🙏🏼`;
+
+
+      const enlaceCupon =
+        tieneCupon &&
+        telefonoTaxista
+
+          ? `https://wa.me/${telefonoTaxista}?text=${encodeURIComponent(
+            mensajeCupon
+          )}`
+
+          : "";
+
+
+      /*
+        El boton CUPON aparece solamente cuando:
+
+        1. La carrera tiene RAPICUPON.
+        2. Ya existe un taxista asignado.
+        3. El taxista tiene telefono registrado.
+      */
+
+      const botonCupon =
+        tieneCupon &&
+        taxista &&
+        telefonoTaxista
+
+          ? `
+            <a
+              href="${escaparHtml(
+                enlaceCupon
+              )}"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                display:inline-block;
+                text-decoration:none;
+                background:#d79b00;
+                color:white;
+                padding:8px 11px;
+                border-radius:8px;
+                font-size:12px;
+                font-weight:bold;
+              "
+            >
+              🎟️ CUPÓN
+            </a>
+          `
+
+          : "";
+
+
+      const alertaCupon =
+        tieneCupon
+
+          ? `
+            <div
+              style="
+                margin-top:7px;
+                padding:7px 9px;
+                border-radius:8px;
+                background:#fff0cc;
+                color:#8c5d00;
+                border:1px solid #e4bd58;
+                font-size:11px;
+                font-weight:bold;
+                white-space:nowrap;
+              "
+            >
+              🚨 RAPICUPON<br>
+              CLIENTE PAGA $1,00
+            </div>
+          `
+
+          : "";
+
 
       fila.innerHTML = `
+
         <td>
+
           <strong>
             #${escaparHtml(
-        carrera.numero
-      )}
+              carrera.numero
+            )}
           </strong>
+
+          ${alertaCupon}
+
         </td>
 
+
         <td>
+
           <span
             class="estado ${claseEstadoCarrera(
-        carrera.estado
-      )}"
+              carrera.estado
+            )}"
           >
+
             ${escaparHtml(
-        carrera.estado
-      )}
+              carrera.estado
+            )}
+
           </span>
+
         </td>
 
+
         <td>
+
           ${escaparHtml(
-        cliente?.nombre ||
-        carrera.nombreCliente ||
-        "-"
-      )
-        }
+            cliente?.nombre ||
+            carrera.nombreCliente ||
+            "-"
+          )}
+
         </td>
 
+
         <td>
+
           ${escaparHtml(
-          carrera.referencia ||
-          "-"
-        )}
+            carrera.referencia ||
+            "-"
+          )}
+
         </td>
 
+
         <td>
+
           ${escaparHtml(
-          carrera.formaPago ||
-          "-"
-        )}
+            carrera.formaPago ||
+            "-"
+          )}
+
+          ${
+            tieneCupon
+              ? `
+                <div
+                  style="
+                    margin-top:5px;
+                    font-weight:bold;
+                    color:#199447;
+                  "
+                >
+                  Tarifa: $1,00
+                </div>
+              `
+              : ""
+          }
+
         </td>
 
-        <td>
-          ${taxista
-          ? `${escaparHtml(
-            taxista.codigo
-          )} - ${escaparHtml(
-            taxista.nombre
-          )}`
-          : "-"
-        }
-        </td>
 
         <td>
-          ${taxista
-          ? escaparHtml(
-            taxista.placa
-          )
-          : "-"
-        }
+
+          ${
+            taxista
+
+              ? `${escaparHtml(
+                taxista.codigo
+              )} - ${escaparHtml(
+                taxista.nombre
+              )}`
+
+              : "-"
+          }
+
         </td>
 
+
         <td>
+
+          ${
+            taxista
+
+              ? escaparHtml(
+                taxista.placa
+              )
+
+              : "-"
+          }
+
+        </td>
+
+
+        <td>
+
           ${formatearFecha(
-          carrera.fechaCreacion
-        )}
+            carrera.fechaCreacion
+          )}
+
         </td>
 
+
         <td>
+
           <button
-  type="button"
-  class="btn btn-editar copiar-carrera"
+            type="button"
+            class="btn btn-editar copiar-carrera"
 
-  data-token="${escaparHtml(
-          carrera.token
-        )}"
+            data-token="${escaparHtml(
+              carrera.token
+            )}"
 
-  data-numero="${escaparHtml(
-          carrera.numero
-        )}"
+            data-numero="${escaparHtml(
+              carrera.numero
+            )}"
 
-  data-referencia="${escaparHtml(
-          carrera.referencia || "-"
-        )}"
+            data-referencia="${escaparHtml(
+              carrera.referencia ||
+              "-"
+            )}"
 
-  data-pago="${escaparHtml(
-          carrera.formaPago || "-"
-        )}"
->
-  Copiar enlace
-</button>
+            data-pago="${escaparHtml(
+              carrera.formaPago ||
+              "-"
+            )}"
+          >
+
+            Copiar enlace
+
+          </button>
+
         </td>
+
+
         <td>
-          ${botonCancelar}
+
+          <div class="acciones">
+
+            ${botonCupon}
+
+            ${botonCancelar || "-"}
+
+          </div>
+
         </td>
+
       `;
 
 
       tbody.appendChild(
         fila
       );
+
     }
 
 
     /*
+      ========================================
       BOTONES COPIAR ENLACE
+      ========================================
     */
 
     document
@@ -433,12 +719,15 @@ async function cargarCarreras() {
               const token =
                 boton.dataset.token;
 
+
               const numero =
                 boton.dataset.numero;
+
 
               const referencia =
                 boton.dataset.referencia ||
                 "-";
+
 
               const pago =
                 boton.dataset.pago ||
@@ -457,6 +746,7 @@ async function cargarCarreras() {
 
 
               try {
+
                 await navigator
                   .clipboard
                   .writeText(
@@ -474,11 +764,17 @@ async function cargarCarreras() {
                   "Copia este mensaje:",
                   mensaje
                 );
+
               }
+
             }
+
           );
+
         }
+
       );
+
 
   } catch (error) {
 
@@ -491,7 +787,9 @@ async function cargarCarreras() {
       "No se pudieron cargar las carreras.",
       "error"
     );
+
   }
+
 }
 
 
@@ -502,7 +800,9 @@ async function cargarCarreras() {
 */
 
 async function cargarTaxistas() {
+
   try {
+
     const response =
       await fetch(
         "/api/taxistas"
@@ -517,10 +817,12 @@ async function cargarTaxistas() {
       !response.ok ||
       !data.success
     ) {
+
       throw new Error(
         data.message ||
         "No se pudieron cargar los taxistas."
       );
+
     }
 
 
@@ -528,11 +830,14 @@ async function cargarTaxistas() {
       Array.isArray(
         data.taxistas
       )
+
         ? data.taxistas
+
         : [];
 
 
     pintarTaxistas();
+
 
   } catch (error) {
 
@@ -545,11 +850,14 @@ async function cargarTaxistas() {
       "No se pudieron cargar los taxistas.",
       "error"
     );
+
   }
+
 }
 
 
 function pintarTaxistas() {
+
   const tbody =
     document.getElementById(
       "tablaTaxistas"
@@ -562,6 +870,7 @@ function pintarTaxistas() {
   if (
     taxistasActuales.length === 0
   ) {
+
     tbody.innerHTML = `
       <tr>
         <td
@@ -574,6 +883,7 @@ function pintarTaxistas() {
     `;
 
     return;
+
   }
 
 
@@ -581,6 +891,7 @@ function pintarTaxistas() {
     const taxista
     of taxistasActuales
   ) {
+
     const fila =
       document.createElement(
         "tr"
@@ -588,102 +899,149 @@ function pintarTaxistas() {
 
 
     fila.innerHTML = `
+
       <td>
+
         <strong>
+
           ${escaparHtml(
-      taxista.codigo
-    )}
+            taxista.codigo
+          )}
+
         </strong>
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.nombre
-    )}
+          taxista.nombre
+        )}
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.placa
-    )}
+          taxista.placa
+        )}
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.vehiculo
-    )}
+          taxista.vehiculo
+        )}
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.colorVehiculo ||
-      "-"
-    )}
+          taxista.colorVehiculo ||
+          "-"
+        )}
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.cooperativa ||
-      "-"
-    )}
+          taxista.cooperativa ||
+          "-"
+        )}
+
       </td>
 
+
       <td>
+
         ${escaparHtml(
-      taxista.telefono ||
-      "-"
-    )}
+          taxista.telefono ||
+          "-"
+        )}
+
       </td>
 
+
       <td>
+
         <span
-          class="estado ${taxista.activo
-        ? "estado-activo"
-        : "estado-inactivo"
-      }"
+          class="estado ${
+            taxista.activo
+
+              ? "estado-activo"
+
+              : "estado-inactivo"
+          }"
         >
-          ${taxista.activo
-        ? "ACTIVO"
-        : "INACTIVO"
-      }
+
+          ${
+            taxista.activo
+
+              ? "ACTIVO"
+
+              : "INACTIVO"
+          }
+
         </span>
+
       </td>
 
+
       <td>
+
         <div class="acciones">
 
           <button
             type="button"
             class="btn btn-editar editar-taxista"
-            data-id="${taxista.id
-      }"
+            data-id="${taxista.id}"
           >
             Editar
           </button>
 
+
           <button
             type="button"
-            class="btn ${taxista.activo
-        ? "btn-desactivar"
-        : "btn-activar"
-      } cambiar-estado-taxista"
-            data-id="${taxista.id
-      }"
+            class="btn ${
+              taxista.activo
+
+                ? "btn-desactivar"
+
+                : "btn-activar"
+            } cambiar-estado-taxista"
+
+            data-id="${taxista.id}"
           >
-            ${taxista.activo
-        ? "Desactivar"
-        : "Activar"
-      }
+
+            ${
+              taxista.activo
+
+                ? "Desactivar"
+
+                : "Activar"
+            }
+
           </button>
 
         </div>
+
       </td>
+
     `;
 
 
     tbody.appendChild(
       fila
     );
+
   }
 
 
@@ -707,9 +1065,13 @@ function pintarTaxistas() {
             abrirEditarTaxista(
               id
             );
+
           }
+
         );
+
       }
+
     );
 
 
@@ -733,10 +1095,15 @@ function pintarTaxistas() {
             cambiarEstadoTaxista(
               id
             );
+
           }
+
         );
+
       }
+
     );
+
 }
 
 
@@ -751,6 +1118,7 @@ const modalNuevoTaxista =
     "modalNuevoTaxista"
   );
 
+
 const formNuevoTaxista =
   document.getElementById(
     "formNuevoTaxista"
@@ -758,18 +1126,23 @@ const formNuevoTaxista =
 
 
 function abrirNuevoTaxista() {
+
   formNuevoTaxista.reset();
+
 
   modalNuevoTaxista.classList.add(
     "visible"
   );
+
 }
 
 
 function cerrarNuevoTaxista() {
+
   modalNuevoTaxista.classList.remove(
     "visible"
   );
+
 }
 
 
@@ -797,6 +1170,7 @@ formNuevoTaxista.addEventListener(
 
 
     const datos = {
+
       codigo:
         document
           .getElementById(
@@ -804,6 +1178,7 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       nombre:
         document
@@ -813,6 +1188,7 @@ formNuevoTaxista.addEventListener(
           .value
           .trim(),
 
+
       placa:
         document
           .getElementById(
@@ -820,6 +1196,7 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       vehiculo:
         document
@@ -829,6 +1206,7 @@ formNuevoTaxista.addEventListener(
           .value
           .trim(),
 
+
       colorVehiculo:
         document
           .getElementById(
@@ -836,6 +1214,7 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       cooperativa:
         document
@@ -845,6 +1224,7 @@ formNuevoTaxista.addEventListener(
           .value
           .trim(),
 
+
       telefono:
         document
           .getElementById(
@@ -852,6 +1232,7 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       titularPichincha:
         document
@@ -861,6 +1242,7 @@ formNuevoTaxista.addEventListener(
           .value
           .trim(),
 
+
       cuentaPichincha:
         document
           .getElementById(
@@ -868,6 +1250,7 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       titularGuayaquil:
         document
@@ -877,6 +1260,7 @@ formNuevoTaxista.addEventListener(
           .value
           .trim(),
 
+
       cuentaGuayaquil:
         document
           .getElementById(
@@ -884,27 +1268,36 @@ formNuevoTaxista.addEventListener(
           )
           .value
           .trim(),
+
     };
 
 
     try {
+
       const response =
         await fetch(
           "/api/taxistas",
           {
+
             method:
               "POST",
 
+
             headers: {
+
               "Content-Type":
                 "application/json",
+
             },
+
 
             body:
               JSON.stringify(
                 datos
               ),
+
           }
+
         );
 
 
@@ -916,10 +1309,12 @@ formNuevoTaxista.addEventListener(
         !response.ok ||
         !data.success
       ) {
+
         throw new Error(
           data.message ||
           "No se pudo registrar el taxista."
         );
+
       }
 
 
@@ -933,6 +1328,7 @@ formNuevoTaxista.addEventListener(
 
       await cargarTaxistas();
 
+
     } catch (error) {
 
       mostrarMensaje(
@@ -940,8 +1336,11 @@ formNuevoTaxista.addEventListener(
         "No se pudo registrar el taxista.",
         "error"
       );
+
     }
+
   }
+
 );
 
 
@@ -956,6 +1355,7 @@ const modalEditarTaxista =
     "modalEditarTaxista"
   );
 
+
 const formEditarTaxista =
   document.getElementById(
     "formEditarTaxista"
@@ -965,6 +1365,7 @@ const formEditarTaxista =
 function abrirEditarTaxista(
   id
 ) {
+
   const taxista =
     taxistasActuales.find(
       (item) =>
@@ -973,97 +1374,137 @@ function abrirEditarTaxista(
 
 
   if (!taxista) {
+
     mostrarMensaje(
       "No se encontró el taxista.",
       "error"
     );
 
     return;
+
   }
 
 
-  document.getElementById(
-    "editarId"
-  ).value =
+  document
+    .getElementById(
+      "editarId"
+    )
+    .value =
     taxista.id;
 
 
-  document.getElementById(
-    "editarCodigo"
-  ).value =
-    taxista.codigo || "";
+  document
+    .getElementById(
+      "editarCodigo"
+    )
+    .value =
+    taxista.codigo ||
+    "";
 
 
-  document.getElementById(
-    "editarNombre"
-  ).value =
-    taxista.nombre || "";
+  document
+    .getElementById(
+      "editarNombre"
+    )
+    .value =
+    taxista.nombre ||
+    "";
 
 
-  document.getElementById(
-    "editarPlaca"
-  ).value =
-    taxista.placa || "";
+  document
+    .getElementById(
+      "editarPlaca"
+    )
+    .value =
+    taxista.placa ||
+    "";
 
 
-  document.getElementById(
-    "editarVehiculo"
-  ).value =
-    taxista.vehiculo || "";
+  document
+    .getElementById(
+      "editarVehiculo"
+    )
+    .value =
+    taxista.vehiculo ||
+    "";
 
 
-  document.getElementById(
-    "editarColorVehiculo"
-  ).value =
-    taxista.colorVehiculo || "";
+  document
+    .getElementById(
+      "editarColorVehiculo"
+    )
+    .value =
+    taxista.colorVehiculo ||
+    "";
 
 
-  document.getElementById(
-    "editarCooperativa"
-  ).value =
-    taxista.cooperativa || "";
+  document
+    .getElementById(
+      "editarCooperativa"
+    )
+    .value =
+    taxista.cooperativa ||
+    "";
 
 
-  document.getElementById(
-    "editarTelefono"
-  ).value =
-    taxista.telefono || "";
+  document
+    .getElementById(
+      "editarTelefono"
+    )
+    .value =
+    taxista.telefono ||
+    "";
 
 
-  document.getElementById(
-    "editarTitularPichincha"
-  ).value =
-    taxista.titularPichincha || "";
+  document
+    .getElementById(
+      "editarTitularPichincha"
+    )
+    .value =
+    taxista.titularPichincha ||
+    "";
 
 
-  document.getElementById(
-    "editarCuentaPichincha"
-  ).value =
-    taxista.cuentaPichincha || "";
+  document
+    .getElementById(
+      "editarCuentaPichincha"
+    )
+    .value =
+    taxista.cuentaPichincha ||
+    "";
 
 
-  document.getElementById(
-    "editarTitularGuayaquil"
-  ).value =
-    taxista.titularGuayaquil || "";
+  document
+    .getElementById(
+      "editarTitularGuayaquil"
+    )
+    .value =
+    taxista.titularGuayaquil ||
+    "";
 
 
-  document.getElementById(
-    "editarCuentaGuayaquil"
-  ).value =
-    taxista.cuentaGuayaquil || "";
+  document
+    .getElementById(
+      "editarCuentaGuayaquil"
+    )
+    .value =
+    taxista.cuentaGuayaquil ||
+    "";
 
 
   modalEditarTaxista.classList.add(
     "visible"
   );
+
 }
 
 
 function cerrarEditarTaxista() {
+
   modalEditarTaxista.classList.remove(
     "visible"
   );
+
 }
 
 
@@ -1095,6 +1536,7 @@ formEditarTaxista.addEventListener(
 
 
     const datos = {
+
       codigo:
         document
           .getElementById(
@@ -1102,6 +1544,7 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       nombre:
         document
@@ -1111,6 +1554,7 @@ formEditarTaxista.addEventListener(
           .value
           .trim(),
 
+
       placa:
         document
           .getElementById(
@@ -1118,6 +1562,7 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       vehiculo:
         document
@@ -1127,6 +1572,7 @@ formEditarTaxista.addEventListener(
           .value
           .trim(),
 
+
       colorVehiculo:
         document
           .getElementById(
@@ -1134,6 +1580,7 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       cooperativa:
         document
@@ -1143,6 +1590,7 @@ formEditarTaxista.addEventListener(
           .value
           .trim(),
 
+
       telefono:
         document
           .getElementById(
@@ -1150,6 +1598,7 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       titularPichincha:
         document
@@ -1159,6 +1608,7 @@ formEditarTaxista.addEventListener(
           .value
           .trim(),
 
+
       cuentaPichincha:
         document
           .getElementById(
@@ -1166,6 +1616,7 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
 
       titularGuayaquil:
         document
@@ -1175,6 +1626,7 @@ formEditarTaxista.addEventListener(
           .value
           .trim(),
 
+
       cuentaGuayaquil:
         document
           .getElementById(
@@ -1182,27 +1634,36 @@ formEditarTaxista.addEventListener(
           )
           .value
           .trim(),
+
     };
 
 
     try {
+
       const response =
         await fetch(
           `/api/taxistas/${id}`,
           {
+
             method:
               "PATCH",
 
+
             headers: {
+
               "Content-Type":
                 "application/json",
+
             },
+
 
             body:
               JSON.stringify(
                 datos
               ),
+
           }
+
         );
 
 
@@ -1214,10 +1675,12 @@ formEditarTaxista.addEventListener(
         !response.ok ||
         !data.success
       ) {
+
         throw new Error(
           data.message ||
           "No se pudo actualizar el taxista."
         );
+
       }
 
 
@@ -1231,6 +1694,7 @@ formEditarTaxista.addEventListener(
 
       await cargarTaxistas();
 
+
     } catch (error) {
 
       mostrarMensaje(
@@ -1238,8 +1702,11 @@ formEditarTaxista.addEventListener(
         "No se pudo actualizar el taxista.",
         "error"
       );
+
     }
+
   }
+
 );
 
 
@@ -1252,6 +1719,7 @@ formEditarTaxista.addEventListener(
 async function cambiarEstadoTaxista(
   id
 ) {
+
   const taxista =
     taxistasActuales.find(
       (item) =>
@@ -1265,24 +1733,34 @@ async function cambiarEstadoTaxista(
 
 
   try {
+
     const response =
       await fetch(
         `/api/taxistas/${id}`,
         {
+
           method:
             "PATCH",
 
+
           headers: {
+
             "Content-Type":
               "application/json",
+
           },
+
 
           body:
             JSON.stringify({
+
               activo:
                 !taxista.activo,
+
             }),
+
         }
+
       );
 
 
@@ -1294,21 +1772,28 @@ async function cambiarEstadoTaxista(
       !response.ok ||
       !data.success
     ) {
+
       throw new Error(
         data.message ||
         "No se pudo cambiar el estado."
       );
+
     }
 
 
     mostrarMensaje(
+
       data.taxista.activo
+
         ? "Taxista activado."
+
         : "Taxista desactivado."
+
     );
 
 
     await cargarTaxistas();
+
 
   } catch (error) {
 
@@ -1317,7 +1802,9 @@ async function cambiarEstadoTaxista(
       "No se pudo cambiar el estado.",
       "error"
     );
+
   }
+
 }
 
 
@@ -1335,9 +1822,13 @@ modalNuevoTaxista.addEventListener(
       event.target ===
       modalNuevoTaxista
     ) {
+
       cerrarNuevoTaxista();
+
     }
+
   }
+
 );
 
 
@@ -1349,9 +1840,13 @@ modalEditarTaxista.addEventListener(
       event.target ===
       modalEditarTaxista
     ) {
+
       cerrarEditarTaxista();
+
     }
+
   }
+
 );
 
 
@@ -1363,6 +1858,7 @@ modalEditarTaxista.addEventListener(
 
 cargarCarreras();
 
+
 cargarTaxistas();
 
 
@@ -1371,6 +1867,13 @@ setInterval(
   10000
 );
 
+
+/*
+  ========================================
+  CANCELAR CARRERA DESDE ADMIN
+  ========================================
+*/
+
 async function cancelarCarreraAdmin(
   carreraId,
   numeroCarrera
@@ -1378,9 +1881,13 @@ async function cancelarCarreraAdmin(
 
   const confirmar =
     window.confirm(
+
       `¿Cancelar la carrera #${numeroCarrera}?\n\n` +
+
       "El cliente quedará libre para solicitar otra carrera."
+
     );
+
 
   if (!confirmar) {
     return;
@@ -1391,10 +1898,14 @@ async function cancelarCarreraAdmin(
 
     const response =
       await fetch(
+
         `/api/carreras/admin/${carreraId}/cancelar`,
+
         {
-          method: "POST"
+          method:
+            "POST",
         }
+
       );
 
 
@@ -1405,18 +1916,26 @@ async function cancelarCarreraAdmin(
     if (!response.ok) {
 
       mostrarMensaje(
+
         data.message ||
         "No se pudo cancelar la carrera.",
+
         "error"
+
       );
 
+
       return;
+
     }
 
 
     mostrarMensaje(
+
       `Carrera #${numeroCarrera} cancelada correctamente.`,
+
       "ok"
+
     );
 
 
@@ -1426,18 +1945,30 @@ async function cancelarCarreraAdmin(
   } catch (error) {
 
     console.error(
+
       "Error cancelando carrera:",
+
       error
+
     );
 
 
     mostrarMensaje(
+
       "No se pudo conectar con el servidor.",
+
       "error"
+
     );
 
   }
+
 }
+
+
+/*
+  Listener único para botones de cancelar.
+*/
 
 document.addEventListener(
   "click",
@@ -1459,11 +1990,14 @@ document.addEventListener(
         boton.dataset.id
       );
 
+
     const numeroCarrera =
       boton.dataset.numero;
 
 
-    boton.disabled = true;
+    boton.disabled =
+      true;
+
 
     boton.textContent =
       "Cancelando...";
@@ -1475,4 +2009,5 @@ document.addEventListener(
     );
 
   }
+
 );

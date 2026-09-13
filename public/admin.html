@@ -206,6 +206,56 @@
             color: var(--verde);
         }
 
+
+        .resumen-cupon {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 14px;
+            border: 1px solid #e7d9ff;
+            border-radius: 12px;
+            background: #f7f0ff;
+            color: #4a207f;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .resumen-cupon strong {
+            color: #2e1154;
+        }
+
+        .cupon-alerta {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: #fff0d9;
+            color: #8a4b00;
+            border: 1px solid #ffc978;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .btn-cupon {
+            display: inline-block;
+            text-decoration: none;
+            background: #ffb000;
+            color: #2f2100;
+            font-weight: bold;
+            border: none;
+            padding: 8px 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-cupon:hover {
+            background: #ffc13c;
+        }
+
         .vacio {
             color: #999;
         }
@@ -395,6 +445,11 @@
                 <button id="btnActualizarCarreras" class="btn-principal" type="button">
                     🔄 Actualizar tabla
                 </button>
+            </div>
+
+
+            <div id="resumenCupon" class="resumen-cupon">
+                🎟️ RAPICUPON · cargando contador...
             </div>
 
             <div class="tarjeta">
