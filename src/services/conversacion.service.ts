@@ -1175,7 +1175,6 @@ async function procesarOpinionRapi(
       Así si Kapso reintenta el webhook,
       queda aplicado el límite.
     */
-
     await prisma.cliente.update({
         where: {
             id:
@@ -1193,13 +1192,33 @@ async function procesarOpinionRapi(
 
 
     /*
-      Chiste + CTA van en UN SOLO mensaje.
+      ========================================
+      MENSAJE 1
+      FRASE DE RAPI
+      ========================================
     */
-
     await enviarTextoWhatsApp(
         telefono,
 
-        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”\n\n¿Te gustó lo que Rapi opina de ti? 😏😂\n\n📲 Comparte tu captura en redes y etiqueta a @apprapitaxi.\n\n🎟️ Puedes ganar $0,50 de descuento y pagar solo $1 en tu próxima carrera. 💜🚕`
+        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”`
+    );
+
+
+    /*
+      ========================================
+      MENSAJE 2
+      INSTRUCCIONES DE CAMPAÑA
+      ========================================
+    */
+    await enviarTextoWhatsApp(
+        telefono,
+
+        `¿QUÉ DIJO RAPI DE TI? 👀😂\n\n` +
+        `Sigue los pasos y tu próxima carrera costará solo $1:\n\n` +
+        `1. 💜 Sigue a @apprapitaxi en Instagram.\n` +
+        `2. 📸 Sube el screenshot de la respuesta de Rapi a tu historia y menciónanos.\n\n` +
+        `🎟️ ¡Listo! Te enviamos tu cupón por DM.\n\n` +
+        `Aplican términos y condiciones.`
     );
 }
 
