@@ -207,61 +207,85 @@ function esCancelar(
 */
 
 const CODIGOS_CUPON = [
+    /*
+      ========================================
+      CÓDIGOS INTERNOS DE PRUEBA
+      ========================================
+    */
+
     "TESTRAPI1",
     "TESTRAPI2",
     "TESTRAPI3",
     "TESTRAPI4",
     "TESTRAPI5",
-    "RAPI3FEE",
-    "RAPIYEDK",
-    "RAPIPFHA",
-    "RAPIHMK3",
-    "RAPI3EE9",
-    "RAPI95HU",
-    "RAPIAHNP",
-    "RAPI8LP7",
-    "RAPIWAGK",
-    "RAPI22YC",
-    "RAPIV8CU",
-    "RAPI75MJ",
-    "RAPILTDQ",
-    "RAPIMDGP",
-    "RAPIB226",
-    "RAPIGVX9",
-    "RAPIH848",
-    "RAPIM4R6",
-    "RAPI9UWG",
-    "RAPI7MRB",
-    "RAPIHYKF",
-    "RAPIAY82",
-    "RAPINAPF",
-    "RAPIY3R4",
-    "RAPIPMHV",
-    "RAPI9JFE",
-    "RAPIB8CS",
-    "RAPI592V",
-    "RAPIACYW",
-    "RAPIRFL2",
-    "RAPIBQ95",
-    "RAPIABRC",
-    "RAPIHNU3",
-    "RAPI5S36",
-    "RAPIRP3L",
-    "RAPIBL3Q",
-    "RAPIPHKU",
-    "RAPIUHM8",
-    "RAPIH3SH",
-    "RAPIKXJ4",
-    "RAPIAK8J",
-    "RAPI2CFE",
-    "RAPID5K3",
-    "RAPIA6LP",
-    "RAPILURR",
-    "RAPIRQBU",
-    "RAPI5RV4",
-    "RAPIHDF3",
-    "RAPICKDN",
-    "RAPIA7MD"
+
+
+    /*
+      ========================================
+      50 CÓDIGOS REALES DE CAMPAÑA
+      ========================================
+
+      Formato:
+      RAPI + 4 dígitos
+
+      Ejemplo:
+      RAPI9835
+    */
+
+    "RAPI9835",
+    "RAPI2741",
+    "RAPI6183",
+    "RAPI4527",
+    "RAPI7319",
+    "RAPI8054",
+    "RAPI1962",
+    "RAPI3478",
+    "RAPI5291",
+    "RAPI8642",
+
+    "RAPI2157",
+    "RAPI6934",
+    "RAPI4785",
+    "RAPI9216",
+    "RAPI3548",
+    "RAPI7861",
+    "RAPI1439",
+    "RAPI5672",
+    "RAPI8325",
+    "RAPI4096",
+
+    "RAPI6753",
+    "RAPI2814",
+    "RAPI9587",
+    "RAPI3246",
+    "RAPI7108",
+    "RAPI5463",
+    "RAPI1895",
+    "RAPI6372",
+    "RAPI8421",
+    "RAPI3957",
+
+    "RAPI7246",
+    "RAPI5103",
+    "RAPI2689",
+    "RAPI9364",
+    "RAPI4712",
+    "RAPI6538",
+    "RAPI1074",
+    "RAPI8259",
+    "RAPI3425",
+    "RAPI7986",
+
+    "RAPI2148",
+    "RAPI5693",
+    "RAPI9037",
+    "RAPI4861",
+    "RAPI7524",
+    "RAPI1386",
+    "RAPI6247",
+    "RAPI8753",
+    "RAPI3019",
+    "RAPI9472"
 ] as const;
 
 const CODIGOS_CUPON_SET =
