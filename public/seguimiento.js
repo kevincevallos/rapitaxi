@@ -113,11 +113,9 @@ const map =
 */
 
 L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+  "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png?key=cb1_3gxd_1_a292bfb7894ca1d819a42be0",
 
   {
-    subdomains:
-      "abcd",
 
     maxZoom:
       20,

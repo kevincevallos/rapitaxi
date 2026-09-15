@@ -982,7 +982,7 @@ export async function finalizarCarrerasVencidas() {
                                 `rapi_opinion_${carrera.id}`,
 
                             titulo:
-                                "Ok dime jajaja 😂",
+                                "Ok dime jajaja",
                         },
                     ]
                 );
@@ -2322,7 +2322,7 @@ export async function finalizarCarreraTaxista(
                         `rapi_opinion_${carrera.id}`,
 
                     titulo:
-                        "Ok dime jajaja 😂",
+                        "Ok dime jajaja",
                 },
             ]
         );
