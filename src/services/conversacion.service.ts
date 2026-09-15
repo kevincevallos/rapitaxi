@@ -16,6 +16,7 @@ import {
     enviarBotonesWhatsApp,
     enviarTextoWhatsApp,
     solicitarUbicacionWhatsApp,
+    enviarStickerWhatsApp,
 } from "./whatsapp.service";
 
 
@@ -670,102 +671,27 @@ const OPINIONES_RAPI = [
     {
         id: 1,
         texto:
-            "Tú dices «ya voy» y todavía estás buscando las llaves. 😂",
+            "Tú siempre pides el taxi y recién ahí te acuerdas de que todavía no estas listo 😂😂",
     },
     {
         id: 2,
         texto:
-            "Tienes cara de decir «cinco minutos más» y despertar una hora después. 😂",
+            "Tú siempre dices que ya sales y el taxi ya lleva rato esperándote afuera 😂😂",
     },
     {
         id: 3,
         texto:
-            "Tú no llegas tarde... haces una entrada especial. 😎😂",
+            "Tú siempre ves que el taxi ya llegó y justo ahí empiezas a despedirte 😂😂",
     },
     {
         id: 4,
         texto:
-            "Tu batería puede estar en 2%, pero tú sigues diciendo «aguanta un poquito más». 😂",
+            "Tú siempre calculas salir con tiempo y terminas apurado igual 😂😂",
     },
     {
         id: 5,
         texto:
-            "Eres de los que abre WhatsApp para responder un mensaje y termina viendo estados media hora. 😂",
-    },
-    {
-        id: 6,
-        texto:
-            "Tú dices «hoy sí me duermo temprano» como si alguien todavía te creyera. 😂",
-    },
-    {
-        id: 7,
-        texto:
-            "Si posponer las cosas fuera deporte, ya tendrías medalla. 🥇😂",
-    },
-    {
-        id: 8,
-        texto:
-            "Seguro desbloqueas el teléfono y a los tres segundos olvidas para qué lo hiciste. 😂",
-    },
-    {
-        id: 9,
-        texto:
-            "Tú no tienes hambre... solamente necesitas revisar qué hay en la cocina cada veinte minutos. 😂",
-    },
-    {
-        id: 10,
-        texto:
-            "Eres de los que dice «no voy a gastar» justo antes de comprar algo que no necesitaba. 😂",
-    },
-    {
-        id: 11,
-        texto:
-            "Cuando dices «rapidito», todos saben que eso puede durar bastante. 😂",
-    },
-    {
-        id: 12,
-        texto:
-            "Tú empiezas a ordenar una cosa y terminas encontrando recuerdos de hace cinco años. 😂",
-    },
-    {
-        id: 13,
-        texto:
-            "Tienes un talento especial para buscar algo que estaba justo frente a ti. 😂",
-    },
-    {
-        id: 14,
-        texto:
-            "Tú dices «una última vez» con demasiada facilidad. 😂",
-    },
-    {
-        id: 15,
-        texto:
-            "Si te mandan un audio de cuatro minutos, primero necesitas prepararte emocionalmente. 😂",
-    },
-    {
-        id: 16,
-        texto:
-            "Tú también practicas conversaciones completas en tu cabeza que nunca suceden. 😂",
-    },
-    {
-        id: 17,
-        texto:
-            "Eres de los que revisa el refrigerador otra vez esperando que aparezca comida nueva. 😂",
-    },
-    {
-        id: 18,
-        texto:
-            "Puedes tardar veinte minutos eligiendo qué ver y luego decir que ya no tienes tiempo. 😂",
-    },
-    {
-        id: 19,
-        texto:
-            "Tú dices «mañana comienzo» con una confianza impresionante. 😂",
-    },
-    {
-        id: 20,
-        texto:
-            "Si perder el cargador fuera profesión, ya tendrías experiencia laboral. 😂",
+            "Tú siempre te acuerdas del baño justo cuando el taxi ya está afuera 😂😂",
     },
 ];
 
@@ -1200,9 +1126,17 @@ async function procesarOpinionRapi(
     await enviarTextoWhatsApp(
         telefono,
 
-        `🤣 *Rapi opina de ti:*\n\n“${opinion.texto}”`
+        `${opinion.texto}😂😂`
     );
 
+    /*
+      ========================================
+      STICKER
+      ========================================
+    */
+    await enviarStickerWhatsApp(
+        telefono
+    );
 
     /*
       ========================================
