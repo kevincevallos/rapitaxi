@@ -55,6 +55,7 @@ export type ConversacionWhatsAppMinAggregateOutputType = {
   fechaCreacion: Date | null
   fechaActualizacion: Date | null
   cuponPendiente: string | null
+  atencionManual: boolean | null
 }
 
 export type ConversacionWhatsAppMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type ConversacionWhatsAppMaxAggregateOutputType = {
   fechaCreacion: Date | null
   fechaActualizacion: Date | null
   cuponPendiente: string | null
+  atencionManual: boolean | null
 }
 
 export type ConversacionWhatsAppCountAggregateOutputType = {
@@ -85,6 +87,7 @@ export type ConversacionWhatsAppCountAggregateOutputType = {
   fechaCreacion: number
   fechaActualizacion: number
   cuponPendiente: number
+  atencionManual: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type ConversacionWhatsAppMinAggregateInputType = {
   fechaCreacion?: true
   fechaActualizacion?: true
   cuponPendiente?: true
+  atencionManual?: true
 }
 
 export type ConversacionWhatsAppMaxAggregateInputType = {
@@ -133,6 +137,7 @@ export type ConversacionWhatsAppMaxAggregateInputType = {
   fechaCreacion?: true
   fechaActualizacion?: true
   cuponPendiente?: true
+  atencionManual?: true
 }
 
 export type ConversacionWhatsAppCountAggregateInputType = {
@@ -148,6 +153,7 @@ export type ConversacionWhatsAppCountAggregateInputType = {
   fechaCreacion?: true
   fechaActualizacion?: true
   cuponPendiente?: true
+  atencionManual?: true
   _all?: true
 }
 
@@ -250,6 +256,7 @@ export type ConversacionWhatsAppGroupByOutputType = {
   fechaCreacion: Date
   fechaActualizacion: Date
   cuponPendiente: string | null
+  atencionManual: boolean
   _count: ConversacionWhatsAppCountAggregateOutputType | null
   _avg: ConversacionWhatsAppAvgAggregateOutputType | null
   _sum: ConversacionWhatsAppSumAggregateOutputType | null
@@ -288,6 +295,7 @@ export type ConversacionWhatsAppWhereInput = {
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   cuponPendiente?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  atencionManual?: Prisma.BoolFilter<"ConversacionWhatsApp"> | boolean
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
 }
 
@@ -304,6 +312,7 @@ export type ConversacionWhatsAppOrderByWithRelationInput = {
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   cuponPendiente?: Prisma.SortOrderInput | Prisma.SortOrder
+  atencionManual?: Prisma.SortOrder
   cliente?: Prisma.ClienteOrderByWithRelationInput
 }
 
@@ -323,6 +332,7 @@ export type ConversacionWhatsAppWhereUniqueInput = Prisma.AtLeast<{
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   cuponPendiente?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  atencionManual?: Prisma.BoolFilter<"ConversacionWhatsApp"> | boolean
   cliente?: Prisma.XOR<Prisma.ClienteNullableScalarRelationFilter, Prisma.ClienteWhereInput> | null
 }, "id" | "telefono" | "clienteId">
 
@@ -339,6 +349,7 @@ export type ConversacionWhatsAppOrderByWithAggregationInput = {
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   cuponPendiente?: Prisma.SortOrderInput | Prisma.SortOrder
+  atencionManual?: Prisma.SortOrder
   _count?: Prisma.ConversacionWhatsAppCountOrderByAggregateInput
   _avg?: Prisma.ConversacionWhatsAppAvgOrderByAggregateInput
   _max?: Prisma.ConversacionWhatsAppMaxOrderByAggregateInput
@@ -362,6 +373,7 @@ export type ConversacionWhatsAppScalarWhereWithAggregatesInput = {
   fechaCreacion?: Prisma.DateTimeWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string
   cuponPendiente?: Prisma.StringNullableWithAggregatesFilter<"ConversacionWhatsApp"> | string | null
+  atencionManual?: Prisma.BoolWithAggregatesFilter<"ConversacionWhatsApp"> | boolean
 }
 
 export type ConversacionWhatsAppCreateInput = {
@@ -375,6 +387,7 @@ export type ConversacionWhatsAppCreateInput = {
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
   cuponPendiente?: string | null
+  atencionManual?: boolean
   cliente?: Prisma.ClienteCreateNestedOneWithoutConversacionInput
 }
 
@@ -391,6 +404,7 @@ export type ConversacionWhatsAppUncheckedCreateInput = {
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
   cuponPendiente?: string | null
+  atencionManual?: boolean
 }
 
 export type ConversacionWhatsAppUpdateInput = {
@@ -404,6 +418,7 @@ export type ConversacionWhatsAppUpdateInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
   cliente?: Prisma.ClienteUpdateOneWithoutConversacionNestedInput
 }
 
@@ -420,6 +435,7 @@ export type ConversacionWhatsAppUncheckedUpdateInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ConversacionWhatsAppCreateManyInput = {
@@ -435,6 +451,7 @@ export type ConversacionWhatsAppCreateManyInput = {
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
   cuponPendiente?: string | null
+  atencionManual?: boolean
 }
 
 export type ConversacionWhatsAppUpdateManyMutationInput = {
@@ -448,6 +465,7 @@ export type ConversacionWhatsAppUpdateManyMutationInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ConversacionWhatsAppUncheckedUpdateManyInput = {
@@ -463,6 +481,7 @@ export type ConversacionWhatsAppUncheckedUpdateManyInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ConversacionWhatsAppNullableScalarRelationFilter = {
@@ -483,6 +502,7 @@ export type ConversacionWhatsAppCountOrderByAggregateInput = {
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   cuponPendiente?: Prisma.SortOrder
+  atencionManual?: Prisma.SortOrder
 }
 
 export type ConversacionWhatsAppAvgOrderByAggregateInput = {
@@ -506,6 +526,7 @@ export type ConversacionWhatsAppMaxOrderByAggregateInput = {
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   cuponPendiente?: Prisma.SortOrder
+  atencionManual?: Prisma.SortOrder
 }
 
 export type ConversacionWhatsAppMinOrderByAggregateInput = {
@@ -521,6 +542,7 @@ export type ConversacionWhatsAppMinOrderByAggregateInput = {
   fechaCreacion?: Prisma.SortOrder
   fechaActualizacion?: Prisma.SortOrder
   cuponPendiente?: Prisma.SortOrder
+  atencionManual?: Prisma.SortOrder
 }
 
 export type ConversacionWhatsAppSumOrderByAggregateInput = {
@@ -578,6 +600,7 @@ export type ConversacionWhatsAppCreateWithoutClienteInput = {
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
   cuponPendiente?: string | null
+  atencionManual?: boolean
 }
 
 export type ConversacionWhatsAppUncheckedCreateWithoutClienteInput = {
@@ -592,6 +615,7 @@ export type ConversacionWhatsAppUncheckedCreateWithoutClienteInput = {
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
   cuponPendiente?: string | null
+  atencionManual?: boolean
 }
 
 export type ConversacionWhatsAppCreateOrConnectWithoutClienteInput = {
@@ -621,6 +645,7 @@ export type ConversacionWhatsAppUpdateWithoutClienteInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ConversacionWhatsAppUncheckedUpdateWithoutClienteInput = {
@@ -635,6 +660,7 @@ export type ConversacionWhatsAppUncheckedUpdateWithoutClienteInput = {
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   cuponPendiente?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  atencionManual?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -652,6 +678,7 @@ export type ConversacionWhatsAppSelect<ExtArgs extends runtime.Types.Extensions.
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
   cuponPendiente?: boolean
+  atencionManual?: boolean
   cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
@@ -668,6 +695,7 @@ export type ConversacionWhatsAppSelectCreateManyAndReturn<ExtArgs extends runtim
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
   cuponPendiente?: boolean
+  atencionManual?: boolean
   cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
@@ -684,6 +712,7 @@ export type ConversacionWhatsAppSelectUpdateManyAndReturn<ExtArgs extends runtim
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
   cuponPendiente?: boolean
+  atencionManual?: boolean
   cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }, ExtArgs["result"]["conversacionWhatsApp"]>
 
@@ -700,9 +729,10 @@ export type ConversacionWhatsAppSelectScalar = {
   fechaCreacion?: boolean
   fechaActualizacion?: boolean
   cuponPendiente?: boolean
+  atencionManual?: boolean
 }
 
-export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "carreraId" | "clienteId" | "fechaCreacion" | "fechaActualizacion" | "cuponPendiente", ExtArgs["result"]["conversacionWhatsApp"]>
+export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "carreraId" | "clienteId" | "fechaCreacion" | "fechaActualizacion" | "cuponPendiente" | "atencionManual", ExtArgs["result"]["conversacionWhatsApp"]>
 export type ConversacionWhatsAppInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }
@@ -731,6 +761,7 @@ export type $ConversacionWhatsAppPayload<ExtArgs extends runtime.Types.Extension
     fechaCreacion: Date
     fechaActualizacion: Date
     cuponPendiente: string | null
+    atencionManual: boolean
   }, ExtArgs["result"]["conversacionWhatsApp"]>
   composites: {}
 }
@@ -1167,6 +1198,7 @@ export interface ConversacionWhatsAppFieldRefs {
   readonly fechaCreacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>
   readonly fechaActualizacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>
   readonly cuponPendiente: Prisma.FieldRef<"ConversacionWhatsApp", 'String'>
+  readonly atencionManual: Prisma.FieldRef<"ConversacionWhatsApp", 'Boolean'>
 }
     
 

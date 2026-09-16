@@ -57,7 +57,8 @@ export const ModelName = {
   DispositivoTaxista: 'DispositivoTaxista',
   ConversacionWhatsApp: 'ConversacionWhatsApp',
   SuscripcionWebPush: 'SuscripcionWebPush',
-  CuponUso: 'CuponUso'
+  CuponUso: 'CuponUso',
+  MensajeWhatsApp: 'MensajeWhatsApp'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -165,7 +166,8 @@ export const ConversacionWhatsAppScalarFieldEnum = {
   clienteId: 'clienteId',
   fechaCreacion: 'fechaCreacion',
   fechaActualizacion: 'fechaActualizacion',
-  cuponPendiente: 'cuponPendiente'
+  cuponPendiente: 'cuponPendiente',
+  atencionManual: 'atencionManual'
 } as const
 
 export type ConversacionWhatsAppScalarFieldEnum = (typeof ConversacionWhatsAppScalarFieldEnum)[keyof typeof ConversacionWhatsAppScalarFieldEnum]
@@ -198,6 +200,20 @@ export const CuponUsoScalarFieldEnum = {
 } as const
 
 export type CuponUsoScalarFieldEnum = (typeof CuponUsoScalarFieldEnum)[keyof typeof CuponUsoScalarFieldEnum]
+
+
+export const MensajeWhatsAppScalarFieldEnum = {
+  id: 'id',
+  telefono: 'telefono',
+  direccion: 'direccion',
+  tipo: 'tipo',
+  contenido: 'contenido',
+  messageId: 'messageId',
+  leido: 'leido',
+  fechaCreacion: 'fechaCreacion'
+} as const
+
+export type MensajeWhatsAppScalarFieldEnum = (typeof MensajeWhatsAppScalarFieldEnum)[keyof typeof MensajeWhatsAppScalarFieldEnum]
 
 
 export const SortOrder = {

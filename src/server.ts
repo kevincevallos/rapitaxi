@@ -9,7 +9,8 @@ import path from "path";
 import carreraRoutes from "./routes/carrera.routes";
 import taxistaRoutes from "./routes/taxista.routes";
 import whatsappRoutes from "./routes/whatsapp.routes";
-import webPushRoutes from "./routes/web-push.routes";   
+import webPushRoutes from "./routes/web-push.routes";
+import adminChatRoutes from "./routes/admin-chat.routes";
 
 import {
   finalizarCarrerasVencidas,
@@ -62,6 +63,11 @@ app.use(
 app.use(
   "/webhooks",
   whatsappRoutes
+);
+
+app.use(
+  "/api/admin/chats",
+  adminChatRoutes
 );
 
 

@@ -1,3 +1,8 @@
+import {
+    registrarMensajeWhatsApp,
+} from "./chat.service";
+
+
 const KAPSO_API_URL =
     "https://api.kapso.ai/meta/whatsapp/v24.0";
 
@@ -80,57 +85,133 @@ async function enviarMensajeKapso(
 }
 
 
+function obtenerMessageIdKapso(
+    data: any
+) {
+    const id =
+        data?.messages?.[0]?.id ||
+        data?.message?.id ||
+        data?.id ||
+        null;
+
+    return id
+        ? String(id)
+        : null;
+}
+
+
+async function guardarSalidaChat(
+    telefono: string,
+    tipo: string,
+    contenido: string,
+    data: any
+) {
+    try {
+        await registrarMensajeWhatsApp({
+            telefono,
+            direccion:
+                "SALIENTE",
+            tipo,
+            contenido,
+            messageId:
+                obtenerMessageIdKapso(
+                    data
+                ),
+            leido: true,
+        });
+
+    } catch (error) {
+        /*
+          El mensaje YA salió por Kapso.
+          Si falla el historial, no hacemos
+          fallar el flujo de WhatsApp.
+        */
+
+        console.error(
+            "Error guardando mensaje saliente:",
+            error
+        );
+    }
+}
+
+
 export async function enviarTextoWhatsApp(
     telefono: string,
     mensaje: string
 ) {
-    return enviarMensajeKapso({
-        messaging_product:
-            "whatsapp",
+    const data =
+        await enviarMensajeKapso({
+            messaging_product:
+                "whatsapp",
 
-        recipient_type:
-            "individual",
+            recipient_type:
+                "individual",
 
-        to:
-            telefono.replace(
-                /\D/g,
-                ""
-            ),
+            to:
+                telefono.replace(
+                    /\D/g,
+                    ""
+                ),
 
-        type:
-            "text",
+            type:
+                "text",
 
-        text: {
-            body: mensaje,
-        },
-    });
+            text: {
+                body: mensaje,
+            },
+        });
+
+
+    await guardarSalidaChat(
+        telefono,
+        "text",
+        mensaje,
+        data
+    );
+
+
+    return data;
 }
+
 
 export async function enviarStickerWhatsApp(
     telefono: string
 ) {
-    return enviarMensajeKapso({
-        messaging_product:
-            "whatsapp",
+    const data =
+        await enviarMensajeKapso({
+            messaging_product:
+                "whatsapp",
 
-        recipient_type:
-            "individual",
+            recipient_type:
+                "individual",
 
-        to:
-            telefono.replace(
-                /\D/g,
-                ""
-            ),
+            to:
+                telefono.replace(
+                    /\D/g,
+                    ""
+                ),
 
-        type:
-            "sticker",
+            type:
+                "sticker",
 
-        sticker: {
-            link:
-                "https://rapitaxi-production.up.railway.app/stickers/rapi_perrito.webp",
-        },
-    });
+            sticker: {
+                link:
+                    "https://rapitaxi-production.up.railway.app/stickers/rapi_perrito.webp",
+            },
+        });
+
+
+    await guardarSalidaChat(
+        telefono,
+        "sticker",
+        "🐶 Sticker enviado",
+        data
+    );
+
+
+    return data;
 }
+
 
 export async function solicitarUbicacionWhatsApp(
     telefono: string,
@@ -138,36 +219,48 @@ export async function solicitarUbicacionWhatsApp(
         string =
         "📍 Envíame tu ubicación actual para solicitar tu taxi."
 ) {
-    return enviarMensajeKapso({
-        messaging_product:
-            "whatsapp",
+    const data =
+        await enviarMensajeKapso({
+            messaging_product:
+                "whatsapp",
 
-        recipient_type:
-            "individual",
+            recipient_type:
+                "individual",
 
-        to:
-            telefono.replace(
-                /\D/g,
-                ""
-            ),
+            to:
+                telefono.replace(
+                    /\D/g,
+                    ""
+                ),
 
-        type:
-            "interactive",
-
-        interactive: {
             type:
-                "location_request_message",
+                "interactive",
 
-            body: {
-                text: mensaje,
-            },
+            interactive: {
+                type:
+                    "location_request_message",
 
-            action: {
-                name:
-                    "send_location",
+                body: {
+                    text: mensaje,
+                },
+
+                action: {
+                    name:
+                        "send_location",
+                },
             },
-        },
-    });
+        });
+
+
+    await guardarSalidaChat(
+        telefono,
+        "location_request",
+        mensaje,
+        data
+    );
+
+
+    return data;
 }
 
 
@@ -192,45 +285,57 @@ export async function enviarBotonesWhatsApp(
     }
 
 
-    return enviarMensajeKapso({
-        messaging_product:
-            "whatsapp",
+    const data =
+        await enviarMensajeKapso({
+            messaging_product:
+                "whatsapp",
 
-        recipient_type:
-            "individual",
+            recipient_type:
+                "individual",
 
-        to:
-            telefono.replace(
-                /\D/g,
-                ""
-            ),
+            to:
+                telefono.replace(
+                    /\D/g,
+                    ""
+                ),
 
-        type:
-            "interactive",
+            type:
+                "interactive",
 
-        interactive: {
-            type: "button",
+            interactive: {
+                type: "button",
 
-            body: {
-                text: mensaje,
+                body: {
+                    text: mensaje,
+                },
+
+                action: {
+                    buttons:
+                        botones.map(
+                            (boton) => ({
+                                type: "reply",
+
+                                reply: {
+                                    id:
+                                        boton.id,
+
+                                    title:
+                                        boton.titulo,
+                                },
+                            })
+                        ),
+                },
             },
+        });
 
-            action: {
-                buttons:
-                    botones.map(
-                        (boton) => ({
-                            type: "reply",
 
-                            reply: {
-                                id:
-                                    boton.id,
+    await guardarSalidaChat(
+        telefono,
+        "button",
+        mensaje,
+        data
+    );
 
-                                title:
-                                    boton.titulo,
-                            },
-                        })
-                    ),
-            },
-        },
-    });
+
+    return data;
 }

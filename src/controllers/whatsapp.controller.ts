@@ -7,6 +7,11 @@ import {
   procesarMensajeWhatsApp,
 } from "../services/conversacion.service";
 
+import {
+  estaEnAtencionManual,
+  registrarMensajeWhatsApp,
+} from "../services/chat.service";
+
 
 async function procesarPayload(
   payload: any
@@ -79,6 +84,120 @@ async function procesarPayload(
     message.profile
       ?.name ||
     undefined;
+
+
+  /*
+    Guardamos el mensaje entrante para
+    mostrarlo en Admin > Chats.
+
+    Si por cualquier motivo falla este
+    registro, NO detenemos el bot.
+  */
+
+  let contenidoChat =
+    texto
+      ? String(texto)
+      : undefined;
+
+  if (
+    !contenidoChat &&
+    botonId
+  ) {
+    contenidoChat =
+      String(
+        message.interactive
+          ?.button_reply
+          ?.title ||
+        botonId
+      );
+  }
+
+  if (
+    !contenidoChat &&
+    location
+  ) {
+    const detalle =
+      location.name ||
+      location.address ||
+      `${location.latitude}, ${location.longitude}`;
+
+    contenidoChat =
+      `📍 Ubicación compartida: ${detalle}`;
+  }
+
+  if (!contenidoChat) {
+    contenidoChat =
+      `[${String(
+        tipo ||
+        "mensaje"
+      )}]`;
+  }
+
+  try {
+    await registrarMensajeWhatsApp({
+      telefono:
+        String(telefono),
+
+      direccion:
+        "ENTRANTE",
+
+      tipo:
+        String(
+          tipo ||
+          "text"
+        ),
+
+      contenido:
+        contenidoChat,
+
+      messageId:
+        message.id
+          ? String(
+              message.id
+            )
+          : undefined,
+
+      leido:
+        false,
+    });
+
+  } catch (error) {
+    console.error(
+      "Error guardando mensaje entrante:",
+      error
+    );
+  }
+
+
+  /*
+    Si el operador activó ATENCIÓN MANUAL,
+    guardamos el mensaje pero NO dejamos
+    que el bot responda automáticamente.
+  */
+
+  try {
+    const manual =
+      await estaEnAtencionManual(
+        String(telefono)
+      );
+
+    if (manual) {
+      return;
+    }
+
+  } catch (error) {
+    /*
+      Ante un error de lectura del modo
+      manual, mantenemos el comportamiento
+      actual del bot para no bloquear
+      solicitudes de taxi.
+    */
+
+    console.error(
+      "Error verificando atención manual:",
+      error
+    );
+  }
 
 
   await procesarMensajeWhatsApp({

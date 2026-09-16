@@ -7,14 +7,19 @@ let taxistasActuales = [];
   ========================================
 */
 
-const tabCarreras =
+const menuAdmin =
   document.getElementById(
-    "tabCarreras"
+    "menuAdmin"
   );
 
-const tabTaxistas =
+const menuAdminBoton =
   document.getElementById(
-    "tabTaxistas"
+    "menuAdminBoton"
+  );
+
+const menuAdminTitulo =
+  document.getElementById(
+    "menuAdminTitulo"
   );
 
 const panelCarreras =
@@ -25,6 +30,11 @@ const panelCarreras =
 const panelTaxistas =
   document.getElementById(
     "panelTaxistas"
+  );
+
+const panelChats =
+  document.getElementById(
+    "panelChats"
   );
 
 const btnNuevoTaxista =
@@ -63,60 +73,126 @@ function mostrarMensaje(
 
 /*
   ========================================
-  TABS
+  MENÚ / SECCIONES
   ========================================
 */
 
-function mostrarCarreras() {
-  tabCarreras.classList.add(
-    "activo"
-  );
-
-  tabTaxistas.classList.remove(
-    "activo"
-  );
-
-  panelCarreras.classList.add(
+function mostrarSeccion(
+  seccion
+) {
+  panelCarreras.classList.remove(
     "activo"
   );
 
   panelTaxistas.classList.remove(
     "activo"
   );
+
+  panelChats.classList.remove(
+    "activo"
+  );
+
+
+  document
+    .querySelectorAll(
+      ".menu-opcion"
+    )
+    .forEach(
+      opcion => {
+        opcion.classList.toggle(
+          "activo",
+          opcion.dataset.seccion ===
+            seccion
+        );
+      }
+    );
+
+
+  btnNuevoTaxista.style.display =
+    seccion === "taxistas"
+      ? "inline-block"
+      : "none";
+
+
+  if (seccion === "taxistas") {
+    panelTaxistas.classList.add(
+      "activo"
+    );
+
+    menuAdminTitulo.textContent =
+      "👤 Taxistas";
+
+    cargarTaxistas();
+
+  } else if (
+    seccion === "chats"
+  ) {
+    panelChats.classList.add(
+      "activo"
+    );
+
+    menuAdminTitulo.textContent =
+      "💬 Chats";
+
+    cargarChats();
+
+  } else {
+    panelCarreras.classList.add(
+      "activo"
+    );
+
+    menuAdminTitulo.textContent =
+      "🚕 Carreras";
+  }
+
+
+  menuAdmin.classList.remove(
+    "abierto"
+  );
 }
 
 
-function mostrarTaxistas() {
-  tabTaxistas.classList.add(
-    "activo"
-  );
-
-  tabCarreras.classList.remove(
-    "activo"
-  );
-
-  panelTaxistas.classList.add(
-    "activo"
-  );
-
-  panelCarreras.classList.remove(
-    "activo"
-  );
-
-
-  cargarTaxistas();
-}
-
-
-tabCarreras.addEventListener(
+menuAdminBoton.addEventListener(
   "click",
-  mostrarCarreras
+  () => {
+    menuAdmin.classList.toggle(
+      "abierto"
+    );
+  }
 );
 
 
-tabTaxistas.addEventListener(
+document
+  .querySelectorAll(
+    ".menu-opcion"
+  )
+  .forEach(
+    opcion => {
+      opcion.addEventListener(
+        "click",
+        () => {
+          mostrarSeccion(
+            opcion.dataset.seccion
+          );
+        }
+      );
+    }
+  );
+
+
+document.addEventListener(
   "click",
-  mostrarTaxistas
+  event => {
+    if (
+      !menuAdmin.contains(
+        event.target
+      )
+    ) {
+      menuAdmin.classList.remove(
+        "abierto"
+      );
+    }
+  }
 );
 
 
@@ -1853,6 +1929,682 @@ modalEditarTaxista.addEventListener(
   }
 
 );
+
+
+
+/*
+  ========================================
+  CHATS WHATSAPP
+  ========================================
+*/
+
+let chatsActuales = [];
+let telefonoChatActivo = null;
+
+
+const listaChats =
+  document.getElementById(
+    "listaChats"
+  );
+
+const chatSinSeleccion =
+  document.getElementById(
+    "chatSinSeleccion"
+  );
+
+const chatSeleccionado =
+  document.getElementById(
+    "chatSeleccionado"
+  );
+
+const chatNombre =
+  document.getElementById(
+    "chatNombre"
+  );
+
+const chatTelefono =
+  document.getElementById(
+    "chatTelefono"
+  );
+
+const chatEstado =
+  document.getElementById(
+    "chatEstado"
+  );
+
+const chatMensajes =
+  document.getElementById(
+    "chatMensajes"
+  );
+
+const switchAtencionManual =
+  document.getElementById(
+    "switchAtencionManual"
+  );
+
+const formEnviarChat =
+  document.getElementById(
+    "formEnviarChat"
+  );
+
+const mensajeChat =
+  document.getElementById(
+    "mensajeChat"
+  );
+
+const btnEnviarChat =
+  document.getElementById(
+    "btnEnviarChat"
+  );
+
+
+function formatearHoraChat(
+  fecha
+) {
+  if (!fecha) {
+    return "";
+  }
+
+  const d =
+    new Date(fecha);
+
+  return d.toLocaleTimeString(
+    "es-EC",
+    {
+      hour:
+        "2-digit",
+      minute:
+        "2-digit",
+    }
+  );
+}
+
+
+function formatearFechaListaChat(
+  fecha
+) {
+  if (!fecha) {
+    return "";
+  }
+
+  const d =
+    new Date(fecha);
+
+  const hoy =
+    new Date();
+
+  const mismoDia =
+    d.getFullYear() ===
+      hoy.getFullYear() &&
+    d.getMonth() ===
+      hoy.getMonth() &&
+    d.getDate() ===
+      hoy.getDate();
+
+  if (mismoDia) {
+    return formatearHoraChat(
+      fecha
+    );
+  }
+
+  return d.toLocaleDateString(
+    "es-EC",
+    {
+      day: "2-digit",
+      month: "2-digit",
+    }
+  );
+}
+
+
+async function cargarChats(
+  conservarSeleccion = true
+) {
+  try {
+    const response =
+      await fetch(
+        "/api/admin/chats"
+      );
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "No se pudieron cargar los chats."
+      );
+    }
+
+
+    chatsActuales =
+      Array.isArray(
+        data.chats
+      )
+        ? data.chats
+        : [];
+
+
+    pintarListaChats();
+
+
+    if (
+      conservarSeleccion &&
+      telefonoChatActivo
+    ) {
+      const sigueExistiendo =
+        chatsActuales.some(
+          chat =>
+            chat.telefono ===
+              telefonoChatActivo
+        );
+
+      if (sigueExistiendo) {
+        await abrirChat(
+          telefonoChatActivo,
+          false
+        );
+      }
+    }
+
+  } catch (error) {
+    console.error(
+      "Error cargando chats:",
+      error
+    );
+
+    listaChats.innerHTML = `
+      <div class="chat-vacio">
+        No se pudieron cargar las conversaciones.
+      </div>
+    `;
+  }
+}
+
+
+function pintarListaChats() {
+  listaChats.innerHTML =
+    "";
+
+
+  if (
+    chatsActuales.length === 0
+  ) {
+    listaChats.innerHTML = `
+      <div class="chat-vacio">
+        Todavía no hay mensajes guardados.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  for (
+    const chat
+    of chatsActuales
+  ) {
+    const boton =
+      document.createElement(
+        "button"
+      );
+
+    boton.type =
+      "button";
+
+    boton.className =
+      "chat-item" +
+      (
+        chat.telefono ===
+          telefonoChatActivo
+          ? " activo"
+          : ""
+      );
+
+
+    const badge =
+      Number(chat.noLeidos) > 0
+        ? `
+          <span class="chat-no-leidos">
+            ${escaparHtml(
+              chat.noLeidos
+            )}
+          </span>
+        `
+        : "";
+
+
+    boton.innerHTML = `
+      <div class="chat-item-superior">
+        <span class="chat-item-nombre">
+          ${escaparHtml(
+            chat.nombre ||
+            chat.telefono
+          )}
+        </span>
+
+        <span class="chat-item-fecha">
+          ${escaparHtml(
+            formatearFechaListaChat(
+              chat.ultimaFecha
+            )
+          )}
+        </span>
+      </div>
+
+      <div class="chat-item-inferior">
+        <span class="chat-item-preview">
+          ${chat.atencionManual
+            ? "👤 "
+            : "🤖 "
+          }${escaparHtml(
+            chat.ultimoMensaje ||
+            ""
+          )}
+        </span>
+
+        ${badge}
+      </div>
+    `;
+
+
+    boton.addEventListener(
+      "click",
+      () => {
+        abrirChat(
+          chat.telefono
+        );
+      }
+    );
+
+
+    listaChats.appendChild(
+      boton
+    );
+  }
+}
+
+
+async function abrirChat(
+  telefono,
+  actualizarLista = true
+) {
+  telefonoChatActivo =
+    telefono;
+
+  pintarListaChats();
+
+
+  try {
+    const response =
+      await fetch(
+        `/api/admin/chats/${encodeURIComponent(
+          telefono
+        )}`
+      );
+
+    const data =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "No se pudo cargar la conversación."
+      );
+    }
+
+
+    const chat =
+      data.chat;
+
+
+    chatSinSeleccion.style.display =
+      "none";
+
+    chatSeleccionado.style.display =
+      "flex";
+
+
+    chatNombre.textContent =
+      chat.nombre ||
+      chat.telefono;
+
+    chatTelefono.textContent =
+      `+${chat.telefono}`;
+
+    chatEstado.textContent =
+      `Estado del bot: ${chat.estadoBot}`;
+
+
+    switchAtencionManual.checked =
+      Boolean(
+        chat.atencionManual
+      );
+
+
+    pintarMensajesChat(
+      chat.mensajes ||
+      []
+    );
+
+
+    if (actualizarLista) {
+      const item =
+        chatsActuales.find(
+          actual =>
+            actual.telefono ===
+              telefono
+        );
+
+      if (item) {
+        item.noLeidos = 0;
+      }
+
+      pintarListaChats();
+    }
+
+  } catch (error) {
+    console.error(
+      "Error abriendo chat:",
+      error
+    );
+
+    mostrarMensaje(
+      "No se pudo abrir la conversación.",
+      "error"
+    );
+  }
+}
+
+
+function pintarMensajesChat(
+  mensajes
+) {
+  chatMensajes.innerHTML =
+    "";
+
+
+  if (
+    mensajes.length === 0
+  ) {
+    chatMensajes.innerHTML = `
+      <div class="chat-vacio">
+        No hay mensajes en esta conversación.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  for (
+    const mensaje
+    of mensajes
+  ) {
+    const burbuja =
+      document.createElement(
+        "div"
+      );
+
+    const saliente =
+      mensaje.direccion ===
+        "SALIENTE";
+
+
+    burbuja.className =
+      `burbuja ${
+        saliente
+          ? "saliente"
+          : "entrante"
+      }`;
+
+
+    burbuja.innerHTML = `
+      <div>
+        ${escaparHtml(
+          mensaje.contenido ||
+          `[${mensaje.tipo}]`
+        )}
+      </div>
+
+      <span class="burbuja-hora">
+        ${escaparHtml(
+          formatearHoraChat(
+            mensaje.fechaCreacion
+          )
+        )}
+      </span>
+    `;
+
+
+    chatMensajes.appendChild(
+      burbuja
+    );
+  }
+
+
+  chatMensajes.scrollTop =
+    chatMensajes.scrollHeight;
+}
+
+
+formEnviarChat.addEventListener(
+  "submit",
+  async event => {
+    event.preventDefault();
+
+
+    if (!telefonoChatActivo) {
+      return;
+    }
+
+
+    const mensaje =
+      mensajeChat.value.trim();
+
+
+    if (!mensaje) {
+      return;
+    }
+
+
+    btnEnviarChat.disabled =
+      true;
+
+    btnEnviarChat.textContent =
+      "Enviando...";
+
+
+    try {
+      const response =
+        await fetch(
+          `/api/admin/chats/${encodeURIComponent(
+            telefonoChatActivo
+          )}/mensaje`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                mensaje,
+              }),
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "No se pudo enviar el mensaje."
+        );
+      }
+
+
+      mensajeChat.value =
+        "";
+
+
+      await abrirChat(
+        telefonoChatActivo
+      );
+
+      await cargarChats(
+        false
+      );
+
+
+    } catch (error) {
+      mostrarMensaje(
+        error.message ||
+        "No se pudo enviar el mensaje.",
+        "error"
+      );
+
+    } finally {
+      btnEnviarChat.disabled =
+        false;
+
+      btnEnviarChat.textContent =
+        "Enviar";
+    }
+  }
+);
+
+
+switchAtencionManual.addEventListener(
+  "change",
+  async () => {
+    if (!telefonoChatActivo) {
+      return;
+    }
+
+
+    const activo =
+      switchAtencionManual.checked;
+
+
+    switchAtencionManual.disabled =
+      true;
+
+
+    try {
+      const response =
+        await fetch(
+          `/api/admin/chats/${encodeURIComponent(
+            telefonoChatActivo
+          )}/manual`,
+          {
+            method:
+              "PATCH",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                activo,
+              }),
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !response.ok ||
+        !data.success
+      ) {
+        throw new Error(
+          data.message ||
+          "No se pudo cambiar el modo."
+        );
+      }
+
+
+      mostrarMensaje(
+        activo
+          ? "Atención manual activada. El bot no responderá a este cliente."
+          : "Bot automático reactivado para este cliente."
+      );
+
+
+      await cargarChats(
+        false
+      );
+
+
+    } catch (error) {
+      switchAtencionManual.checked =
+        !activo;
+
+      mostrarMensaje(
+        error.message ||
+        "No se pudo cambiar el modo de atención.",
+        "error"
+      );
+
+    } finally {
+      switchAtencionManual.disabled =
+        false;
+    }
+  }
+);
+
+
+mensajeChat.addEventListener(
+  "keydown",
+  event => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+      event.preventDefault();
+
+      formEnviarChat
+        .requestSubmit();
+    }
+  }
+);
+
+
+setInterval(
+  () => {
+    if (
+      panelChats.classList.contains(
+        "activo"
+      )
+    ) {
+      cargarChats();
+    }
+  },
+  5000
+);
+
 
 
 /*

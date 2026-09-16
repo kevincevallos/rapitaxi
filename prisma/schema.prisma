@@ -126,6 +126,8 @@ model ConversacionWhatsApp {
   fechaActualizacion DateTime @updatedAt
 
   cuponPendiente String?
+
+  atencionManual Boolean @default(false)
 }
 
 enum EstadoCarrera {
@@ -189,4 +191,20 @@ model CuponUso {
 
   @@unique([codigo, whatsapp])
   @@index([codigo, estado])
+}
+
+model MensajeWhatsApp {
+  id Int @id @default(autoincrement())
+
+  telefono  String
+  direccion String
+  tipo      String  @default("text")
+  contenido String?
+  messageId String? @unique
+  leido     Boolean @default(false)
+
+  fechaCreacion DateTime @default(now())
+
+  @@index([telefono, fechaCreacion])
+  @@index([telefono, leido])
 }

@@ -393,6 +393,366 @@
                 font-size: 23px;
             }
         }
+
+        /* ============================= */
+        /* MENÚ PRINCIPAL */
+        /* ============================= */
+
+        .menu-admin {
+            position: relative;
+        }
+
+        .menu-admin-boton {
+            min-width: 190px;
+            border: 1px solid #e6e0ef;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--morado);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+        }
+
+        .menu-admin-lista {
+            position: absolute;
+            left: 0;
+            top: calc(100% + 8px);
+            width: 230px;
+            background: white;
+            border: 1px solid #ebe7f0;
+            border-radius: 14px;
+            box-shadow: 0 14px 35px rgba(31, 20, 48, .16);
+            padding: 7px;
+            display: none;
+            z-index: 50;
+        }
+
+        .menu-admin.abierto .menu-admin-lista {
+            display: block;
+        }
+
+        .menu-opcion {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 11px 12px;
+            border-radius: 9px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 14px;
+            color: #3b3640;
+        }
+
+        .menu-opcion:hover,
+        .menu-opcion.activo {
+            background: #f2ebfb;
+            color: var(--morado);
+            font-weight: bold;
+        }
+
+
+        /* ============================= */
+        /* CHATS */
+        /* ============================= */
+
+        .chat-shell {
+            display: grid;
+            grid-template-columns: 330px minmax(0, 1fr);
+            height: min(72vh, 760px);
+            min-height: 560px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .07);
+        }
+
+        .chat-sidebar {
+            border-right: 1px solid var(--border);
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fbfafc;
+        }
+
+        .chat-sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-sidebar-header h2 {
+            margin: 0 0 5px;
+            font-size: 18px;
+            color: var(--morado);
+        }
+
+        .chat-sidebar-header p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--gris);
+        }
+
+        .chat-lista {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .chat-item {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 14px 15px;
+            text-align: left;
+            cursor: pointer;
+            border-bottom: 1px solid #eeeaf2;
+        }
+
+        .chat-item:hover,
+        .chat-item.activo {
+            background: #f1e9fb;
+        }
+
+        .chat-item-superior {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .chat-item-nombre {
+            font-weight: bold;
+            color: #302b35;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-item-fecha {
+            color: #8a8490;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .chat-item-inferior {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-item-preview {
+            color: #77717c;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .chat-no-leidos {
+            min-width: 21px;
+            height: 21px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--morado);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .chat-principal {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            background: #f5f1f8;
+        }
+
+        .chat-vacio {
+            margin: auto;
+            text-align: center;
+            color: #8a8490;
+            padding: 30px;
+        }
+
+        .chat-cabecera {
+            padding: 13px 16px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-cabecera-nombre {
+            font-size: 16px;
+            font-weight: bold;
+            color: #302b35;
+        }
+
+        .chat-cabecera-telefono,
+        .chat-cabecera-estado {
+            font-size: 11px;
+            color: var(--gris);
+            margin-top: 3px;
+        }
+
+        .modo-manual {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            display: inline-block;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            inset: 0;
+            background: #cfcbd3;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .switch-slider::before {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+            transition: .2s;
+        }
+
+        .switch input:checked + .switch-slider {
+            background: var(--morado);
+        }
+
+        .switch input:checked + .switch-slider::before {
+            transform: translateX(20px);
+        }
+
+        .chat-mensajes {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .burbuja {
+            max-width: min(74%, 650px);
+            padding: 10px 12px 7px;
+            border-radius: 13px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+        }
+
+        .burbuja.entrante {
+            align-self: flex-start;
+            background: white;
+            border-bottom-left-radius: 4px;
+        }
+
+        .burbuja.saliente {
+            align-self: flex-end;
+            background: #e7daf6;
+            border-bottom-right-radius: 4px;
+        }
+
+        .burbuja-hora {
+            display: block;
+            text-align: right;
+            font-size: 10px;
+            color: #817b85;
+            margin-top: 4px;
+        }
+
+        .chat-composer {
+            padding: 12px;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 9px;
+        }
+
+        .chat-composer textarea {
+            flex: 1;
+            min-height: 45px;
+            max-height: 110px;
+            resize: vertical;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 11px 12px;
+            font: inherit;
+            outline: none;
+        }
+
+        .chat-composer textarea:focus {
+            border-color: var(--morado);
+        }
+
+        .chat-composer button {
+            min-width: 88px;
+        }
+
+        @media (max-width: 800px) {
+            .chat-shell {
+                grid-template-columns: 1fr;
+                height: auto;
+                min-height: 0;
+            }
+
+            .chat-sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                max-height: 300px;
+            }
+
+            .chat-principal {
+                min-height: 560px;
+            }
+
+            .chat-cabecera {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .burbuja {
+                max-width: 88%;
+            }
+        }
+
     </style>
 </head>
 
@@ -411,20 +771,33 @@
 
         <div class="barra-superior">
 
-            <div class="tabs">
+            <div id="menuAdmin" class="menu-admin">
 
-                <button id="tabCarreras" class="tab activo" type="button">
-                    Carreras
+                <button id="menuAdminBoton" class="menu-admin-boton" type="button">
+                    <span id="menuAdminTitulo">🚕 Carreras</span>
+                    <span>⌄</span>
                 </button>
 
-                <button id="tabTaxistas" class="tab" type="button">
-                    Taxistas
-                </button>
+                <div class="menu-admin-lista">
+
+                    <button class="menu-opcion activo" data-seccion="carreras" type="button">
+                        🚕 Carreras
+                    </button>
+
+                    <button class="menu-opcion" data-seccion="taxistas" type="button">
+                        👤 Taxistas
+                    </button>
+
+                    <button class="menu-opcion" data-seccion="chats" type="button">
+                        💬 Chats
+                    </button>
+
+                </div>
 
             </div>
 
 
-            <button id="btnNuevoTaxista" class="btn-principal" type="button">
+            <button id="btnNuevoTaxista" class="btn-principal" type="button" style="display:none;">
                 + Registrar taxista
             </button>
 
@@ -515,6 +888,89 @@
                     </tbody>
 
                 </table>
+
+            </div>
+
+        </section>
+
+
+
+
+        <!-- ============================= -->
+        <!-- CHATS -->
+        <!-- ============================= -->
+
+        <section id="panelChats" class="panel">
+
+            <div class="chat-shell">
+
+                <aside class="chat-sidebar">
+
+                    <div class="chat-sidebar-header">
+                        <h2>💬 WhatsApp</h2>
+                        <p>Conversaciones recientes de Rapitaxi</p>
+                    </div>
+
+                    <div id="listaChats" class="chat-lista">
+                        <div class="chat-vacio">Cargando conversaciones...</div>
+                    </div>
+
+                </aside>
+
+
+                <div class="chat-principal">
+
+                    <div id="chatSinSeleccion" class="chat-vacio">
+                        <div style="font-size:42px; margin-bottom:10px;">💬</div>
+                        Selecciona una conversación para verla y responder.
+                    </div>
+
+
+                    <div id="chatSeleccionado" style="display:none; min-height:0; flex:1; flex-direction:column;">
+
+                        <div class="chat-cabecera">
+
+                            <div>
+                                <div id="chatNombre" class="chat-cabecera-nombre">Cliente</div>
+                                <div id="chatTelefono" class="chat-cabecera-telefono"></div>
+                                <div id="chatEstado" class="chat-cabecera-estado"></div>
+                            </div>
+
+                            <div class="modo-manual">
+                                <span>🤖 Bot</span>
+
+                                <label class="switch" title="Activar atención manual">
+                                    <input id="switchAtencionManual" type="checkbox" />
+                                    <span class="switch-slider"></span>
+                                </label>
+
+                                <span>👤 Manual</span>
+                            </div>
+
+                        </div>
+
+
+                        <div id="chatMensajes" class="chat-mensajes"></div>
+
+
+                        <form id="formEnviarChat" class="chat-composer">
+
+                            <textarea
+                                id="mensajeChat"
+                                maxlength="2000"
+                                placeholder="Escribe una respuesta..."
+                                required
+                            ></textarea>
+
+                            <button id="btnEnviarChat" class="btn-principal" type="submit">
+                                Enviar
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
 
             </div>
 
