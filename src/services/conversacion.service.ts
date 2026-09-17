@@ -86,6 +86,49 @@ const LIMITE_UBICACION_MS =
     5 * 60 * 1000;
 
 
+/*
+  ========================================
+  TOQUE DE QUEDA
+  ========================================
+
+  Horario de Rapitaxi:
+  00:00 hasta 05:00
+  Zona horaria: Ecuador continental
+*/
+
+function estamosEnToqueDeQueda() {
+
+    const horaTexto =
+        new Intl.DateTimeFormat(
+            "en-US",
+            {
+                timeZone:
+                    "America/Guayaquil",
+
+                hour:
+                    "2-digit",
+
+                hour12:
+                    false,
+            }
+        ).format(
+            new Date()
+        );
+
+
+    const hora =
+        Number(
+            horaTexto
+        );
+
+
+    return (
+        hora >= 0 &&
+        hora < 5
+    );
+}
+
+
 function tieneUbicacion(
     input: MensajeWhatsAppInput
 ) {
@@ -1635,6 +1678,10 @@ async function procesarCalificacion(
 
 export async function vencerUbicacionesPendientes() {
 
+    const toqueDeQueda =
+        estamosEnToqueDeQueda();
+
+
     const limite =
         new Date(
             Date.now() -
@@ -1723,7 +1770,8 @@ export async function vencerUbicacionesPendientes() {
 
 
         if (
-            resultado.count > 0
+            resultado.count > 0 &&
+            !toqueDeQueda
         ) {
 
             try {
@@ -1764,6 +1812,35 @@ export async function procesarMensajeWhatsApp(
     if (!telefono) {
         return;
     }
+
+
+    /*
+      ======================================
+      TOQUE DE QUEDA
+      ======================================
+
+      Entre las 00:00 y las 05:00
+      no se inicia ni continúa ninguna
+      solicitud de taxi.
+
+      El cliente recibe solamente este
+      mensaje informativo.
+    */
+
+    if (
+        estamosEnToqueDeQueda()
+    ) {
+
+        await enviarTextoWhatsApp(
+            telefono,
+
+            "🌙 En este momento Rapitaxi no está prestando servicio debido al horario de toque de queda.\n\nEstamos respetando las disposiciones vigentes.\n\n🚕 Nuestro servicio se reanudará a partir de las 05:00.\n\nGracias por tu comprensión. 💜"
+        );
+
+
+        return;
+    }
+
 
     const fueOpinionRapi =
         await procesarBotonOpinionRapi(
