@@ -50,6 +50,7 @@ export type ConversacionWhatsAppMinAggregateOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  fechaUbicacion: Date | null
   carreraId: number | null
   clienteId: number | null
   fechaCreacion: Date | null
@@ -66,6 +67,7 @@ export type ConversacionWhatsAppMaxAggregateOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  fechaUbicacion: Date | null
   carreraId: number | null
   clienteId: number | null
   fechaCreacion: Date | null
@@ -82,6 +84,7 @@ export type ConversacionWhatsAppCountAggregateOutputType = {
   latitud: number
   longitud: number
   referencia: number
+  fechaUbicacion: number
   carreraId: number
   clienteId: number
   fechaCreacion: number
@@ -116,6 +119,7 @@ export type ConversacionWhatsAppMinAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  fechaUbicacion?: true
   carreraId?: true
   clienteId?: true
   fechaCreacion?: true
@@ -132,6 +136,7 @@ export type ConversacionWhatsAppMaxAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  fechaUbicacion?: true
   carreraId?: true
   clienteId?: true
   fechaCreacion?: true
@@ -148,6 +153,7 @@ export type ConversacionWhatsAppCountAggregateInputType = {
   latitud?: true
   longitud?: true
   referencia?: true
+  fechaUbicacion?: true
   carreraId?: true
   clienteId?: true
   fechaCreacion?: true
@@ -251,6 +257,7 @@ export type ConversacionWhatsAppGroupByOutputType = {
   latitud: number | null
   longitud: number | null
   referencia: string | null
+  fechaUbicacion: Date | null
   carreraId: number | null
   clienteId: number | null
   fechaCreacion: Date
@@ -290,6 +297,7 @@ export type ConversacionWhatsAppWhereInput = {
   latitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  fechaUbicacion?: Prisma.DateTimeNullableFilter<"ConversacionWhatsApp"> | Date | string | null
   carreraId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
   clienteId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
@@ -307,6 +315,7 @@ export type ConversacionWhatsAppOrderByWithRelationInput = {
   latitud?: Prisma.SortOrderInput | Prisma.SortOrder
   longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   referencia?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUbicacion?: Prisma.SortOrderInput | Prisma.SortOrder
   carreraId?: Prisma.SortOrderInput | Prisma.SortOrder
   clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
@@ -328,6 +337,7 @@ export type ConversacionWhatsAppWhereUniqueInput = Prisma.AtLeast<{
   latitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableFilter<"ConversacionWhatsApp"> | string | null
+  fechaUbicacion?: Prisma.DateTimeNullableFilter<"ConversacionWhatsApp"> | Date | string | null
   carreraId?: Prisma.IntNullableFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
   fechaActualizacion?: Prisma.DateTimeFilter<"ConversacionWhatsApp"> | Date | string
@@ -344,6 +354,7 @@ export type ConversacionWhatsAppOrderByWithAggregationInput = {
   latitud?: Prisma.SortOrderInput | Prisma.SortOrder
   longitud?: Prisma.SortOrderInput | Prisma.SortOrder
   referencia?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUbicacion?: Prisma.SortOrderInput | Prisma.SortOrder
   carreraId?: Prisma.SortOrderInput | Prisma.SortOrder
   clienteId?: Prisma.SortOrderInput | Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
@@ -368,6 +379,7 @@ export type ConversacionWhatsAppScalarWhereWithAggregatesInput = {
   latitud?: Prisma.FloatNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   longitud?: Prisma.FloatNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   referencia?: Prisma.StringNullableWithAggregatesFilter<"ConversacionWhatsApp"> | string | null
+  fechaUbicacion?: Prisma.DateTimeNullableWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string | null
   carreraId?: Prisma.IntNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   clienteId?: Prisma.IntNullableWithAggregatesFilter<"ConversacionWhatsApp"> | number | null
   fechaCreacion?: Prisma.DateTimeWithAggregatesFilter<"ConversacionWhatsApp"> | Date | string
@@ -383,6 +395,7 @@ export type ConversacionWhatsAppCreateInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  fechaUbicacion?: Date | string | null
   carreraId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
@@ -399,6 +412,7 @@ export type ConversacionWhatsAppUncheckedCreateInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  fechaUbicacion?: Date | string | null
   carreraId?: number | null
   clienteId?: number | null
   fechaCreacion?: Date | string
@@ -414,6 +428,7 @@ export type ConversacionWhatsAppUpdateInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -430,6 +445,7 @@ export type ConversacionWhatsAppUncheckedUpdateInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -446,6 +462,7 @@ export type ConversacionWhatsAppCreateManyInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  fechaUbicacion?: Date | string | null
   carreraId?: number | null
   clienteId?: number | null
   fechaCreacion?: Date | string
@@ -461,6 +478,7 @@ export type ConversacionWhatsAppUpdateManyMutationInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -476,6 +494,7 @@ export type ConversacionWhatsAppUncheckedUpdateManyInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   clienteId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -497,6 +516,7 @@ export type ConversacionWhatsAppCountOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  fechaUbicacion?: Prisma.SortOrder
   carreraId?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
@@ -521,6 +541,7 @@ export type ConversacionWhatsAppMaxOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  fechaUbicacion?: Prisma.SortOrder
   carreraId?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
@@ -537,6 +558,7 @@ export type ConversacionWhatsAppMinOrderByAggregateInput = {
   latitud?: Prisma.SortOrder
   longitud?: Prisma.SortOrder
   referencia?: Prisma.SortOrder
+  fechaUbicacion?: Prisma.SortOrder
   carreraId?: Prisma.SortOrder
   clienteId?: Prisma.SortOrder
   fechaCreacion?: Prisma.SortOrder
@@ -596,6 +618,7 @@ export type ConversacionWhatsAppCreateWithoutClienteInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  fechaUbicacion?: Date | string | null
   carreraId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
@@ -611,6 +634,7 @@ export type ConversacionWhatsAppUncheckedCreateWithoutClienteInput = {
   latitud?: number | null
   longitud?: number | null
   referencia?: string | null
+  fechaUbicacion?: Date | string | null
   carreraId?: number | null
   fechaCreacion?: Date | string
   fechaActualizacion?: Date | string
@@ -641,6 +665,7 @@ export type ConversacionWhatsAppUpdateWithoutClienteInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -656,6 +681,7 @@ export type ConversacionWhatsAppUncheckedUpdateWithoutClienteInput = {
   latitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   longitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   referencia?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fechaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   carreraId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   fechaCreacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fechaActualizacion?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -673,6 +699,7 @@ export type ConversacionWhatsAppSelect<ExtArgs extends runtime.Types.Extensions.
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  fechaUbicacion?: boolean
   carreraId?: boolean
   clienteId?: boolean
   fechaCreacion?: boolean
@@ -690,6 +717,7 @@ export type ConversacionWhatsAppSelectCreateManyAndReturn<ExtArgs extends runtim
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  fechaUbicacion?: boolean
   carreraId?: boolean
   clienteId?: boolean
   fechaCreacion?: boolean
@@ -707,6 +735,7 @@ export type ConversacionWhatsAppSelectUpdateManyAndReturn<ExtArgs extends runtim
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  fechaUbicacion?: boolean
   carreraId?: boolean
   clienteId?: boolean
   fechaCreacion?: boolean
@@ -724,6 +753,7 @@ export type ConversacionWhatsAppSelectScalar = {
   latitud?: boolean
   longitud?: boolean
   referencia?: boolean
+  fechaUbicacion?: boolean
   carreraId?: boolean
   clienteId?: boolean
   fechaCreacion?: boolean
@@ -732,7 +762,7 @@ export type ConversacionWhatsAppSelectScalar = {
   atencionManual?: boolean
 }
 
-export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "carreraId" | "clienteId" | "fechaCreacion" | "fechaActualizacion" | "cuponPendiente" | "atencionManual", ExtArgs["result"]["conversacionWhatsApp"]>
+export type ConversacionWhatsAppOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telefono" | "nombre" | "estado" | "latitud" | "longitud" | "referencia" | "fechaUbicacion" | "carreraId" | "clienteId" | "fechaCreacion" | "fechaActualizacion" | "cuponPendiente" | "atencionManual", ExtArgs["result"]["conversacionWhatsApp"]>
 export type ConversacionWhatsAppInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cliente?: boolean | Prisma.ConversacionWhatsApp$clienteArgs<ExtArgs>
 }
@@ -756,6 +786,7 @@ export type $ConversacionWhatsAppPayload<ExtArgs extends runtime.Types.Extension
     latitud: number | null
     longitud: number | null
     referencia: string | null
+    fechaUbicacion: Date | null
     carreraId: number | null
     clienteId: number | null
     fechaCreacion: Date
@@ -1193,6 +1224,7 @@ export interface ConversacionWhatsAppFieldRefs {
   readonly latitud: Prisma.FieldRef<"ConversacionWhatsApp", 'Float'>
   readonly longitud: Prisma.FieldRef<"ConversacionWhatsApp", 'Float'>
   readonly referencia: Prisma.FieldRef<"ConversacionWhatsApp", 'String'>
+  readonly fechaUbicacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>
   readonly carreraId: Prisma.FieldRef<"ConversacionWhatsApp", 'Int'>
   readonly clienteId: Prisma.FieldRef<"ConversacionWhatsApp", 'Int'>
   readonly fechaCreacion: Prisma.FieldRef<"ConversacionWhatsApp", 'DateTime'>

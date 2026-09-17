@@ -162,6 +162,7 @@ export const ConversacionWhatsAppScalarFieldEnum = {
   latitud: 'latitud',
   longitud: 'longitud',
   referencia: 'referencia',
+  fechaUbicacion: 'fechaUbicacion',
   carreraId: 'carreraId',
   clienteId: 'clienteId',
   fechaCreacion: 'fechaCreacion',

@@ -82,6 +82,10 @@ function normalizarTelefono(
 }
 
 
+const LIMITE_UBICACION_MS =
+    5 * 60 * 1000;
+
+
 function tieneUbicacion(
     input: MensajeWhatsAppInput
 ) {
@@ -1616,6 +1620,134 @@ async function procesarCalificacion(
 
 /*
   ========================================
+  VENCIMIENTO DE UBICACIONES PENDIENTES
+  ========================================
+
+  La ubicación enviada por el cliente solo
+  puede utilizarse durante 5 minutos mientras
+  esperamos el método de pago.
+
+  server.ts puede ejecutar esta función
+  periódicamente para invalidar solicitudes
+  abandonadas incluso si el cliente no vuelve
+  a escribir.
+*/
+
+export async function vencerUbicacionesPendientes() {
+
+    const limite =
+        new Date(
+            Date.now() -
+            LIMITE_UBICACION_MS
+        );
+
+
+    const pendientes =
+        await prisma
+            .conversacionWhatsApp
+            .findMany({
+
+                where: {
+                    estado:
+                        "ESPERANDO_PAGO",
+
+                    OR: [
+                        {
+                            fechaUbicacion: {
+                                lte:
+                                    limite,
+                            },
+                        },
+                        {
+                            fechaUbicacion:
+                                null,
+                        },
+                    ],
+                },
+
+                select: {
+                    telefono:
+                        true,
+                },
+            });
+
+
+    for (
+        const pendiente
+        of pendientes
+    ) {
+
+        const resultado =
+            await prisma
+                .conversacionWhatsApp
+                .updateMany({
+
+                    where: {
+                        telefono:
+                            pendiente.telefono,
+
+                        estado:
+                            "ESPERANDO_PAGO",
+
+                        OR: [
+                            {
+                                fechaUbicacion: {
+                                    lte:
+                                        limite,
+                                },
+                            },
+                            {
+                                fechaUbicacion:
+                                    null,
+                            },
+                        ],
+                    },
+
+                    data: {
+                        estado:
+                            "ESPERANDO_UBICACION",
+
+                        latitud:
+                            null,
+
+                        longitud:
+                            null,
+
+                        referencia:
+                            null,
+
+                        fechaUbicacion:
+                            null,
+                    },
+                });
+
+
+        if (
+            resultado.count > 0
+        ) {
+
+            try {
+                await solicitarUbicacionWhatsApp(
+                    pendiente.telefono,
+
+                    "⏱️ Ya pasaron 5 minutos desde que compartiste tu ubicación. 📍 Vuelve a confirmar tu ubicación actual para continuar con la solicitud."
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Error avisando vencimiento de ubicación:",
+                    pendiente.telefono,
+                    error
+                );
+            }
+        }
+    }
+}
+
+
+/*
+  ========================================
   FUNCIÓN PRINCIPAL
   ========================================
 */
@@ -1902,6 +2034,9 @@ export async function procesarMensajeWhatsApp(
                             referencia:
                                 null,
 
+                            fechaUbicacion:
+                                null,
+
                             cuponPendiente:
                                 null,
                         },
@@ -2006,6 +2141,11 @@ export async function procesarMensajeWhatsApp(
 
                             referencia:
                                 referenciaUbicacion,
+
+                            fechaUbicacion:
+                                ubicacionDentroDeChone
+                                    ? new Date()
+                                    : null,
                         },
                     });
 
@@ -2147,6 +2287,9 @@ export async function procesarMensajeWhatsApp(
                                 null,
 
                             referencia:
+                                null,
+
+                            fechaUbicacion:
                                 null,
                         },
                     });
@@ -2512,6 +2655,9 @@ export async function procesarMensajeWhatsApp(
 
                             referencia:
                                 null,
+
+                            fechaUbicacion:
+                                null,
                         },
                     });
 
@@ -2554,6 +2700,9 @@ export async function procesarMensajeWhatsApp(
 
                             referencia:
                                 null,
+
+                            fechaUbicacion:
+                                null,
                         },
                     });
 
@@ -2590,6 +2739,9 @@ export async function procesarMensajeWhatsApp(
                         referencia:
                             referenciaUbicacion,
 
+                        fechaUbicacion:
+                            new Date(),
+
                         estado:
                             "ESPERANDO_PAGO",
                     },
@@ -2624,6 +2776,9 @@ export async function procesarMensajeWhatsApp(
                         null,
 
                     referencia:
+                        null,
+
+                    fechaUbicacion:
                         null,
                 },
             });
@@ -2699,6 +2854,9 @@ export async function procesarMensajeWhatsApp(
 
                         referencia:
                             null,
+
+                        fechaUbicacion:
+                            null,
                     },
                 });
 
@@ -2742,6 +2900,9 @@ export async function procesarMensajeWhatsApp(
                         referencia:
                             referenciaUbicacion,
 
+                        fechaUbicacion:
+                            new Date(),
+
                         estado:
                             "ESPERANDO_PAGO",
                     },
@@ -2767,6 +2928,62 @@ export async function procesarMensajeWhatsApp(
         conversacion.estado ===
         "ESPERANDO_PAGO"
     ) {
+        const fechaUbicacion =
+            conversacion.fechaUbicacion
+                ? new Date(
+                    conversacion.fechaUbicacion
+                )
+                : null;
+
+
+        const ubicacionExpirada =
+            !fechaUbicacion ||
+            (
+                Date.now() -
+                fechaUbicacion.getTime()
+            ) >= LIMITE_UBICACION_MS;
+
+
+        if (ubicacionExpirada) {
+            conversacion =
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+
+                        where: {
+                            telefono,
+                        },
+
+                        data: {
+                            estado:
+                                "ESPERANDO_UBICACION",
+
+                            latitud:
+                                null,
+
+                            longitud:
+                                null,
+
+                            referencia:
+                                null,
+
+                            fechaUbicacion:
+                                null,
+                        },
+                    });
+
+
+            await solicitarUbicacionWhatsApp(
+                telefono,
+
+                "⏱️ Ya pasaron 5 minutos desde que compartiste tu ubicación. 📍 Vuelve a confirmar tu ubicación actual para continuar con la solicitud."
+            );
+
+
+            return;
+        }
+
+
         const formaPago =
             obtenerFormaPago(
                 input
@@ -2811,6 +3028,18 @@ export async function procesarMensajeWhatsApp(
                     data: {
                         estado:
                             "ESPERANDO_UBICACION",
+
+                        latitud:
+                            null,
+
+                        longitud:
+                            null,
+
+                        referencia:
+                            null,
+
+                        fechaUbicacion:
+                            null,
                     },
                 });
 
@@ -3115,6 +3344,9 @@ export async function procesarMensajeWhatsApp(
 
                     referencia:
                         null,
+
+                    fechaUbicacion:
+                        null,
                 },
             });
 
@@ -3158,6 +3390,9 @@ export async function procesarMensajeWhatsApp(
                     null,
 
                 referencia:
+                    null,
+
+                fechaUbicacion:
                     null,
             },
         });

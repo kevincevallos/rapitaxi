@@ -113,11 +113,11 @@ model ConversacionWhatsApp {
 
   estado EstadoConversacion @default(NUEVO)
 
-  latitud    Float?
-  longitud   Float?
-  referencia String?
-
-  carreraId Int?
+  latitud        Float?
+  longitud       Float?
+  referencia     String?
+  fechaUbicacion DateTime?
+  carreraId      Int?
 
   clienteId Int?     @unique
   cliente   Cliente? @relation(fields: [clienteId], references: [id])

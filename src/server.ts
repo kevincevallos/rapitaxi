@@ -16,6 +16,9 @@ import {
   finalizarCarrerasVencidas,
 } from "./services/carrera.service";
 
+import {
+  vencerUbicacionesPendientes,
+} from "./services/conversacion.service";
 
 const app = express();
 
@@ -285,6 +288,52 @@ const PORT =
     process.env.PORT
   ) || 3000;
 
+let procesandoUbicacionesVencidas =
+  false;
+
+
+async function revisarUbicacionesVencidas() {
+
+  if (
+    procesandoUbicacionesVencidas
+  ) {
+    return;
+  }
+
+
+  procesandoUbicacionesVencidas =
+    true;
+
+
+  try {
+
+    await vencerUbicacionesPendientes();
+
+  } catch (error) {
+
+    console.error(
+      "Error revisando ubicaciones vencidas:",
+      error
+    );
+
+  } finally {
+
+    procesandoUbicacionesVencidas =
+      false;
+  }
+}
+
+
+setTimeout(
+  revisarUbicacionesVencidas,
+  10000
+);
+
+
+setInterval(
+  revisarUbicacionesVencidas,
+  30000
+);
 
 app.listen(
   PORT,

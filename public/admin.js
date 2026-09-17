@@ -102,7 +102,7 @@ function mostrarSeccion(
         opcion.classList.toggle(
           "activo",
           opcion.dataset.seccion ===
-          seccion
+            seccion
         );
       }
     );
@@ -498,11 +498,11 @@ async function cargarCarreras() {
             <button
               class="btn btn-desactivar btn-cancelar-carrera"
               data-id="${escaparHtml(
-            carrera.id
-          )}"
+                carrera.id
+              )}"
               data-numero="${escaparHtml(
-            carrera.numero
-          )}"
+                carrera.numero
+              )}"
               type="button"
             >
               Cancelar
@@ -539,7 +539,7 @@ async function cargarCarreras() {
 
       const enlaceCupon =
         tieneCupon &&
-          telefonoTaxista
+        telefonoTaxista
 
           ? `https://wa.me/${telefonoTaxista}?text=${encodeURIComponent(
             mensajeCupon
@@ -558,14 +558,14 @@ async function cargarCarreras() {
 
       const botonCupon =
         tieneCupon &&
-          taxista &&
-          telefonoTaxista
+        taxista &&
+        telefonoTaxista
 
           ? `
             <a
               href="${escaparHtml(
-            enlaceCupon
-          )}"
+                enlaceCupon
+              )}"
               target="_blank"
               rel="noopener noreferrer"
               style="
@@ -604,8 +604,8 @@ async function cargarCarreras() {
               "
             >
               🚨 CUPÓN ${escaparHtml(
-            carrera.cuponCodigo
-          )}<br>
+                carrera.cuponCodigo
+              )}<br>
               CLIENTE PAGA $1,00
             </div>
           `
@@ -619,8 +619,8 @@ async function cargarCarreras() {
 
           <strong>
             #${escaparHtml(
-        carrera.numero
-      )}
+              carrera.numero
+            )}
           </strong>
 
           ${alertaCupon}
@@ -632,13 +632,13 @@ async function cargarCarreras() {
 
           <span
             class="estado ${claseEstadoCarrera(
-        carrera.estado
-      )}"
+              carrera.estado
+            )}"
           >
 
             ${escaparHtml(
-        carrera.estado
-      )}
+              carrera.estado
+            )}
 
           </span>
 
@@ -648,10 +648,10 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-        cliente?.nombre ||
-        carrera.nombreCliente ||
-        "-"
-      )}
+            cliente?.nombre ||
+            carrera.nombreCliente ||
+            "-"
+          )}
 
         </td>
 
@@ -659,9 +659,9 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-        carrera.referencia ||
-        "-"
-      )}
+            carrera.referencia ||
+            "-"
+          )}
 
         </td>
 
@@ -669,12 +669,13 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-        carrera.formaPago ||
-        "-"
-      )}
+            carrera.formaPago ||
+            "-"
+          )}
 
-          ${tieneCupon
-          ? `
+          ${
+            tieneCupon
+              ? `
                 <div
                   style="
                     margin-top:5px;
@@ -685,38 +686,40 @@ async function cargarCarreras() {
                   Tarifa: $1,00
                 </div>
               `
-          : ""
-        }
+              : ""
+          }
 
         </td>
 
 
         <td>
 
-          ${taxista
+          ${
+            taxista
 
-          ? `${escaparHtml(
-            taxista.codigo
-          )} - ${escaparHtml(
-            taxista.nombre
-          )}`
+              ? `${escaparHtml(
+                taxista.codigo
+              )} - ${escaparHtml(
+                taxista.nombre
+              )}`
 
-          : "-"
-        }
+              : "-"
+          }
 
         </td>
 
 
         <td>
 
-          ${taxista
+          ${
+            taxista
 
-          ? escaparHtml(
-            taxista.placa
-          )
+              ? escaparHtml(
+                taxista.placa
+              )
 
-          : "-"
-        }
+              : "-"
+          }
 
         </td>
 
@@ -724,8 +727,8 @@ async function cargarCarreras() {
         <td>
 
           ${formatearFecha(
-          carrera.fechaCreacion
-        )}
+            carrera.fechaCreacion
+          )}
 
         </td>
 
@@ -737,22 +740,22 @@ async function cargarCarreras() {
             class="btn btn-editar copiar-carrera"
 
             data-token="${escaparHtml(
-          carrera.token
-        )}"
+              carrera.token
+            )}"
 
             data-numero="${escaparHtml(
-          carrera.numero
-        )}"
+              carrera.numero
+            )}"
 
             data-referencia="${escaparHtml(
-          carrera.referencia ||
-          "-"
-        )}"
+              carrera.referencia ||
+              "-"
+            )}"
 
             data-pago="${escaparHtml(
-          carrera.formaPago ||
-          "-"
-        )}"
+              carrera.formaPago ||
+              "-"
+            )}"
           >
 
             Copiar enlace
@@ -990,8 +993,8 @@ function pintarTaxistas() {
         <strong>
 
           ${escaparHtml(
-      taxista.codigo
-    )}
+            taxista.codigo
+          )}
 
         </strong>
 
@@ -1001,8 +1004,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.nombre
-    )}
+          taxista.nombre
+        )}
 
       </td>
 
@@ -1010,8 +1013,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.placa
-    )}
+          taxista.placa
+        )}
 
       </td>
 
@@ -1019,8 +1022,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.vehiculo
-    )}
+          taxista.vehiculo
+        )}
 
       </td>
 
@@ -1028,9 +1031,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.colorVehiculo ||
-      "-"
-    )}
+          taxista.colorVehiculo ||
+          "-"
+        )}
 
       </td>
 
@@ -1038,9 +1041,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.cooperativa ||
-      "-"
-    )}
+          taxista.cooperativa ||
+          "-"
+        )}
 
       </td>
 
@@ -1048,9 +1051,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-      taxista.telefono ||
-      "-"
-    )}
+          taxista.telefono ||
+          "-"
+        )}
 
       </td>
 
@@ -1058,20 +1061,22 @@ function pintarTaxistas() {
       <td>
 
         <span
-          class="estado ${taxista.activo
+          class="estado ${
+            taxista.activo
 
-        ? "estado-activo"
+              ? "estado-activo"
 
-        : "estado-inactivo"
-      }"
+              : "estado-inactivo"
+          }"
         >
 
-          ${taxista.activo
+          ${
+            taxista.activo
 
-        ? "ACTIVO"
+              ? "ACTIVO"
 
-        : "INACTIVO"
-      }
+              : "INACTIVO"
+          }
 
         </span>
 
@@ -1093,22 +1098,24 @@ function pintarTaxistas() {
 
           <button
             type="button"
-            class="btn ${taxista.activo
+            class="btn ${
+              taxista.activo
 
-        ? "btn-desactivar"
+                ? "btn-desactivar"
 
-        : "btn-activar"
-      } cambiar-estado-taxista"
+                : "btn-activar"
+            } cambiar-estado-taxista"
 
             data-id="${taxista.id}"
           >
 
-            ${taxista.activo
+            ${
+              taxista.activo
 
-        ? "Desactivar"
+                ? "Desactivar"
 
-        : "Activar"
-      }
+                : "Activar"
+            }
 
           </button>
 
@@ -2065,11 +2072,11 @@ function formatearFechaListaChat(
 
   const mismoDia =
     d.getFullYear() ===
-    hoy.getFullYear() &&
+      hoy.getFullYear() &&
     d.getMonth() ===
-    hoy.getMonth() &&
+      hoy.getMonth() &&
     d.getDate() ===
-    hoy.getDate();
+      hoy.getDate();
 
   if (mismoDia) {
     return formatearHoraChat(
@@ -2214,7 +2221,7 @@ async function cargarChats(
         chatsActuales.some(
           chat =>
             chat.telefono ===
-            telefonoChatActivo
+              telefonoChatActivo
         );
 
       if (sigueExistiendo) {
@@ -2298,10 +2305,11 @@ function pintarListaChats() {
   ) {
     listaChats.innerHTML = `
       <div class="chat-vacio">
-        ${filtro
-        ? "No encontramos conversaciones con esa búsqueda."
-        : "Todavía no hay mensajes guardados."
-      }
+        ${
+          filtro
+            ? "No encontramos conversaciones con esa búsqueda."
+            : "Todavía no hay mensajes guardados."
+        }
       </div>
     `;
 
@@ -2336,8 +2344,8 @@ function pintarListaChats() {
         ? `
           <span class="chat-no-leidos">
             ${escaparHtml(
-          chat.noLeidos
-        )}
+              chat.noLeidos
+            )}
           </span>
         `
         : "";
@@ -2353,37 +2361,37 @@ function pintarListaChats() {
     boton.innerHTML = `
       <span class="chat-avatar">
         ${escaparHtml(
-      iniciales
-    )}
+          iniciales
+        )}
       </span>
 
       <span class="chat-item-contenido">
         <span class="chat-item-superior">
           <span class="chat-item-nombre">
             ${escaparHtml(
-      chat.nombre ||
-      chat.telefono
-    )}
+              chat.nombre ||
+              chat.telefono
+            )}
           </span>
 
           <span class="chat-item-fecha">
             ${escaparHtml(
-      formatearFechaListaChat(
-        chat.ultimaFecha
-      )
-    )}
+              formatearFechaListaChat(
+                chat.ultimaFecha
+              )
+            )}
           </span>
         </span>
 
         <span class="chat-item-inferior">
           <span class="chat-item-preview">
             ${chat.atencionManual
-        ? "👤 "
-        : "🤖 "
-      }${escaparHtml(
-        chat.ultimoMensaje ||
-        ""
-      )}
+              ? "👤 "
+              : "🤖 "
+            }${escaparHtml(
+              chat.ultimoMensaje ||
+              ""
+            )}
           </span>
 
           ${badge}
@@ -2410,8 +2418,23 @@ function pintarListaChats() {
 
 async function abrirChat(
   telefono,
-  actualizarLista = true
+  actualizarLista = true,
+  forzarFinal = false
 ) {
+  const mismoChat =
+    telefonoChatActivo === telefono;
+
+  const scrollAnterior =
+    chatMensajes.scrollTop;
+
+  const distanciaAlFinal =
+    chatMensajes.scrollHeight -
+    chatMensajes.clientHeight -
+    chatMensajes.scrollTop;
+
+  const estabaCercaDelFinal =
+    distanciaAlFinal <= 80;
+
   telefonoChatActivo =
     telefono;
 
@@ -2481,7 +2504,15 @@ async function abrirChat(
 
     pintarMensajesChat(
       chat.mensajes ||
-      []
+      [],
+      {
+        irAlFinal:
+          forzarFinal ||
+          !mismoChat ||
+          estabaCercaDelFinal,
+
+        scrollAnterior,
+      }
     );
 
 
@@ -2490,7 +2521,7 @@ async function abrirChat(
         chatsActuales.find(
           actual =>
             actual.telefono ===
-            telefono
+              telefono
         );
 
       if (item) {
@@ -2515,8 +2546,13 @@ async function abrirChat(
 
 
 function pintarMensajesChat(
-  mensajes
+  mensajes,
+  opciones = {}
 ) {
+  const {
+    irAlFinal = true,
+    scrollAnterior = 0,
+  } = opciones;
   chatMensajes.innerHTML =
     "";
 
@@ -2545,30 +2581,31 @@ function pintarMensajesChat(
 
     const saliente =
       mensaje.direccion ===
-      "SALIENTE";
+        "SALIENTE";
 
 
     burbuja.className =
-      `burbuja ${saliente
-        ? "saliente"
-        : "entrante"
+      `burbuja ${
+        saliente
+          ? "saliente"
+          : "entrante"
       }`;
 
 
     burbuja.innerHTML = `
       <div>
         ${escaparHtml(
-      mensaje.contenido ||
-      `[${mensaje.tipo}]`
-    )}
+          mensaje.contenido ||
+          `[${mensaje.tipo}]`
+        )}
       </div>
 
       <span class="burbuja-hora">
         ${escaparHtml(
-      formatearHoraChat(
-        mensaje.fechaCreacion
-      )
-    )}
+          formatearHoraChat(
+            mensaje.fechaCreacion
+          )
+        )}
       </span>
     `;
 
@@ -2579,8 +2616,13 @@ function pintarMensajesChat(
   }
 
 
-  chatMensajes.scrollTop =
-    chatMensajes.scrollHeight;
+  if (irAlFinal) {
+    chatMensajes.scrollTop =
+      chatMensajes.scrollHeight;
+  } else {
+    chatMensajes.scrollTop =
+      scrollAnterior;
+  }
 }
 
 
@@ -2654,7 +2696,9 @@ formEnviarChat.addEventListener(
 
 
       await abrirChat(
-        telefonoChatActivo
+        telefonoChatActivo,
+        true,
+        true
       );
 
       await cargarChats(
@@ -2692,7 +2736,7 @@ btnControlChat.addEventListener(
       chatsActuales.find(
         chat =>
           chat.telefono ===
-          telefonoChatActivo
+            telefonoChatActivo
       );
 
 
