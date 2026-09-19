@@ -1,3 +1,257 @@
+function limpiarParte(
+  valor: unknown
+) {
+  const texto =
+    String(
+      valor ?? ""
+    )
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+  return texto || null;
+}
+
+
+function normalizarComparacion(
+  valor: unknown
+) {
+  return String(
+    valor ?? ""
+  )
+    .normalize(
+      "NFD"
+    )
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+    .toLowerCase()
+    .replace(
+      /[^a-z0-9]+/g,
+      " "
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim();
+}
+
+
+function agregarParteUnica(
+  partes: string[],
+  valor: unknown
+) {
+  const limpio =
+    limpiarParte(
+      valor
+    );
+
+  if (!limpio) {
+    return;
+  }
+
+
+  const normalizado =
+    normalizarComparacion(
+      limpio
+    );
+
+
+  const yaExiste =
+    partes.some(
+      parte =>
+        normalizarComparacion(
+          parte
+        ) ===
+        normalizado
+    );
+
+
+  if (!yaExiste) {
+    partes.push(
+      limpio
+    );
+  }
+}
+
+
+function esReferenciaDemasiadoGenerica(
+  valor: unknown
+) {
+  const texto =
+    normalizarComparacion(
+      valor
+    );
+
+
+  if (!texto) {
+    return true;
+  }
+
+
+  const genericas =
+    new Set([
+      "chone",
+      "chone ecuador",
+      "chone manabi",
+      "chone manabi ecuador",
+      "manabi",
+      "manabi ecuador",
+      "ecuador",
+    ]);
+
+
+  return genericas.has(
+    texto
+  );
+}
+
+
+function obtenerReferenciaDesdeDisplayName(
+  displayName: unknown,
+  ciudad: string | null
+) {
+  const display =
+    limpiarParte(
+      displayName
+    );
+
+
+  if (!display) {
+    return null;
+  }
+
+
+  const ciudadNormalizada =
+    normalizarComparacion(
+      ciudad
+    );
+
+
+  const ignorar =
+    new Set([
+      "ecuador",
+      "manabi",
+      "provincia de manabi",
+    ]);
+
+
+  const partesOriginales =
+    display
+      .split(",")
+      .map(
+        parte =>
+          limpiarParte(
+            parte
+          )
+      )
+      .filter(
+        (
+          parte
+        ): parte is string =>
+          Boolean(
+            parte
+          )
+      );
+
+
+  const utiles: string[] =
+    [];
+
+
+  for (
+    const parte
+    of partesOriginales
+  ) {
+
+    const normalizada =
+      normalizarComparacion(
+        parte
+      );
+
+
+    if (
+      !normalizada ||
+      ignorar.has(
+        normalizada
+      ) ||
+      /^\d{4,6}$/.test(
+        normalizada
+      )
+    ) {
+      continue;
+    }
+
+
+    if (
+      ciudadNormalizada &&
+      normalizada ===
+        ciudadNormalizada
+    ) {
+      continue;
+    }
+
+
+    agregarParteUnica(
+      utiles,
+      parte
+    );
+
+
+    if (
+      utiles.length >=
+      3
+    ) {
+      break;
+    }
+  }
+
+
+  if (
+    utiles.length === 0
+  ) {
+    return null;
+  }
+
+
+  if (
+    ciudad
+  ) {
+    agregarParteUnica(
+      utiles,
+      ciudad
+    );
+  }
+
+
+  const referencia =
+    utiles
+      .slice(
+        0,
+        4
+      )
+      .join(
+        ", "
+      );
+
+
+  if (
+    esReferenciaDemasiadoGenerica(
+      referencia
+    )
+  ) {
+    return null;
+  }
+
+
+  return referencia;
+}
+
+
 export async function obtenerDireccionDesdeCoordenadas(
   latitud: number,
   longitud: number
@@ -6,8 +260,12 @@ export async function obtenerDireccionDesdeCoordenadas(
   try {
 
     if (
-      !Number.isFinite(latitud) ||
-      !Number.isFinite(longitud)
+      !Number.isFinite(
+        latitud
+      ) ||
+      !Number.isFinite(
+        longitud
+      )
     ) {
       console.error(
         "❌ Geocoding: coordenadas inválidas:",
@@ -27,9 +285,11 @@ export async function obtenerDireccionDesdeCoordenadas(
     const controller =
       new AbortController();
 
+
     const timeout =
       setTimeout(
-        () => controller.abort(),
+        () =>
+          controller.abort(),
         8000
       );
 
@@ -41,7 +301,8 @@ export async function obtenerDireccionDesdeCoordenadas(
       `&lon=${encodeURIComponent(longitud)}` +
       "&zoom=18" +
       "&addressdetails=1" +
-      "&namedetails=1";
+      "&namedetails=1" +
+      "&extratags=1";
 
 
     const response =
@@ -56,11 +317,11 @@ export async function obtenerDireccionDesdeCoordenadas(
               "application/json",
 
             "Accept-Language":
-              "es"
+              "es",
           },
 
           signal:
-            controller.signal
+            controller.signal,
         }
       );
 
@@ -75,16 +336,20 @@ export async function obtenerDireccionDesdeCoordenadas(
     );
 
 
-    if (!response.ok) {
+    if (
+      !response.ok
+    ) {
 
       const texto =
         await response.text();
+
 
       console.error(
         "❌ Error Nominatim:",
         response.status,
         texto
       );
+
 
       return null;
     }
@@ -103,75 +368,89 @@ export async function obtenerDireccionDesdeCoordenadas(
 
 
     const address =
-      data.address || {};
+      data.address ||
+      {};
 
-
-    /*
-      Primero intentamos conseguir
-      una referencia corta y útil.
-    */
 
     const nombreLugar =
-      data.name ||
-      address.amenity ||
-      address.shop ||
-      address.building ||
-      address.tourism ||
-      address.leisure ||
-      null;
+      limpiarParte(
+        data.name ||
+        address.amenity ||
+        address.shop ||
+        address.building ||
+        address.tourism ||
+        address.leisure ||
+        address.office ||
+        address.craft ||
+        address.historic ||
+        address.railway ||
+        null
+      );
 
 
     const calle =
-      address.road ||
-      address.pedestrian ||
-      address.residential ||
-      address.footway ||
-      address.path ||
-      null;
+      limpiarParte(
+        address.road ||
+        address.pedestrian ||
+        address.residential ||
+        address.footway ||
+        address.path ||
+        address.cycleway ||
+        null
+      );
 
 
     const numeroCasa =
-      address.house_number ||
-      null;
+      limpiarParte(
+        address.house_number ||
+        null
+      );
 
 
     const sector =
-      address.neighbourhood ||
-      address.suburb ||
-      address.quarter ||
-      address.city_district ||
-      null;
+      limpiarParte(
+        address.neighbourhood ||
+        address.suburb ||
+        address.quarter ||
+        address.city_district ||
+        address.district ||
+        address.city_block ||
+        address.hamlet ||
+        address.locality ||
+        null
+      );
 
 
     const ciudad =
-      address.city ||
-      address.town ||
-      address.village ||
-      address.municipality ||
-      null;
-
-
-    const canton =
-      address.county ||
-      null;
+      limpiarParte(
+        address.city ||
+        address.town ||
+        address.village ||
+        address.municipality ||
+        null
+      );
 
 
     const partes: string[] =
       [];
 
 
-    if (nombreLugar) {
-
-      partes.push(
-        String(
-          nombreLugar
-        )
+    if (
+      nombreLugar &&
+      !esReferenciaDemasiadoGenerica(
+        nombreLugar
+      )
+    ) {
+      agregarParteUnica(
+        partes,
+        nombreLugar
       );
-
     }
 
 
-    if (calle) {
+    if (
+      calle
+    ) {
 
       const calleCompleta =
         numeroCasa
@@ -179,43 +458,34 @@ export async function obtenerDireccionDesdeCoordenadas(
           : calle;
 
 
-      if (
-        !partes.includes(
-          calleCompleta
-        )
-      ) {
-        partes.push(
-          calleCompleta
-        );
-      }
+      agregarParteUnica(
+        partes,
+        calleCompleta
+      );
     }
 
 
     if (
       sector &&
-      !partes.includes(
+      !esReferenciaDemasiadoGenerica(
         sector
       )
     ) {
-
-      partes.push(
+      agregarParteUnica(
+        partes,
         sector
       );
-
     }
 
 
     if (
       ciudad &&
-      !partes.includes(
-        ciudad
-      )
+      partes.length > 0
     ) {
-
-      partes.push(
+      agregarParteUnica(
+        partes,
         ciudad
       );
-
     }
 
 
@@ -224,92 +494,65 @@ export async function obtenerDireccionDesdeCoordenadas(
     ) {
 
       const referencia =
-        partes.join(
-          ", "
-        );
-
-
-      console.log(
-        "📌 Referencia generada:",
-        referencia
-      );
-
-
-      return referencia;
-    }
-
-
-    /*
-      Si OpenStreetMap no tiene
-      suficientes campos separados,
-      usamos display_name.
-    */
-
-    if (
-      data.display_name &&
-      String(
-        data.display_name
-      ).trim()
-    ) {
-
-      const referencia =
-        String(
-          data.display_name
-        ).trim();
-
-
-      console.log(
-        "📌 Referencia display_name:",
-        referencia
-      );
-
-
-      return referencia;
-    }
-
-
-    /*
-      Último intento:
-      ciudad / cantón.
-    */
-
-    if (
-      ciudad ||
-      canton
-    ) {
-
-      const referencia =
-        [
-          ciudad,
-          canton
-        ]
-          .filter(
-            Boolean
+        partes
+          .slice(
+            0,
+            4
           )
           .join(
             ", "
           );
 
 
-      console.log(
-        "📌 Referencia básica:",
-        referencia
-      );
+      if (
+        !esReferenciaDemasiadoGenerica(
+          referencia
+        )
+      ) {
+
+        console.log(
+          "📌 Referencia detallada generada:",
+          referencia
+        );
 
 
-      return referencia;
+        return referencia;
+      }
     }
 
 
-    console.error(
-      "❌ Nominatim respondió pero no encontró referencia."
+    const referenciaDisplay =
+      obtenerReferenciaDesdeDisplayName(
+        data.display_name,
+        ciudad
+      );
+
+
+    if (
+      referenciaDisplay
+    ) {
+
+      console.log(
+        "📌 Referencia obtenida desde display_name:",
+        referenciaDisplay
+      );
+
+
+      return referenciaDisplay;
+    }
+
+
+    console.log(
+      "⚠️ Geocoding sin referencia específica. Se usará el fallback de WhatsApp."
     );
 
 
     return null;
 
 
-  } catch (error: any) {
+  } catch (
+    error: any
+  ) {
 
     if (
       error?.name ===

@@ -21,6 +21,47 @@ import {
 } from "../config/prisma";
 
 
+function calcularDistanciaKm(
+  latitudOrigen: number,
+  longitudOrigen: number,
+  latitudDestino: number,
+  longitudDestino: number
+) {
+  const radioTierraKm = 6371;
+
+  const aRadianes =
+    (grados: number) =>
+      grados * Math.PI / 180;
+
+  const diferenciaLatitud =
+    aRadianes(latitudDestino - latitudOrigen);
+
+  const diferenciaLongitud =
+    aRadianes(longitudDestino - longitudOrigen);
+
+  const latitudOrigenRad =
+    aRadianes(latitudOrigen);
+
+  const latitudDestinoRad =
+    aRadianes(latitudDestino);
+
+  const haversine =
+    Math.sin(diferenciaLatitud / 2) ** 2 +
+    Math.cos(latitudOrigenRad) *
+    Math.cos(latitudDestinoRad) *
+    Math.sin(diferenciaLongitud / 2) ** 2;
+
+  const angulo =
+    2 *
+    Math.atan2(
+      Math.sqrt(haversine),
+      Math.sqrt(1 - haversine)
+    );
+
+  return radioTierraKm * angulo;
+}
+
+
 export async function crearCarreraController(
   req: Request,
   res: Response
@@ -103,19 +144,82 @@ export async function crearCarreraController(
 */
 
 export async function listarCarrerasDisponiblesAppController(
-  _req: Request,
+  req: Request,
   res: Response
 ) {
   try {
 
+    const codigoTaxista =
+      String(
+        req.query.codigoTaxista ||
+        ""
+      )
+        .replace(/\D/g, "")
+        .padStart(3, "0");
+
+
+    const latitudTaxista =
+      Number(
+        req.query.latitud
+      );
+
+
+    const longitudTaxista =
+      Number(
+        req.query.longitud
+      );
+
+
+    const tieneGpsValido =
+      req.query.latitud !== undefined &&
+      req.query.longitud !== undefined &&
+      Number.isFinite(latitudTaxista) &&
+      Number.isFinite(longitudTaxista) &&
+      latitudTaxista >= -90 &&
+      latitudTaxista <= 90 &&
+      longitudTaxista >= -180 &&
+      longitudTaxista <= 180;
+
+
+    let taxistaValido =
+      false;
+
+
+    if (
+      codigoTaxista &&
+      codigoTaxista !== "000"
+    ) {
+      const taxista =
+        await prisma.taxista.findUnique({
+          where: {
+            codigo:
+              codigoTaxista,
+          },
+
+          select: {
+            id: true,
+            activo: true,
+          },
+        });
+
+
+      taxistaValido =
+        Boolean(
+          taxista?.activo
+        );
+    }
+
+
     const carreras =
       await prisma.carrera.findMany({
         where: {
-          estado: "BUSCANDO",
+          estado:
+            "BUSCANDO",
         },
 
         orderBy: {
-          fechaCreacion: "desc",
+          fechaCreacion:
+            "desc",
         },
 
         select: {
@@ -125,13 +229,147 @@ export async function listarCarrerasDisponiblesAppController(
           referencia: true,
           formaPago: true,
           fechaCreacion: true,
+          latitud: true,
+          longitud: true,
         },
       });
 
 
+    const carrerasConDistancia =
+      carreras
+        .map(
+          carrera => {
+
+            let distanciaKm:
+              number | null =
+                null;
+
+
+            if (
+              tieneGpsValido &&
+              taxistaValido &&
+              Number.isFinite(carrera.latitud) &&
+              Number.isFinite(carrera.longitud)
+            ) {
+              const distancia =
+                calcularDistanciaKm(
+                  latitudTaxista,
+                  longitudTaxista,
+                  carrera.latitud,
+                  carrera.longitud
+                );
+
+
+              distanciaKm =
+                Math.round(
+                  distancia * 100
+                ) / 100;
+            }
+
+
+            return {
+              id:
+                carrera.id,
+
+              numero:
+                carrera.numero,
+
+              token:
+                carrera.token,
+
+              referencia:
+                carrera.referencia,
+
+              formaPago:
+                carrera.formaPago,
+
+              fechaCreacion:
+                carrera.fechaCreacion,
+
+              distanciaKm,
+            };
+          }
+        )
+        .sort(
+          (
+            a,
+            b
+          ) => {
+
+            /*
+              Si ambos tienen distancia,
+              siempre mostramos primero la
+              carrera más cercana a ESTE
+              taxista.
+            */
+            if (
+              typeof a.distanciaKm ===
+                "number" &&
+              typeof b.distanciaKm ===
+                "number"
+            ) {
+              const diferencia =
+                a.distanciaKm -
+                b.distanciaKm;
+
+
+              if (
+                Math.abs(
+                  diferencia
+                ) > 0.001
+              ) {
+                return diferencia;
+              }
+            }
+
+
+            /*
+              Una carrera con distancia válida
+              va antes que una sin distancia.
+            */
+            if (
+              typeof a.distanciaKm ===
+                "number" &&
+              typeof b.distanciaKm !==
+                "number"
+            ) {
+              return -1;
+            }
+
+
+            if (
+              typeof a.distanciaKm !==
+                "number" &&
+              typeof b.distanciaKm ===
+                "number"
+            ) {
+              return 1;
+            }
+
+
+            /*
+              Empate de distancia, o APK vieja
+              sin GPS: conservamos prioridad a
+              la solicitud más reciente.
+            */
+            return (
+              new Date(
+                b.fechaCreacion
+              ).getTime() -
+              new Date(
+                a.fechaCreacion
+              ).getTime()
+            );
+          }
+        );
+
+
     return res.json({
-      success: true,
-      carreras,
+      success:
+        true,
+
+      carreras:
+        carrerasConDistancia,
     });
 
   } catch (error) {
@@ -143,7 +381,9 @@ export async function listarCarrerasDisponiblesAppController(
 
 
     return res.status(500).json({
-      success: false,
+      success:
+        false,
+
       message:
         "No se pudieron cargar las carreras disponibles.",
     });
