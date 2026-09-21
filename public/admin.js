@@ -22,6 +22,12 @@ const menuAdminTitulo =
     "menuAdminTitulo"
   );
 
+const panelDashboard =
+  document.getElementById(
+    "panelDashboard"
+  );
+
+
 const panelCarreras =
   document.getElementById(
     "panelCarreras"
@@ -52,6 +58,22 @@ const mensajeGeneral =
     "mensajeGeneral"
   );
 
+const btnActualizarDashboard =
+  document.getElementById(
+    "btnActualizarDashboard"
+  );
+
+const btnCopiarResumen =
+  document.getElementById(
+    "btnCopiarResumen"
+  );
+
+let periodoDashboardActual =
+  "hoy";
+
+let resumenDashboardActual =
+  "";
+
 
 function mostrarMensaje(
   mensaje,
@@ -80,6 +102,10 @@ function mostrarMensaje(
 function mostrarSeccion(
   seccion
 ) {
+  panelDashboard.classList.remove(
+    "activo"
+  );
+
   panelCarreras.classList.remove(
     "activo"
   );
@@ -114,7 +140,17 @@ function mostrarSeccion(
       : "none";
 
 
-  if (seccion === "taxistas") {
+  if (seccion === "dashboard") {
+    panelDashboard.classList.add(
+      "activo"
+    );
+
+    menuAdminTitulo.textContent =
+      "📊 Dashboard";
+
+    cargarDashboard();
+
+  } else if (seccion === "taxistas") {
     panelTaxistas.classList.add(
       "activo"
     );
@@ -231,6 +267,429 @@ btnActualizarCarreras.addEventListener(
     }
   }
 );
+
+
+
+/*
+  ========================================
+  DASHBOARD FASE A
+  ========================================
+*/
+
+function textoPeriodoDashboard() {
+  if (
+    periodoDashboardActual ===
+    "ayer"
+  ) {
+    return "Ayer";
+  }
+
+  if (
+    periodoDashboardActual ===
+    "7d"
+  ) {
+    return "Últimos 7 días";
+  }
+
+  if (
+    periodoDashboardActual ===
+    "30d"
+  ) {
+    return "Últimos 30 días";
+  }
+
+  return "Hoy";
+}
+
+
+function pintarVariacion(
+  elementoId,
+  valor
+) {
+  const elemento =
+    document.getElementById(
+      elementoId
+    );
+
+  if (!elemento) {
+    return;
+  }
+
+  if (valor === null) {
+    elemento.textContent =
+      "Sin base anterior para comparar";
+    elemento.className =
+      "dashboard-metrica-sub variacion-neutra";
+    return;
+  }
+
+  const signo =
+    valor > 0
+      ? "+"
+      : "";
+
+  elemento.textContent =
+    `${signo}${valor}% vs período anterior`;
+
+  elemento.className =
+    "dashboard-metrica-sub " +
+    (
+      valor > 0
+        ? "variacion-positiva"
+        : valor < 0
+          ? "variacion-negativa"
+          : "variacion-neutra"
+    );
+}
+
+
+function pintarGraficoHoras(
+  datos
+) {
+  const contenedor =
+    document.getElementById(
+      "graficoHoras"
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  const filas =
+    Array.isArray(datos)
+      ? datos
+      : [];
+
+  const maximo =
+    Math.max(
+      1,
+      ...filas.map(
+        item =>
+          Number(
+            item.solicitudes || 0
+          )
+      )
+    );
+
+  contenedor.innerHTML =
+    filas.map(
+      item => {
+        const total =
+          Number(
+            item.solicitudes || 0
+          );
+
+        const altura =
+          total === 0
+            ? 0
+            : Math.max(
+              5,
+              Math.round(
+                (total / maximo) *
+                100
+              )
+            );
+
+        return `
+          <div class="grafico-hora" title="${escaparHtml(item.etiqueta)} · ${total} solicitudes">
+            <div class="grafico-numero">${total || ""}</div>
+            <div class="grafico-barra-wrap">
+              <div class="grafico-barra" style="height:${altura}%;"></div>
+            </div>
+            <div class="grafico-etiqueta">${escaparHtml(item.etiqueta)}</div>
+          </div>
+        `;
+      }
+    ).join("");
+}
+
+
+function pintarCalificaciones(
+  calificaciones
+) {
+  const contenedor =
+    document.getElementById(
+      "calificacionesDetalle"
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  const total =
+    Number(
+      calificaciones?.total || 0
+    );
+
+  const items = [
+    ["😍 Excelente", Number(calificaciones?.excelente || 0)],
+    ["🙂 Bueno", Number(calificaciones?.bueno || 0)],
+    ["😕 Malo", Number(calificaciones?.malo || 0)],
+  ];
+
+  contenedor.innerHTML =
+    items.map(
+      ([etiqueta, cantidad]) => {
+        const porcentaje =
+          total > 0
+            ? Math.round(
+              (cantidad / total) *
+              100
+            )
+            : 0;
+
+        return `
+          <div class="calificacion-fila">
+            <span>${etiqueta}</span>
+            <div class="calificacion-pista">
+              <div class="calificacion-relleno" style="width:${porcentaje}%;"></div>
+            </div>
+            <strong>${cantidad}</strong>
+          </div>
+        `;
+      }
+    ).join("");
+}
+
+
+function construirResumenDashboard(
+  data
+) {
+  const m =
+    data.metricas || {};
+
+  const calificacion =
+    m.calificacionPromedio === null ||
+    m.calificacionPromedio === undefined
+      ? "Sin calificaciones"
+      : `${m.calificacionPromedio}/5 (${m.calificacionesRecibidas} respuestas)`;
+
+  return (
+    `RAPITAXI · ${textoPeriodoDashboard()}\n\n` +
+    `🚕 ${m.solicitudes || 0} solicitudes\n` +
+    `✅ ${m.completadas || 0} completadas\n` +
+    `❌ ${m.canceladas || 0} canceladas\n` +
+    `🔎 ${m.activas || 0} activas\n` +
+    `📈 ${m.porcentajeFinalizacion || 0}% de finalización\n\n` +
+    `👥 ${m.clientesAtendidos || 0} clientes atendidos\n` +
+    `🚖 ${m.taxistasTrabajaron || 0} taxistas trabajaron\n` +
+    `🟢 ${m.taxistasEnLinea || 0} taxistas en línea\n` +
+    `⭐ ${calificacion}`
+  );
+}
+
+
+function pintarUltimasCarrerasDashboard(
+  carreras
+) {
+  const tbody =
+    document.getElementById(
+      "dashboardUltimasCarreras"
+    );
+
+  if (!tbody) {
+    return;
+  }
+
+  const lista =
+    Array.isArray(carreras)
+      ? carreras
+      : [];
+
+  if (lista.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="vacio">No hay carreras en este período.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML =
+    lista.map(
+      carrera => `
+        <tr>
+          <td>#${escaparHtml(carrera.numero)}</td>
+          <td><span class="estado ${claseEstadoCarrera(carrera.estado)}">${escaparHtml(carrera.estado)}</span></td>
+          <td>${escaparHtml(carrera.cliente || "-")}</td>
+          <td>${carrera.taxista ? escaparHtml(`#${carrera.taxista.codigo} · ${carrera.taxista.nombre}`) : "-"}</td>
+          <td>${escaparHtml(formatearFecha(carrera.fechaCreacion))}</td>
+        </tr>
+      `
+    ).join("");
+}
+
+
+async function cargarDashboard() {
+  try {
+    const response =
+      await fetch(
+        `/api/carreras/admin/dashboard?periodo=${encodeURIComponent(periodoDashboardActual)}`
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "No se pudo cargar el dashboard."
+      );
+    }
+
+    const m =
+      data.metricas || {};
+
+    document.getElementById("metricaSolicitudes").textContent = m.solicitudes ?? 0;
+    document.getElementById("metricaCompletadas").textContent = m.completadas ?? 0;
+    document.getElementById("metricaActivas").textContent = m.activas ?? 0;
+    document.getElementById("metricaCanceladas").textContent = m.canceladas ?? 0;
+    document.getElementById("metricaFinalizacion").textContent = `${m.porcentajeFinalizacion ?? 0}%`;
+    document.getElementById("metricaClientes").textContent = m.clientesAtendidos ?? 0;
+    document.getElementById("metricaTaxistasTrabajaron").textContent = m.taxistasTrabajaron ?? 0;
+    document.getElementById("metricaTaxistasLinea").textContent = m.taxistasEnLinea ?? 0;
+    document.getElementById("metricaTaxistasLineaSub").textContent = `${m.totalTaxistasActivos ?? 0} taxistas activos registrados`;
+    document.getElementById("metricaCalificacion").textContent = m.calificacionPromedio === null || m.calificacionPromedio === undefined ? "—" : `${m.calificacionPromedio}/5`;
+    document.getElementById("metricaCalificacionSub").textContent = `${m.calificacionesRecibidas ?? 0} respuestas recibidas`;
+    document.getElementById("metricaCalificacionesTotal").textContent = m.calificacionesRecibidas ?? 0;
+
+    pintarVariacion(
+      "compSolicitudes",
+      data.comparacion?.solicitudes
+    );
+
+    pintarVariacion(
+      "compCompletadas",
+      data.comparacion?.completadas
+    );
+
+    pintarVariacion(
+      "compCanceladas",
+      data.comparacion?.canceladas
+    );
+
+    pintarGraficoHoras(
+      data.porHora
+    );
+
+    pintarCalificaciones(
+      data.calificaciones
+    );
+
+    pintarUltimasCarrerasDashboard(
+      data.ultimasCarreras
+    );
+
+    resumenDashboardActual =
+      construirResumenDashboard(
+        data
+      );
+
+    document.getElementById(
+      "dashboardResumen"
+    ).textContent =
+      resumenDashboardActual;
+
+  } catch (error) {
+    console.error(
+      "Error cargando dashboard:",
+      error
+    );
+
+    mostrarMensaje(
+      error.message ||
+      "No se pudo cargar el dashboard.",
+      "error"
+    );
+  }
+}
+
+
+document
+  .querySelectorAll(
+    ".dashboard-filtro"
+  )
+  .forEach(
+    boton => {
+      boton.addEventListener(
+        "click",
+        async () => {
+          periodoDashboardActual =
+            boton.dataset.periodo ||
+            "hoy";
+
+          document
+            .querySelectorAll(
+              ".dashboard-filtro"
+            )
+            .forEach(
+              item =>
+                item.classList.toggle(
+                  "activo",
+                  item === boton
+                )
+            );
+
+          await cargarDashboard();
+        }
+      );
+    }
+  );
+
+
+if (btnActualizarDashboard) {
+  btnActualizarDashboard.addEventListener(
+    "click",
+    async () => {
+      btnActualizarDashboard.disabled =
+        true;
+
+      btnActualizarDashboard.textContent =
+        "Actualizando...";
+
+      try {
+        await cargarDashboard();
+      } finally {
+        btnActualizarDashboard.disabled =
+          false;
+
+        btnActualizarDashboard.textContent =
+          "🔄 Actualizar";
+      }
+    }
+  );
+}
+
+
+if (btnCopiarResumen) {
+  btnCopiarResumen.addEventListener(
+    "click",
+    async () => {
+      if (!resumenDashboardActual) {
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(
+          resumenDashboardActual
+        );
+
+        mostrarMensaje(
+          "Resumen copiado. Ya puedes pegarlo en WhatsApp."
+        );
+
+      } catch (error) {
+        mostrarMensaje(
+          "No se pudo copiar automáticamente. Selecciona el texto del resumen.",
+          "error"
+        );
+      }
+    }
+  );
+}
 
 
 /*
@@ -2895,6 +3354,19 @@ cargarTaxistas();
 setInterval(
   cargarCarreras,
   10000
+);
+
+setInterval(
+  () => {
+    if (
+      panelDashboard.classList.contains(
+        "activo"
+      )
+    ) {
+      cargarDashboard();
+    }
+  },
+  30000
 );
 
 

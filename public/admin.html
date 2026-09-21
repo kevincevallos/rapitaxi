@@ -1052,6 +1052,222 @@
             }
         }
 
+
+
+        /* ============================= */
+        /* DASHBOARD FASE A */
+        /* ============================= */
+
+        .dashboard-cabecera {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-filtros {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-filtro {
+            border: 1px solid #e2d9ef;
+            background: white;
+            color: var(--morado);
+            border-radius: 999px;
+            padding: 9px 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dashboard-filtro.activo {
+            background: var(--morado);
+            color: white;
+            border-color: var(--morado);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-metrica {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .07);
+            min-width: 0;
+        }
+
+        .dashboard-metrica-etiqueta {
+            color: var(--gris);
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            line-height: 1.35;
+        }
+
+        .dashboard-metrica-valor {
+            margin-top: 7px;
+            font-size: 28px;
+            line-height: 1;
+            font-weight: 800;
+            color: #2f174f;
+        }
+
+        .dashboard-metrica-sub {
+            margin-top: 7px;
+            min-height: 16px;
+            color: #777;
+            font-size: 11px;
+        }
+
+        .dashboard-doble {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-titulo {
+            margin: 0 0 14px;
+            font-size: 17px;
+            color: #332044;
+        }
+
+        .grafico-horas {
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding-top: 12px;
+            overflow-x: auto;
+        }
+
+        .grafico-hora {
+            min-width: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .grafico-barra-wrap {
+            width: 20px;
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            border-radius: 7px;
+            background: #f0edf5;
+            overflow: hidden;
+        }
+
+        .grafico-barra {
+            width: 100%;
+            min-height: 0;
+            background: linear-gradient(180deg, var(--morado-claro), var(--morado));
+            border-radius: 7px 7px 0 0;
+        }
+
+        .grafico-numero {
+            font-size: 10px;
+            font-weight: bold;
+            color: #4f3b61;
+        }
+
+        .grafico-etiqueta {
+            font-size: 9px;
+            color: #8b8492;
+            white-space: nowrap;
+        }
+
+        .calificacion-fila {
+            display: grid;
+            grid-template-columns: 90px 1fr 32px;
+            gap: 8px;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .calificacion-pista {
+            height: 9px;
+            border-radius: 999px;
+            background: #eeeaf3;
+            overflow: hidden;
+        }
+
+        .calificacion-relleno {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--morado);
+        }
+
+        .dashboard-resumen {
+            white-space: pre-wrap;
+            background: #f8f4fc;
+            border: 1px solid #e8dcf4;
+            border-radius: 12px;
+            padding: 14px;
+            font: 13px/1.55 Arial, Helvetica, sans-serif;
+            color: #39234d;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-nota {
+            font-size: 11px;
+            color: #777;
+            line-height: 1.45;
+            margin-top: 10px;
+        }
+
+        .variacion-positiva { color: var(--verde); }
+        .variacion-negativa { color: var(--rojo); }
+        .variacion-neutra { color: #777; }
+
+        @media (max-width: 1100px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dashboard-doble {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-metrica {
+                padding: 13px;
+            }
+
+            .dashboard-metrica-valor {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .dashboard-filtro {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+        }
+
     </style>
 </head>
 
@@ -1073,13 +1289,17 @@
             <div id="menuAdmin" class="menu-admin">
 
                 <button id="menuAdminBoton" class="menu-admin-boton" type="button">
-                    <span id="menuAdminTitulo">🚕 Carreras</span>
+                    <span id="menuAdminTitulo">📊 Dashboard</span>
                     <span>⌄</span>
                 </button>
 
                 <div class="menu-admin-lista">
 
-                    <button class="menu-opcion activo" data-seccion="carreras" type="button">
+                    <button class="menu-opcion activo" data-seccion="dashboard" type="button">
+                        📊 Dashboard
+                    </button>
+
+                    <button class="menu-opcion" data-seccion="carreras" type="button">
                         🚕 Carreras
                     </button>
 
@@ -1104,10 +1324,136 @@
 
 
         <!-- ============================= -->
+        <!-- DASHBOARD -->
+        <!-- ============================= -->
+
+        <section id="panelDashboard" class="panel activo">
+
+            <div class="dashboard-cabecera">
+                <div class="dashboard-filtros" id="dashboardFiltros">
+                    <button class="dashboard-filtro activo" data-periodo="hoy" type="button">Hoy</button>
+                    <button class="dashboard-filtro" data-periodo="ayer" type="button">Ayer</button>
+                    <button class="dashboard-filtro" data-periodo="7d" type="button">7 días</button>
+                    <button class="dashboard-filtro" data-periodo="30d" type="button">30 días</button>
+                </div>
+
+                <button id="btnActualizarDashboard" class="btn-principal" type="button">
+                    🔄 Actualizar
+                </button>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">🚕 Solicitudes</div>
+                    <div id="metricaSolicitudes" class="dashboard-metrica-valor">—</div>
+                    <div id="compSolicitudes" class="dashboard-metrica-sub">Cargando...</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">✅ Completadas</div>
+                    <div id="metricaCompletadas" class="dashboard-metrica-valor">—</div>
+                    <div id="compCompletadas" class="dashboard-metrica-sub">Cargando...</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">🔎 Activas</div>
+                    <div id="metricaActivas" class="dashboard-metrica-valor">—</div>
+                    <div class="dashboard-metrica-sub">En búsqueda o servicio</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">❌ Canceladas</div>
+                    <div id="metricaCanceladas" class="dashboard-metrica-valor">—</div>
+                    <div id="compCanceladas" class="dashboard-metrica-sub">Cargando...</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">📈 Finalización</div>
+                    <div id="metricaFinalizacion" class="dashboard-metrica-valor">—</div>
+                    <div class="dashboard-metrica-sub">Completadas / solicitudes</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">👥 Clientes atendidos</div>
+                    <div id="metricaClientes" class="dashboard-metrica-valor">—</div>
+                    <div class="dashboard-metrica-sub">Clientes únicos con carrera completada</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">🚖 Taxistas trabajaron</div>
+                    <div id="metricaTaxistasTrabajaron" class="dashboard-metrica-valor">—</div>
+                    <div class="dashboard-metrica-sub">Con carrera asignada en el período</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">🟢 Taxistas en línea</div>
+                    <div id="metricaTaxistasLinea" class="dashboard-metrica-valor">—</div>
+                    <div id="metricaTaxistasLineaSub" class="dashboard-metrica-sub">Estado reportado por la app</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">⭐ Calificación promedio*</div>
+                    <div id="metricaCalificacion" class="dashboard-metrica-valor">—</div>
+                    <div id="metricaCalificacionSub" class="dashboard-metrica-sub">Sin calificaciones</div>
+                </div>
+
+                <div class="dashboard-metrica">
+                    <div class="dashboard-metrica-etiqueta">💬 Calificaciones</div>
+                    <div id="metricaCalificacionesTotal" class="dashboard-metrica-valor">—</div>
+                    <div class="dashboard-metrica-sub">Respuestas recibidas</div>
+                </div>
+            </div>
+
+            <div class="dashboard-doble">
+                <div class="tarjeta">
+                    <h2 class="dashboard-titulo">Demanda por hora</h2>
+                    <div id="graficoHoras" class="grafico-horas"></div>
+                </div>
+
+                <div class="tarjeta">
+                    <h2 class="dashboard-titulo">Calificaciones del servicio</h2>
+                    <div id="calificacionesDetalle"></div>
+                    <div class="dashboard-nota">
+                        * Para mostrar un promedio de 1 a 5 se usa la equivalencia actual:
+                        Excelente = 5, Bueno = 3, Malo = 1. Se conservan también los conteos reales de cada opción.
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-doble">
+                <div class="tarjeta">
+                    <h2 class="dashboard-titulo">Resumen listo para compartir</h2>
+                    <div id="dashboardResumen" class="dashboard-resumen">Cargando resumen...</div>
+                    <button id="btnCopiarResumen" class="btn-principal" type="button">📋 Copiar resumen</button>
+                </div>
+
+                <div class="tarjeta">
+                    <h2 class="dashboard-titulo">Últimas carreras del período</h2>
+                    <div style="overflow-x:auto;">
+                        <table style="min-width:620px;">
+                            <thead>
+                                <tr>
+                                    <th>Carrera</th>
+                                    <th>Estado</th>
+                                    <th>Cliente</th>
+                                    <th>Taxista</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboardUltimasCarreras"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ============================= -->
         <!-- CARRERAS -->
         <!-- ============================= -->
 
-        <section id="panelCarreras" class="panel activo">
+        <section id="panelCarreras" class="panel">
 
             <div style="
       display: flex;
@@ -1120,9 +1466,6 @@
             </div>
 
 
-            <div id="resumenCupon" class="resumen-cupon">
-                🎟️ RAPICUPON · cargando contador...
-            </div>
 
             <div class="tarjeta">
 

@@ -62,6 +62,226 @@ function calcularDistanciaKm(
 }
 
 
+
+/*
+  ========================================
+  DASHBOARD ADMIN - UTILIDADES
+  ========================================
+
+  Ecuador continental utiliza UTC-5 todo el año.
+  Convertimos los límites de día de Ecuador a UTC
+  antes de consultar SQLite/Prisma.
+*/
+
+type PeriodoDashboard =
+  | "hoy"
+  | "ayer"
+  | "7d"
+  | "30d";
+
+const HORA_ECUADOR_MS =
+  5 * 60 * 60 * 1000;
+
+function inicioDiaEcuadorUtc(
+  fecha: Date
+) {
+  const localEcuador =
+    new Date(
+      fecha.getTime() -
+      HORA_ECUADOR_MS
+    );
+
+  return new Date(
+    Date.UTC(
+      localEcuador.getUTCFullYear(),
+      localEcuador.getUTCMonth(),
+      localEcuador.getUTCDate()
+    ) + HORA_ECUADOR_MS
+  );
+}
+
+function obtenerRangoDashboard(
+  periodo: PeriodoDashboard,
+  ahora = new Date()
+) {
+  const inicioHoy =
+    inicioDiaEcuadorUtc(ahora);
+
+  let inicio: Date;
+  let fin: Date;
+
+  if (periodo === "ayer") {
+    inicio = new Date(
+      inicioHoy.getTime() -
+      24 * 60 * 60 * 1000
+    );
+    fin = inicioHoy;
+
+  } else if (periodo === "7d") {
+    inicio = new Date(
+      inicioHoy.getTime() -
+      6 * 24 * 60 * 60 * 1000
+    );
+    fin = ahora;
+
+  } else if (periodo === "30d") {
+    inicio = new Date(
+      inicioHoy.getTime() -
+      29 * 24 * 60 * 60 * 1000
+    );
+    fin = ahora;
+
+  } else {
+    inicio = inicioHoy;
+    fin = ahora;
+  }
+
+  const duracion =
+    fin.getTime() -
+    inicio.getTime();
+
+  const inicioAnterior =
+    new Date(
+      inicio.getTime() -
+      duracion
+    );
+
+  return {
+    inicio,
+    fin,
+    inicioAnterior,
+    finAnterior: inicio,
+  };
+}
+
+function horaEcuador(
+  fecha: Date
+) {
+  const texto =
+    new Intl.DateTimeFormat(
+      "en-US",
+      {
+        timeZone:
+          "America/Guayaquil",
+        hour:
+          "2-digit",
+        hour12:
+          false,
+      }
+    ).format(fecha);
+
+  return Number(texto) % 24;
+}
+
+function variacionPorcentual(
+  actual: number,
+  anterior: number
+) {
+  if (anterior === 0) {
+    return actual === 0
+      ? 0
+      : null;
+  }
+
+  return Math.round(
+    ((actual - anterior) /
+      anterior) *
+    1000
+  ) / 10;
+}
+
+function esEstadoActivoDashboard(
+  estado: string
+) {
+  return [
+    "BUSCANDO",
+    "ASIGNADA",
+    "EN_CAMINO",
+    "CERCA",
+    "LLEGO",
+  ].includes(estado);
+}
+
+function resumenCarrerasDashboard(
+  carreras: Array<{
+    estado: string;
+    whatsappCliente: string;
+    taxistaId: number | null;
+    calificacion: string | null;
+  }>
+) {
+  const solicitudes =
+    carreras.length;
+
+  const completadas =
+    carreras.filter(
+      carrera =>
+        carrera.estado ===
+        "COMPLETADA"
+    ).length;
+
+  const canceladas =
+    carreras.filter(
+      carrera =>
+        carrera.estado ===
+        "CANCELADA"
+    ).length;
+
+  const activas =
+    carreras.filter(
+      carrera =>
+        esEstadoActivoDashboard(
+          carrera.estado
+        )
+    ).length;
+
+  const clientesAtendidos =
+    new Set(
+      carreras
+        .filter(
+          carrera =>
+            carrera.estado ===
+            "COMPLETADA"
+        )
+        .map(
+          carrera =>
+            carrera.whatsappCliente
+        )
+    ).size;
+
+  const taxistasTrabajaron =
+    new Set(
+      carreras
+        .filter(
+          carrera =>
+            carrera.taxistaId !==
+            null
+        )
+        .map(
+          carrera =>
+            carrera.taxistaId
+        )
+    ).size;
+
+  return {
+    solicitudes,
+    completadas,
+    canceladas,
+    activas,
+    clientesAtendidos,
+    taxistasTrabajaron,
+    porcentajeFinalizacion:
+      solicitudes > 0
+        ? Math.round(
+          (completadas /
+            solicitudes) *
+          1000
+        ) / 10
+        : 0,
+  };
+}
+
+
 export async function crearCarreraController(
   req: Request,
   res: Response
@@ -1182,6 +1402,321 @@ export async function listarCarrerasAdminController(
       success: false,
       message:
         "No se pudieron cargar las carreras.",
+    });
+  }
+}
+
+
+
+/*
+  ========================================
+  ADMIN - DASHBOARD ESTADÍSTICO
+  ========================================
+*/
+export async function obtenerDashboardAdminController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const periodoSolicitado =
+      String(
+        req.query.periodo ||
+        "hoy"
+      ).toLowerCase();
+
+    const periodosValidos:
+      PeriodoDashboard[] = [
+        "hoy",
+        "ayer",
+        "7d",
+        "30d",
+      ];
+
+    const periodo =
+      periodosValidos.includes(
+        periodoSolicitado as
+          PeriodoDashboard
+      )
+        ? periodoSolicitado as
+          PeriodoDashboard
+        : "hoy";
+
+    const rango =
+      obtenerRangoDashboard(
+        periodo
+      );
+
+    const [
+      carreras,
+      carrerasAnteriores,
+      dispositivosEnLinea,
+      totalTaxistasActivos,
+    ] = await Promise.all([
+
+      prisma.carrera.findMany({
+        where: {
+          fechaCreacion: {
+            gte: rango.inicio,
+            lt: rango.fin,
+          },
+        },
+        orderBy: {
+          fechaCreacion:
+            "desc",
+        },
+        select: {
+          id: true,
+          numero: true,
+          estado: true,
+          nombreCliente: true,
+          whatsappCliente: true,
+          referencia: true,
+          formaPago: true,
+          fechaCreacion: true,
+          fechaAceptacion: true,
+          fechaLlegada: true,
+          fechaFin: true,
+          calificacion: true,
+          canceladaPor: true,
+          taxistaId: true,
+          taxista: {
+            select: {
+              codigo: true,
+              nombre: true,
+              placa: true,
+            },
+          },
+        },
+      }),
+
+      prisma.carrera.findMany({
+        where: {
+          fechaCreacion: {
+            gte:
+              rango.inicioAnterior,
+            lt:
+              rango.finAnterior,
+          },
+        },
+        select: {
+          estado: true,
+          whatsappCliente: true,
+          taxistaId: true,
+          calificacion: true,
+        },
+      }),
+
+      prisma.dispositivoTaxista.findMany({
+        where: {
+          activo: true,
+          enLinea: true,
+        },
+        select: {
+          taxistaId: true,
+        },
+      }),
+
+      prisma.taxista.count({
+        where: {
+          activo: true,
+        },
+      }),
+    ]);
+
+    const resumen =
+      resumenCarrerasDashboard(
+        carreras
+      );
+
+    const resumenAnterior =
+      resumenCarrerasDashboard(
+        carrerasAnteriores
+      );
+
+    const taxistasEnLinea =
+      new Set(
+        dispositivosEnLinea.map(
+          dispositivo =>
+            dispositivo.taxistaId
+        )
+      ).size;
+
+    const porHora =
+      Array.from(
+        { length: 24 },
+        (_, hora) => ({
+          hora,
+          etiqueta:
+            `${String(hora)
+              .padStart(2, "0")}:00`,
+          solicitudes: 0,
+          completadas: 0,
+        })
+      );
+
+    for (
+      const carrera
+      of carreras
+    ) {
+      const hora =
+        horaEcuador(
+          carrera.fechaCreacion
+        );
+
+      porHora[hora].solicitudes++;
+
+      if (
+        carrera.estado ===
+        "COMPLETADA"
+      ) {
+        porHora[hora].completadas++;
+      }
+    }
+
+    const calificaciones = {
+      excelente: 0,
+      bueno: 0,
+      malo: 0,
+      total: 0,
+      promedio: null as
+        number | null,
+    };
+
+    let sumaCalificacion = 0;
+
+    for (
+      const carrera
+      of carreras
+    ) {
+      if (
+        carrera.calificacion ===
+        "Excelente"
+      ) {
+        calificaciones.excelente++;
+        sumaCalificacion += 5;
+
+      } else if (
+        carrera.calificacion ===
+        "Bueno"
+      ) {
+        calificaciones.bueno++;
+        sumaCalificacion += 3;
+
+      } else if (
+        carrera.calificacion ===
+        "Malo"
+      ) {
+        calificaciones.malo++;
+        sumaCalificacion += 1;
+      }
+    }
+
+    calificaciones.total =
+      calificaciones.excelente +
+      calificaciones.bueno +
+      calificaciones.malo;
+
+    if (
+      calificaciones.total > 0
+    ) {
+      calificaciones.promedio =
+        Math.round(
+          (sumaCalificacion /
+            calificaciones.total) *
+          10
+        ) / 10;
+    }
+
+    const comparacion = {
+      solicitudes:
+        variacionPorcentual(
+          resumen.solicitudes,
+          resumenAnterior.solicitudes
+        ),
+      completadas:
+        variacionPorcentual(
+          resumen.completadas,
+          resumenAnterior.completadas
+        ),
+      canceladas:
+        variacionPorcentual(
+          resumen.canceladas,
+          resumenAnterior.canceladas
+        ),
+    };
+
+    const ultimasCarreras =
+      carreras
+        .slice(0, 8)
+        .map(
+          carrera => ({
+            id:
+              carrera.id,
+            numero:
+              carrera.numero,
+            estado:
+              carrera.estado,
+            cliente:
+              carrera.nombreCliente,
+            referencia:
+              carrera.referencia,
+            fechaCreacion:
+              carrera.fechaCreacion,
+            taxista:
+              carrera.taxista
+                ? {
+                  codigo:
+                    carrera.taxista.codigo,
+                  nombre:
+                    carrera.taxista.nombre,
+                  placa:
+                    carrera.taxista.placa,
+                }
+                : null,
+          })
+        );
+
+    return res.json({
+      success: true,
+      periodo,
+      zonaHoraria:
+        "America/Guayaquil",
+      rango: {
+        inicio:
+          rango.inicio,
+        fin:
+          rango.fin,
+      },
+      metricas: {
+        ...resumen,
+        taxistasEnLinea,
+        totalTaxistasActivos,
+        calificacionPromedio:
+          calificaciones.promedio,
+        calificacionesRecibidas:
+          calificaciones.total,
+      },
+      comparacion,
+      calificaciones,
+      escalaCalificacion: {
+        Excelente: 5,
+        Bueno: 3,
+        Malo: 1,
+      },
+      porHora,
+      ultimasCarreras,
+    });
+
+  } catch (error) {
+    console.error(
+      "Error cargando dashboard admin:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo cargar el dashboard.",
     });
   }
 }

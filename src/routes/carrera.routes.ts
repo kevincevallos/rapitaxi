@@ -14,6 +14,7 @@ import {
     cancelarCarreraAdminController,
     obtenerSeguimientoPublicoController,
     marcarLlegadaTaxistaController,
+    obtenerDashboardAdminController,
 } from "../controllers/carrera.controller";
 
 
@@ -70,6 +71,12 @@ router.post(
 router.get(
     "/admin/listado",
     listarCarrerasAdminController
+);
+
+
+router.get(
+    "/admin/dashboard",
+    obtenerDashboardAdminController
 );
 
 

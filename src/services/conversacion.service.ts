@@ -243,6 +243,19 @@ function esCancelar(
 
 /*
   ========================================
+  CAMPAÑA PROMOCIONAL
+  ========================================
+
+  La campaña terminó. Conservamos toda la
+  infraestructura y el histórico, pero no
+  aceptamos ni aplicamos nuevos cupones.
+*/
+const CAMPANA_CUPONES_ACTIVA =
+    false;
+
+
+/*
+  ========================================
   CUPONES ÚNICOS RAPITAXI
   ========================================
 
@@ -1916,9 +1929,11 @@ export async function procesarMensajeWhatsApp(
     */
 
     const codigoCuponMensaje =
-        extraerCodigoCupon(
-            input
-        );
+        CAMPANA_CUPONES_ACTIVA
+            ? extraerCodigoCupon(
+                input
+            )
+            : null;
 
     const mensajeTieneCupon =
         Boolean(
@@ -1933,6 +1948,7 @@ export async function procesarMensajeWhatsApp(
             .toUpperCase();
 
     if (
+        CAMPANA_CUPONES_ACTIVA &&
         !codigoCuponMensaje &&
         textoCuponNormalizado.includes(
             "RAPICUPON"
@@ -1947,6 +1963,7 @@ export async function procesarMensajeWhatsApp(
 
 
     if (
+        CAMPANA_CUPONES_ACTIVA &&
         codigoCuponMensaje
     ) {
         const estadoCupon =
@@ -3175,7 +3192,9 @@ export async function procesarMensajeWhatsApp(
             false;
 
         const codigoCuponPendiente =
-            conversacion.cuponPendiente;
+            CAMPANA_CUPONES_ACTIVA
+                ? conversacion.cuponPendiente
+                : null;
 
 
         try {

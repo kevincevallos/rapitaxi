@@ -974,15 +974,31 @@ export async function finalizarCarrerasVencidas() {
                 await enviarBotonesWhatsApp(
                     telefonoCliente,
 
-                    `Hola ${carrera.nombreCliente}. Vi que ya pediste 🚕✅\n¿Quieres saber qué opino de ti? 😂😂`,
+                    "¿Qué tal estuvo tu taxista?",
 
                     [
                         {
                             id:
-                                `rapi_opinion_${carrera.id}`,
+                                `rating_excelente_${carrera.id}`,
 
                             titulo:
-                                "Ok dime jajaja",
+                                "Excelente",
+                        },
+
+                        {
+                            id:
+                                `rating_bueno_${carrera.id}`,
+
+                            titulo:
+                                "Bueno",
+                        },
+
+                        {
+                            id:
+                                `rating_malo_${carrera.id}`,
+
+                            titulo:
+                                "Malo",
                         },
                     ]
                 );
@@ -2314,15 +2330,31 @@ export async function finalizarCarreraTaxista(
         await enviarBotonesWhatsApp(
             telefonoCliente,
 
-            `Hola ${carrera.nombreCliente}. Vi que ya pediste 🚕✅\n¿Quieres saber qué opino de ti? 😂😂`,
+            "¿Qué tal estuvo tu taxista?",
 
             [
                 {
                     id:
-                        `rapi_opinion_${carrera.id}`,
+                        `rating_excelente_${carrera.id}`,
 
                     titulo:
-                        "Ok dime jajaja",
+                        "Excelente",
+                },
+
+                {
+                    id:
+                        `rating_bueno_${carrera.id}`,
+
+                    titulo:
+                        "Bueno",
+                },
+
+                {
+                    id:
+                        `rating_malo_${carrera.id}`,
+
+                    titulo:
+                        "Malo",
                 },
             ]
         );
