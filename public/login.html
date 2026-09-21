@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapitaxi - Acceso administrador</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #3f1d76, #7441bd);
+      color: #252525;
+    }
+    .login-card {
+      width: min(430px, 100%);
+      background: white;
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.28);
+    }
+    .marca { text-align: center; margin-bottom: 25px; }
+    .marca .icono { font-size: 54px; }
+    .marca h1 { margin: 8px 0 4px; color: #5b2ca0; }
+    .marca p { margin: 0; color: #777; font-size: 14px; }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #555;
+      margin: 15px 0 6px;
+    }
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #dddde5;
+      border-radius: 11px;
+      font: inherit;
+      outline: none;
+    }
+    input:focus { border-color: #5b2ca0; box-shadow: 0 0 0 3px rgba(91,44,160,.1); }
+    button {
+      width: 100%;
+      margin-top: 20px;
+      border: 0;
+      border-radius: 11px;
+      padding: 13px 16px;
+      font: inherit;
+      font-weight: bold;
+      color: white;
+      background: #5b2ca0;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .65; cursor: default; }
+    .mensaje {
+      display: none;
+      margin-top: 15px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .mensaje.visible { display: block; }
+    .mensaje.error { background: #fde5e5; color: #a62e2e; }
+    .mensaje.ok { background: #e2f5e8; color: #18743a; }
+    .seguridad {
+      margin-top: 18px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      color: #777;
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <form id="formLogin" class="login-card" autocomplete="on">
+    <div class="marca">
+      <div class="icono">🚖</div>
+      <h1>Rapitaxi</h1>
+      <p>Panel de administración</p>
+    </div>
+
+    <label for="usuario">Usuario</label>
+    <input id="usuario" name="usuario" type="text" autocomplete="username" required autofocus />
+
+    <label for="password">Contraseña</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required />
+
+    <button id="btnEntrar" type="submit">Entrar al panel</button>
+    <div id="mensajeLogin" class="mensaje"></div>
+
+    <div class="seguridad">
+      Acceso exclusivo para administradores de Rapitaxi.
+    </div>
+  </form>
+
+  <script src="/login.js"></script>
+</body>
+</html>

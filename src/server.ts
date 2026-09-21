@@ -11,6 +11,12 @@ import taxistaRoutes from "./routes/taxista.routes";
 import whatsappRoutes from "./routes/whatsapp.routes";
 import webPushRoutes from "./routes/web-push.routes";
 import adminChatRoutes from "./routes/admin-chat.routes";
+import adminAuthRoutes from "./routes/admin-auth.routes";
+
+import {
+  requiereAdmin,
+  requiereAdminPagina,
+} from "./middlewares/admin-auth.middleware";
 
 import {
   finalizarCarrerasVencidas,
@@ -21,6 +27,11 @@ import {
 } from "./services/conversacion.service";
 
 const app = express();
+
+app.set(
+  "trust proxy",
+  1
+);
 
 
 /*
@@ -49,8 +60,46 @@ app.use(morgan("dev"));
 */
 
 app.use(
+  "/api/admin/auth",
+  adminAuthRoutes
+);
+
+/*
+  Protegemos todas las rutas de administración
+  de carreras sin afectar app, seguimiento ni
+  endpoints públicos.
+*/
+app.use(
+  "/api/carreras/admin",
+  requiereAdmin
+);
+
+app.use(
   "/api/carreras",
   carreraRoutes
+);
+
+/*
+  /api/taxistas contiene endpoints de la APK y
+  endpoints administrativos. Dejamos pasar /app
+  y exigimos sesión para todo lo demás.
+*/
+app.use(
+  "/api/taxistas",
+  (req, res, next) => {
+    if (
+      req.path === "/app" ||
+      req.path.startsWith("/app/")
+    ) {
+      return next();
+    }
+
+    return requiereAdmin(
+      req,
+      res,
+      next
+    );
+  }
 );
 
 app.use(
@@ -70,6 +119,7 @@ app.use(
 
 app.use(
   "/api/admin/chats",
+  requiereAdmin,
   adminChatRoutes
 );
 
@@ -85,6 +135,20 @@ const publicPath =
     process.cwd(),
     "public"
   );
+
+
+app.get(
+  "/admin.html",
+  requiereAdminPagina,
+  (_req, res) => {
+    res.sendFile(
+      path.join(
+        publicPath,
+        "admin.html"
+      )
+    );
+  }
+);
 
 
 app.use(

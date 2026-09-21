@@ -8,6 +8,12 @@
 
     <title>Rapitaxi - Administración</title>
 
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    />
+
     <style>
         :root {
             --morado: #5b2ca0;
@@ -1268,14 +1274,204 @@
             }
         }
 
-    </style>
+    
+
+        /* ============================= */
+        /* FASE B - SESIÓN + MAPA */
+        /* ============================= */
+
+        .header-admin-contenido {
+            width: min(1400px, 96%);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .admin-sesion {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .admin-usuario {
+            font-size: 13px;
+            opacity: .92;
+        }
+
+        .btn-salir {
+            border: 1px solid rgba(255,255,255,.42);
+            background: rgba(255,255,255,.12);
+            color: white;
+            border-radius: 9px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .mapa-resumen {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .mapa-resumen-item {
+            background: white;
+            border-radius: 13px;
+            padding: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.07);
+        }
+
+        .mapa-resumen-item strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 25px;
+        }
+
+        .mapa-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(320px, .85fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        #mapaTaxistas {
+            height: 590px;
+            min-height: 420px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #e9e7ee;
+        }
+
+        .mapa-panel-lateral {
+            background: white;
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,.07);
+            max-height: 590px;
+            overflow-y: auto;
+        }
+
+        .mapa-panel-lateral h3 {
+            margin: 0 0 11px;
+            color: var(--morado);
+        }
+
+        .taxista-mapa-lista {
+            display: grid;
+            gap: 8px;
+        }
+
+        .taxista-mapa-item {
+            border: 1px solid #ece8f2;
+            border-radius: 11px;
+            padding: 10px 11px;
+            background: #fff;
+        }
+
+        .taxista-mapa-item strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .taxista-mapa-meta {
+            font-size: 12px;
+            color: #777;
+            line-height: 1.45;
+        }
+
+        .estado-mapa {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 7px;
+            border-radius: 999px;
+            margin-bottom: 5px;
+        }
+
+        .estado-mapa-disponible { background:#dff5e6; color:#16753a; }
+        .estado-mapa-ocupado { background:#fff3d0; color:#8f6800; }
+        .estado-mapa-offline { background:#ededf0; color:#666; }
+        .estado-mapa-desactivado { background:#fde3e3; color:#b52d2d; }
+
+        .taxi-marker-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,.30);
+            border: 3px solid white;
+            font-size: 22px;
+        }
+
+        .taxi-marker-disponible { background:#31b55f; }
+        .taxi-marker-ocupado { background:#f1b628; }
+
+        .mapa-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mapa-actualizado {
+            font-size: 12px;
+            color: #777;
+        }
+
+        @media (max-width: 900px) {
+            .mapa-layout {
+                grid-template-columns: 1fr;
+            }
+            .mapa-panel-lateral {
+                max-height: none;
+            }
+            #mapaTaxistas {
+                height: 480px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .header-admin-contenido {
+                align-items: flex-start;
+            }
+            .admin-sesion {
+                justify-content: flex-end;
+            }
+            .admin-usuario {
+                display: none;
+            }
+            .mapa-resumen {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            #mapaTaxistas {
+                height: 430px;
+            }
+        }
+</style>
 </head>
 
 <body>
 
     <header>
-        <h1>🚖 Rapitaxi</h1>
-        <p>Panel de administración</p>
+        <div class="header-admin-contenido">
+            <div>
+                <h1>🚖 Rapitaxi</h1>
+                <p>Panel de administración</p>
+            </div>
+
+            <div class="admin-sesion">
+                <span id="adminUsuario" class="admin-usuario">Administrador</span>
+                <button id="btnCerrarSesion" class="btn-salir" type="button">Cerrar sesión</button>
+            </div>
+        </div>
     </header>
 
 
@@ -1297,6 +1493,10 @@
 
                     <button class="menu-opcion activo" data-seccion="dashboard" type="button">
                         📊 Dashboard
+                    </button>
+
+                    <button class="menu-opcion" data-seccion="mapa" type="button">
+                        🗺️ Mapa de taxistas
                     </button>
 
                     <button class="menu-opcion" data-seccion="carreras" type="button">
@@ -1444,6 +1644,55 @@
                         </table>
                     </div>
                 </div>
+            </div>
+
+        </section>
+
+
+        <!-- ============================= -->
+        <!-- MAPA DE TAXISTAS -->
+        <!-- ============================= -->
+
+        <section id="panelMapa" class="panel">
+
+            <div class="mapa-toolbar">
+                <div>
+                    <h2 style="margin:0;color:var(--morado);">Mapa operativo en tiempo real</h2>
+                    <div id="mapaActualizado" class="mapa-actualizado">Esperando datos...</div>
+                </div>
+                <button id="btnActualizarMapa" class="btn-principal" type="button">🔄 Actualizar mapa</button>
+            </div>
+
+            <div class="mapa-resumen">
+                <div class="mapa-resumen-item">
+                    <span>🟢 Disponibles</span>
+                    <strong id="mapaDisponibles">—</strong>
+                </div>
+                <div class="mapa-resumen-item">
+                    <span>🟡 En carrera</span>
+                    <strong id="mapaOcupados">—</strong>
+                </div>
+                <div class="mapa-resumen-item">
+                    <span>⚫ Offline</span>
+                    <strong id="mapaOffline">—</strong>
+                </div>
+                <div class="mapa-resumen-item">
+                    <span>🔴 Desactivados</span>
+                    <strong id="mapaDesactivados">—</strong>
+                </div>
+            </div>
+
+            <div class="mapa-layout">
+                <div class="tarjeta" style="padding:10px;overflow:hidden;">
+                    <div id="mapaTaxistas"></div>
+                </div>
+
+                <aside class="mapa-panel-lateral">
+                    <h3>Estado de taxistas</h3>
+                    <div id="listaTaxistasMapa" class="taxista-mapa-lista">
+                        Cargando...
+                    </div>
+                </aside>
             </div>
 
         </section>
@@ -1930,6 +2179,10 @@
     </div>
 
 
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        crossorigin=""
+    ></script>
     <script src="/admin.js"></script>
 
 </body>

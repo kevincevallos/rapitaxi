@@ -62,6 +62,49 @@ function calcularDistanciaKm(
 }
 
 
+async function guardarUltimaUbicacionTaxista(
+  codigoTaxista: string,
+  latitud: number,
+  longitud: number
+) {
+  const codigo =
+    String(codigoTaxista || "")
+      .replace(/\D/g, "")
+      .padStart(3, "0");
+
+  if (
+    !codigo ||
+    codigo === "000" ||
+    !Number.isFinite(latitud) ||
+    !Number.isFinite(longitud) ||
+    latitud < -90 ||
+    latitud > 90 ||
+    longitud < -180 ||
+    longitud > 180
+  ) {
+    return;
+  }
+
+  try {
+    await prisma.taxista.updateMany({
+      where: {
+        codigo,
+        activo: true,
+      },
+      data: {
+        ultimaLatitud: latitud,
+        ultimaLongitud: longitud,
+        fechaUltimaUbicacion: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error(
+      "No se pudo guardar la última ubicación general del taxista:",
+      error
+    );
+  }
+}
+
 
 /*
   ========================================
@@ -427,6 +470,17 @@ export async function listarCarrerasDisponiblesAppController(
         Boolean(
           taxista?.activo
         );
+
+      if (
+        taxistaValido &&
+        tieneGpsValido
+      ) {
+        await guardarUltimaUbicacionTaxista(
+          codigoTaxista,
+          latitudTaxista,
+          longitudTaxista
+        );
+      }
     }
 
 
@@ -462,7 +516,7 @@ export async function listarCarrerasDisponiblesAppController(
 
             let distanciaKm:
               number | null =
-                null;
+              null;
 
 
             if (
@@ -524,9 +578,9 @@ export async function listarCarrerasDisponiblesAppController(
             */
             if (
               typeof a.distanciaKm ===
-                "number" &&
+              "number" &&
               typeof b.distanciaKm ===
-                "number"
+              "number"
             ) {
               const diferencia =
                 a.distanciaKm -
@@ -549,9 +603,9 @@ export async function listarCarrerasDisponiblesAppController(
             */
             if (
               typeof a.distanciaKm ===
-                "number" &&
+              "number" &&
               typeof b.distanciaKm !==
-                "number"
+              "number"
             ) {
               return -1;
             }
@@ -559,9 +613,9 @@ export async function listarCarrerasDisponiblesAppController(
 
             if (
               typeof a.distanciaKm !==
-                "number" &&
+              "number" &&
               typeof b.distanciaKm ===
-                "number"
+              "number"
             ) {
               return 1;
             }
@@ -769,6 +823,13 @@ export async function actualizarUbicacionTaxistaController(
         latitud,
         longitud
       );
+
+
+    await guardarUltimaUbicacionTaxista(
+      codigoTaxista,
+      latitud,
+      longitud
+    );
 
 
     return res.json({
@@ -1026,156 +1087,156 @@ export async function finalizarCarreraTaxistaController(
   }
 }
 export async function marcarLlegadaTaxistaController(
-    req: Request,
-    res: Response
+  req: Request,
+  res: Response
 ) {
-    try {
+  try {
 
-        const carreraId =
-            Number(
-                req.params.id
-            );
-
-
-        if (
-            !Number.isInteger(
-                carreraId
-            ) ||
-            carreraId <= 0
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Carrera inválida.",
-            });
-        }
+    const carreraId =
+      Number(
+        req.params.id
+      );
 
 
-        const codigoTaxista =
-            String(
-                req.body.codigoTaxista ||
-                ""
-            );
+    if (
+      !Number.isInteger(
+        carreraId
+      ) ||
+      carreraId <= 0
+    ) {
 
-
-        if (
-            !codigoTaxista.trim()
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Falta el código del taxista.",
-            });
-        }
-
-
-        const resultado =
-            await marcarLlegadaTaxista(
-                carreraId,
-                codigoTaxista
-            );
-
-
-        return res.json({
-            success: true,
-            carrera:
-                resultado,
-        });
-
-    } catch (error: any) {
-
-        console.error(
-            "Error marcando llegada del taxista:",
-            error
-        );
-
-
-        if (
-            error?.message ===
-            "TAXISTA_NO_EXISTE"
-        ) {
-
-            return res.status(404).json({
-                success: false,
-                message:
-                    "Taxista no encontrado.",
-            });
-        }
-
-
-        if (
-            error?.message ===
-            "TAXISTA_INACTIVO"
-        ) {
-
-            return res.status(403).json({
-                success: false,
-                message:
-                    "El taxista está inactivo.",
-            });
-        }
-
-
-        if (
-            error?.message ===
-            "CARRERA_NO_EXISTE"
-        ) {
-
-            return res.status(404).json({
-                success: false,
-                message:
-                    "Carrera no encontrada.",
-            });
-        }
-
-
-        if (
-            error?.message ===
-            "CARRERA_NO_PERTENECE_TAXISTA"
-        ) {
-
-            return res.status(403).json({
-                success: false,
-                message:
-                    "La carrera no pertenece a este taxista.",
-            });
-        }
-
-
-        if (
-            error?.message ===
-            "CARRERA_YA_CERRADA"
-        ) {
-
-            return res.status(409).json({
-                success: false,
-                message:
-                    "La carrera ya está cerrada.",
-            });
-        }
-
-
-        if (
-            error?.message ===
-            "CARRERA_NO_ACTIVA"
-        ) {
-
-            return res.status(409).json({
-                success: false,
-                message:
-                    "La carrera ya no está activa.",
-            });
-        }
-
-
-        return res.status(500).json({
-            success: false,
-            message:
-                "No se pudo marcar la llegada.",
-        });
+      return res.status(400).json({
+        success: false,
+        message:
+          "Carrera inválida.",
+      });
     }
+
+
+    const codigoTaxista =
+      String(
+        req.body.codigoTaxista ||
+        ""
+      );
+
+
+    if (
+      !codigoTaxista.trim()
+    ) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          "Falta el código del taxista.",
+      });
+    }
+
+
+    const resultado =
+      await marcarLlegadaTaxista(
+        carreraId,
+        codigoTaxista
+      );
+
+
+    return res.json({
+      success: true,
+      carrera:
+        resultado,
+    });
+
+  } catch (error: any) {
+
+    console.error(
+      "Error marcando llegada del taxista:",
+      error
+    );
+
+
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Taxista no encontrado.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "TAXISTA_INACTIVO"
+    ) {
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "El taxista está inactivo.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_EXISTE"
+    ) {
+
+      return res.status(404).json({
+        success: false,
+        message:
+          "Carrera no encontrada.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_PERTENECE_TAXISTA"
+    ) {
+
+      return res.status(403).json({
+        success: false,
+        message:
+          "La carrera no pertenece a este taxista.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_YA_CERRADA"
+    ) {
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya está cerrada.",
+      });
+    }
+
+
+    if (
+      error?.message ===
+      "CARRERA_NO_ACTIVA"
+    ) {
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya no está activa.",
+      });
+    }
+
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo marcar la llegada.",
+    });
+  }
 }
 
 /*
@@ -1435,10 +1496,10 @@ export async function obtenerDashboardAdminController(
     const periodo =
       periodosValidos.includes(
         periodoSolicitado as
-          PeriodoDashboard
+        PeriodoDashboard
       )
         ? periodoSolicitado as
-          PeriodoDashboard
+        PeriodoDashboard
         : "hoy";
 
     const rango =
@@ -1449,7 +1510,7 @@ export async function obtenerDashboardAdminController(
     const [
       carreras,
       carrerasAnteriores,
-      dispositivosEnLinea,
+      taxistasParaConexion,
       totalTaxistasActivos,
     ] = await Promise.all([
 
@@ -1506,13 +1567,19 @@ export async function obtenerDashboardAdminController(
         },
       }),
 
-      prisma.dispositivoTaxista.findMany({
+      prisma.taxista.findMany({
         where: {
           activo: true,
-          enLinea: true,
         },
         select: {
-          taxistaId: true,
+          id: true,
+          fechaUltimaUbicacion: true,
+          dispositivos: {
+            select: {
+              activo: true,
+              enLinea: true,
+            },
+          },
         },
       }),
 
@@ -1533,13 +1600,26 @@ export async function obtenerDashboardAdminController(
         carrerasAnteriores
       );
 
+    const limiteConexion =
+      Date.now() -
+      90 * 1000;
+
     const taxistasEnLinea =
-      new Set(
-        dispositivosEnLinea.map(
-          dispositivo =>
-            dispositivo.taxistaId
-        )
-      ).size;
+      taxistasParaConexion.filter(
+        taxista => {
+          const dispositivo =
+            taxista.dispositivos[0];
+
+          return Boolean(
+            dispositivo?.activo &&
+            dispositivo?.enLinea &&
+            taxista.fechaUltimaUbicacion &&
+            new Date(
+              taxista.fechaUltimaUbicacion
+            ).getTime() >= limiteConexion
+          );
+        }
+      ).length;
 
     const porHora =
       Array.from(

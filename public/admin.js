@@ -1,3 +1,28 @@
+const fetchNativoRapitaxi =
+  window.fetch.bind(window);
+
+window.fetch =
+  async (...args) => {
+    const response =
+      await fetchNativoRapitaxi(
+        ...args
+      );
+
+    if (
+      response.status === 401 &&
+      !window.location.pathname.endsWith(
+        "/login.html"
+      )
+    ) {
+      window.location.replace(
+        "/login.html"
+      );
+    }
+
+    return response;
+  };
+
+
 let taxistasActuales = [];
 
 
@@ -25,6 +50,11 @@ const menuAdminTitulo =
 const panelDashboard =
   document.getElementById(
     "panelDashboard"
+  );
+
+const panelMapa =
+  document.getElementById(
+    "panelMapa"
   );
 
 
@@ -68,6 +98,25 @@ const btnCopiarResumen =
     "btnCopiarResumen"
   );
 
+const btnActualizarMapa =
+  document.getElementById(
+    "btnActualizarMapa"
+  );
+
+const btnCerrarSesion =
+  document.getElementById(
+    "btnCerrarSesion"
+  );
+
+const adminUsuario =
+  document.getElementById(
+    "adminUsuario"
+  );
+
+let mapaTaxistasInstancia = null;
+let marcadoresMapa = [];
+let mapaPrimerAjuste = true;
+
 let periodoDashboardActual =
   "hoy";
 
@@ -106,6 +155,10 @@ function mostrarSeccion(
     "activo"
   );
 
+  panelMapa.classList.remove(
+    "activo"
+  );
+
   panelCarreras.classList.remove(
     "activo"
   );
@@ -128,7 +181,7 @@ function mostrarSeccion(
         opcion.classList.toggle(
           "activo",
           opcion.dataset.seccion ===
-            seccion
+          seccion
         );
       }
     );
@@ -149,6 +202,24 @@ function mostrarSeccion(
       "📊 Dashboard";
 
     cargarDashboard();
+
+  } else if (seccion === "mapa") {
+    panelMapa.classList.add(
+      "activo"
+    );
+
+    menuAdminTitulo.textContent =
+      "🗺️ Mapa de taxistas";
+
+    cargarMapaTaxistas();
+
+    setTimeout(
+      () => {
+        mapaTaxistasInstancia
+          ?.invalidateSize();
+      },
+      100
+    );
 
   } else if (seccion === "taxistas") {
     panelTaxistas.classList.add(
@@ -460,7 +531,7 @@ function construirResumenDashboard(
 
   const calificacion =
     m.calificacionPromedio === null ||
-    m.calificacionPromedio === undefined
+      m.calificacionPromedio === undefined
       ? "Sin calificaciones"
       : `${m.calificacionPromedio}/5 (${m.calificacionesRecibidas} respuestas)`;
 
@@ -796,6 +867,486 @@ function normalizarTelefonoWhatsapp(
 
 /*
   ========================================
+  SESIÓN ADMIN
+  ========================================
+*/
+
+async function cargarSesionAdmin() {
+  try {
+    const response =
+      await fetch(
+        "/api/admin/auth/me"
+      );
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data =
+      await response.json();
+
+    if (
+      data.success &&
+      adminUsuario
+    ) {
+      adminUsuario.textContent =
+        `👤 ${data.usuario}`;
+    }
+  } catch (error) {
+    console.error(
+      "Error consultando sesión admin:",
+      error
+    );
+  }
+}
+
+
+if (btnCerrarSesion) {
+  btnCerrarSesion.addEventListener(
+    "click",
+    async () => {
+      try {
+        await fetch(
+          "/api/admin/auth/logout",
+          {
+            method: "POST",
+          }
+        );
+      } finally {
+        window.location.replace(
+          "/login.html"
+        );
+      }
+    }
+  );
+}
+
+
+/*
+  ========================================
+  MAPA DE TAXISTAS
+  ========================================
+*/
+
+function inicializarMapaTaxistas() {
+  if (
+    mapaTaxistasInstancia ||
+    typeof L === "undefined"
+  ) {
+    return;
+  }
+
+  mapaTaxistasInstancia =
+    L.map(
+      "mapaTaxistas",
+      {
+        zoomControl: true,
+      }
+    ).setView(
+      [-0.698, -80.093],
+      14
+    );
+
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png?key=cb1_3gxd_1_a292bfb7894ca1d819a42be0",
+    {
+      subdomains:
+        "abcd",
+
+      maxZoom:
+        20,
+
+      attribution:
+        '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  ).addTo(
+    mapaTaxistasInstancia
+  );
+}
+
+
+function textoTiempoGps(
+  segundos
+) {
+  if (
+    segundos === null ||
+    segundos === undefined
+  ) {
+    return "Sin ubicación registrada";
+  }
+
+  if (segundos < 60) {
+    return `GPS hace ${segundos} s`;
+  }
+
+  const minutos =
+    Math.floor(
+      segundos / 60
+    );
+
+  if (minutos < 60) {
+    return `GPS hace ${minutos} min`;
+  }
+
+  const horas =
+    Math.floor(
+      minutos / 60
+    );
+
+  if (horas < 24) {
+    return `GPS hace ${horas} h`;
+  }
+
+  const dias =
+    Math.floor(
+      horas / 24
+    );
+
+  return `GPS hace ${dias} d`;
+}
+
+
+function etiquetaEstadoMapa(
+  estado
+) {
+  if (estado === "DISPONIBLE") {
+    return "🟢 Disponible";
+  }
+
+  if (estado === "OCUPADO") {
+    return "🟡 En carrera";
+  }
+
+  if (estado === "DESACTIVADO") {
+    return "🔴 Desactivado";
+  }
+
+  return "⚫ Offline";
+}
+
+
+function claseEstadoMapa(
+  estado
+) {
+  return (
+    "estado-mapa estado-mapa-" +
+    String(estado)
+      .toLowerCase()
+  );
+}
+
+
+function limpiarMarcadoresMapa() {
+  for (
+    const marcador
+    of marcadoresMapa
+  ) {
+    marcador.remove();
+  }
+
+  marcadoresMapa = [];
+}
+
+
+function pintarListaTaxistasMapa(
+  taxistas
+) {
+  const contenedor =
+    document.getElementById(
+      "listaTaxistasMapa"
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  const orden = {
+    OCUPADO: 0,
+    DISPONIBLE: 1,
+    OFFLINE: 2,
+    DESACTIVADO: 3,
+  };
+
+  const ordenados =
+    [...taxistas]
+      .sort(
+        (a, b) =>
+          (orden[a.estadoMapa] ?? 9) -
+          (orden[b.estadoMapa] ?? 9)
+      );
+
+  if (ordenados.length === 0) {
+    contenedor.innerHTML =
+      '<div class="vacio">No hay taxistas registrados.</div>';
+    return;
+  }
+
+  contenedor.innerHTML =
+    ordenados
+      .map(
+        taxista => {
+          const carrera =
+            taxista.carreraActiva
+              ? ` · Carrera #${escaparHtml(
+                taxista.carreraActiva.numero
+              )}`
+              : "";
+
+          return `
+            <div class="taxista-mapa-item">
+              <span class="${claseEstadoMapa(
+            taxista.estadoMapa
+          )}">${etiquetaEstadoMapa(
+            taxista.estadoMapa
+          )}</span>
+              <strong>#${escaparHtml(
+            taxista.codigo
+          )} · ${escaparHtml(
+            taxista.nombre
+          )}</strong>
+              <div class="taxista-mapa-meta">
+                ${escaparHtml(
+            taxista.vehiculo || "Vehículo"
+          )} · ${escaparHtml(
+            taxista.placa || "Sin placa"
+          )}${carrera}<br>
+                ${escaparHtml(
+            textoTiempoGps(
+              taxista.segundosSinGps
+            )
+          )}
+              </div>
+            </div>
+          `;
+        }
+      )
+      .join("");
+}
+
+
+function pintarMarcadoresTaxistas(
+  taxistas
+) {
+  inicializarMapaTaxistas();
+
+  if (!mapaTaxistasInstancia) {
+    return;
+  }
+
+  limpiarMarcadoresMapa();
+
+  const posiciones = [];
+
+  for (
+    const taxista
+    of taxistas
+  ) {
+    if (
+      !taxista.enLineaReal ||
+      typeof taxista.latitud !== "number" ||
+      typeof taxista.longitud !== "number"
+    ) {
+      continue;
+    }
+
+    const ocupado =
+      taxista.estadoMapa ===
+      "OCUPADO";
+
+    const icono =
+      L.divIcon({
+        className: "",
+        html: `
+          <div class="taxi-marker-wrap ${ocupado
+            ? "taxi-marker-ocupado"
+            : "taxi-marker-disponible"
+          }">🚕</div>
+        `,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+      });
+
+    const carreraTexto =
+      taxista.carreraActiva
+        ? `<br><b>Carrera #${escaparHtml(
+          taxista.carreraActiva.numero
+        )}</b><br>${escaparHtml(
+          taxista.carreraActiva.nombreCliente ||
+          "Cliente"
+        )}`
+        : "";
+
+    const marcador =
+      L.marker(
+        [
+          taxista.latitud,
+          taxista.longitud,
+        ],
+        {
+          icon: icono,
+        }
+      )
+        .addTo(
+          mapaTaxistasInstancia
+        )
+        .bindPopup(`
+          <div style="min-width:190px;line-height:1.5;">
+            <b>Taxi #${escaparHtml(
+          taxista.codigo
+        )}</b><br>
+            ${escaparHtml(
+          taxista.nombre
+        )}<br>
+            ${escaparHtml(
+          taxista.vehiculo || ""
+        )} · ${escaparHtml(
+          taxista.placa || ""
+        )}<br>
+            ${etiquetaEstadoMapa(
+          taxista.estadoMapa
+        )}<br>
+            ${escaparHtml(
+          textoTiempoGps(
+            taxista.segundosSinGps
+          )
+        )}
+            ${carreraTexto}
+          </div>
+        `);
+
+    marcadoresMapa.push(
+      marcador
+    );
+
+    posiciones.push([
+      taxista.latitud,
+      taxista.longitud,
+    ]);
+  }
+
+  if (
+    mapaPrimerAjuste &&
+    posiciones.length > 0
+  ) {
+    mapaPrimerAjuste = false;
+
+    if (posiciones.length === 1) {
+      mapaTaxistasInstancia.setView(
+        posiciones[0],
+        16
+      );
+    } else {
+      mapaTaxistasInstancia.fitBounds(
+        posiciones,
+        {
+          padding: [35, 35],
+          maxZoom: 16,
+        }
+      );
+    }
+  }
+}
+
+
+async function cargarMapaTaxistas() {
+  try {
+    inicializarMapaTaxistas();
+
+    const response =
+      await fetch(
+        "/api/taxistas/admin/mapa"
+      );
+
+    const data =
+      await response.json();
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+      throw new Error(
+        data.message ||
+        "No se pudo cargar el mapa."
+      );
+    }
+
+    document.getElementById(
+      "mapaDisponibles"
+    ).textContent =
+      data.resumen.disponibles;
+
+    document.getElementById(
+      "mapaOcupados"
+    ).textContent =
+      data.resumen.ocupados;
+
+    document.getElementById(
+      "mapaOffline"
+    ).textContent =
+      data.resumen.offline;
+
+    document.getElementById(
+      "mapaDesactivados"
+    ).textContent =
+      data.resumen.desactivados;
+
+    document.getElementById(
+      "mapaActualizado"
+    ).textContent =
+      `Actualizado ${new Date().toLocaleTimeString(
+        "es-EC",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }
+      )} · Online = GPS recibido en los últimos ${data.ttlSegundos} s`;
+
+    pintarListaTaxistasMapa(
+      data.taxistas || []
+    );
+
+    pintarMarcadoresTaxistas(
+      data.taxistas || []
+    );
+
+  } catch (error) {
+    console.error(
+      "Error cargando mapa de taxistas:",
+      error
+    );
+
+    mostrarMensaje(
+      error.message ||
+      "No se pudo cargar el mapa de taxistas.",
+      "error"
+    );
+  }
+}
+
+
+if (btnActualizarMapa) {
+  btnActualizarMapa.addEventListener(
+    "click",
+    async () => {
+      btnActualizarMapa.disabled = true;
+      btnActualizarMapa.textContent =
+        "Actualizando...";
+
+      try {
+        await cargarMapaTaxistas();
+      } finally {
+        btnActualizarMapa.disabled = false;
+        btnActualizarMapa.textContent =
+          "🔄 Actualizar mapa";
+      }
+    }
+  );
+}
+
+
+/*
+  ========================================
   CARRERAS
   ========================================
 */
@@ -957,11 +1508,11 @@ async function cargarCarreras() {
             <button
               class="btn btn-desactivar btn-cancelar-carrera"
               data-id="${escaparHtml(
-                carrera.id
-              )}"
+            carrera.id
+          )}"
               data-numero="${escaparHtml(
-                carrera.numero
-              )}"
+            carrera.numero
+          )}"
               type="button"
             >
               Cancelar
@@ -998,7 +1549,7 @@ async function cargarCarreras() {
 
       const enlaceCupon =
         tieneCupon &&
-        telefonoTaxista
+          telefonoTaxista
 
           ? `https://wa.me/${telefonoTaxista}?text=${encodeURIComponent(
             mensajeCupon
@@ -1017,14 +1568,14 @@ async function cargarCarreras() {
 
       const botonCupon =
         tieneCupon &&
-        taxista &&
-        telefonoTaxista
+          taxista &&
+          telefonoTaxista
 
           ? `
             <a
               href="${escaparHtml(
-                enlaceCupon
-              )}"
+            enlaceCupon
+          )}"
               target="_blank"
               rel="noopener noreferrer"
               style="
@@ -1063,8 +1614,8 @@ async function cargarCarreras() {
               "
             >
               🚨 CUPÓN ${escaparHtml(
-                carrera.cuponCodigo
-              )}<br>
+            carrera.cuponCodigo
+          )}<br>
               CLIENTE PAGA $1,00
             </div>
           `
@@ -1078,8 +1629,8 @@ async function cargarCarreras() {
 
           <strong>
             #${escaparHtml(
-              carrera.numero
-            )}
+        carrera.numero
+      )}
           </strong>
 
           ${alertaCupon}
@@ -1091,13 +1642,13 @@ async function cargarCarreras() {
 
           <span
             class="estado ${claseEstadoCarrera(
-              carrera.estado
-            )}"
+        carrera.estado
+      )}"
           >
 
             ${escaparHtml(
-              carrera.estado
-            )}
+        carrera.estado
+      )}
 
           </span>
 
@@ -1107,10 +1658,10 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-            cliente?.nombre ||
-            carrera.nombreCliente ||
-            "-"
-          )}
+        cliente?.nombre ||
+        carrera.nombreCliente ||
+        "-"
+      )}
 
         </td>
 
@@ -1118,9 +1669,9 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-            carrera.referencia ||
-            "-"
-          )}
+        carrera.referencia ||
+        "-"
+      )}
 
         </td>
 
@@ -1128,13 +1679,12 @@ async function cargarCarreras() {
         <td>
 
           ${escaparHtml(
-            carrera.formaPago ||
-            "-"
-          )}
+        carrera.formaPago ||
+        "-"
+      )}
 
-          ${
-            tieneCupon
-              ? `
+          ${tieneCupon
+          ? `
                 <div
                   style="
                     margin-top:5px;
@@ -1145,40 +1695,38 @@ async function cargarCarreras() {
                   Tarifa: $1,00
                 </div>
               `
-              : ""
-          }
+          : ""
+        }
 
         </td>
 
 
         <td>
 
-          ${
-            taxista
+          ${taxista
 
-              ? `${escaparHtml(
-                taxista.codigo
-              )} - ${escaparHtml(
-                taxista.nombre
-              )}`
+          ? `${escaparHtml(
+            taxista.codigo
+          )} - ${escaparHtml(
+            taxista.nombre
+          )}`
 
-              : "-"
-          }
+          : "-"
+        }
 
         </td>
 
 
         <td>
 
-          ${
-            taxista
+          ${taxista
 
-              ? escaparHtml(
-                taxista.placa
-              )
+          ? escaparHtml(
+            taxista.placa
+          )
 
-              : "-"
-          }
+          : "-"
+        }
 
         </td>
 
@@ -1186,8 +1734,8 @@ async function cargarCarreras() {
         <td>
 
           ${formatearFecha(
-            carrera.fechaCreacion
-          )}
+          carrera.fechaCreacion
+        )}
 
         </td>
 
@@ -1199,22 +1747,22 @@ async function cargarCarreras() {
             class="btn btn-editar copiar-carrera"
 
             data-token="${escaparHtml(
-              carrera.token
-            )}"
+          carrera.token
+        )}"
 
             data-numero="${escaparHtml(
-              carrera.numero
-            )}"
+          carrera.numero
+        )}"
 
             data-referencia="${escaparHtml(
-              carrera.referencia ||
-              "-"
-            )}"
+          carrera.referencia ||
+          "-"
+        )}"
 
             data-pago="${escaparHtml(
-              carrera.formaPago ||
-              "-"
-            )}"
+          carrera.formaPago ||
+          "-"
+        )}"
           >
 
             Copiar enlace
@@ -1452,8 +2000,8 @@ function pintarTaxistas() {
         <strong>
 
           ${escaparHtml(
-            taxista.codigo
-          )}
+      taxista.codigo
+    )}
 
         </strong>
 
@@ -1463,8 +2011,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.nombre
-        )}
+      taxista.nombre
+    )}
 
       </td>
 
@@ -1472,8 +2020,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.placa
-        )}
+      taxista.placa
+    )}
 
       </td>
 
@@ -1481,8 +2029,8 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.vehiculo
-        )}
+      taxista.vehiculo
+    )}
 
       </td>
 
@@ -1490,9 +2038,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.colorVehiculo ||
-          "-"
-        )}
+      taxista.colorVehiculo ||
+      "-"
+    )}
 
       </td>
 
@@ -1500,9 +2048,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.cooperativa ||
-          "-"
-        )}
+      taxista.cooperativa ||
+      "-"
+    )}
 
       </td>
 
@@ -1510,9 +2058,9 @@ function pintarTaxistas() {
       <td>
 
         ${escaparHtml(
-          taxista.telefono ||
-          "-"
-        )}
+      taxista.telefono ||
+      "-"
+    )}
 
       </td>
 
@@ -1520,22 +2068,20 @@ function pintarTaxistas() {
       <td>
 
         <span
-          class="estado ${
-            taxista.activo
+          class="estado ${taxista.activo
 
-              ? "estado-activo"
+        ? "estado-activo"
 
-              : "estado-inactivo"
-          }"
+        : "estado-inactivo"
+      }"
         >
 
-          ${
-            taxista.activo
+          ${taxista.activo
 
-              ? "ACTIVO"
+        ? "ACTIVO"
 
-              : "INACTIVO"
-          }
+        : "INACTIVO"
+      }
 
         </span>
 
@@ -1557,24 +2103,22 @@ function pintarTaxistas() {
 
           <button
             type="button"
-            class="btn ${
-              taxista.activo
+            class="btn ${taxista.activo
 
-                ? "btn-desactivar"
+        ? "btn-desactivar"
 
-                : "btn-activar"
-            } cambiar-estado-taxista"
+        : "btn-activar"
+      } cambiar-estado-taxista"
 
             data-id="${taxista.id}"
           >
 
-            ${
-              taxista.activo
+            ${taxista.activo
 
-                ? "Desactivar"
+        ? "Desactivar"
 
-                : "Activar"
-            }
+        : "Activar"
+      }
 
           </button>
 
@@ -2531,11 +3075,11 @@ function formatearFechaListaChat(
 
   const mismoDia =
     d.getFullYear() ===
-      hoy.getFullYear() &&
+    hoy.getFullYear() &&
     d.getMonth() ===
-      hoy.getMonth() &&
+    hoy.getMonth() &&
     d.getDate() ===
-      hoy.getDate();
+    hoy.getDate();
 
   if (mismoDia) {
     return formatearHoraChat(
@@ -2680,7 +3224,7 @@ async function cargarChats(
         chatsActuales.some(
           chat =>
             chat.telefono ===
-              telefonoChatActivo
+            telefonoChatActivo
         );
 
       if (sigueExistiendo) {
@@ -2764,11 +3308,10 @@ function pintarListaChats() {
   ) {
     listaChats.innerHTML = `
       <div class="chat-vacio">
-        ${
-          filtro
-            ? "No encontramos conversaciones con esa búsqueda."
-            : "Todavía no hay mensajes guardados."
-        }
+        ${filtro
+        ? "No encontramos conversaciones con esa búsqueda."
+        : "Todavía no hay mensajes guardados."
+      }
       </div>
     `;
 
@@ -2803,8 +3346,8 @@ function pintarListaChats() {
         ? `
           <span class="chat-no-leidos">
             ${escaparHtml(
-              chat.noLeidos
-            )}
+          chat.noLeidos
+        )}
           </span>
         `
         : "";
@@ -2820,37 +3363,37 @@ function pintarListaChats() {
     boton.innerHTML = `
       <span class="chat-avatar">
         ${escaparHtml(
-          iniciales
-        )}
+      iniciales
+    )}
       </span>
 
       <span class="chat-item-contenido">
         <span class="chat-item-superior">
           <span class="chat-item-nombre">
             ${escaparHtml(
-              chat.nombre ||
-              chat.telefono
-            )}
+      chat.nombre ||
+      chat.telefono
+    )}
           </span>
 
           <span class="chat-item-fecha">
             ${escaparHtml(
-              formatearFechaListaChat(
-                chat.ultimaFecha
-              )
-            )}
+      formatearFechaListaChat(
+        chat.ultimaFecha
+      )
+    )}
           </span>
         </span>
 
         <span class="chat-item-inferior">
           <span class="chat-item-preview">
             ${chat.atencionManual
-              ? "👤 "
-              : "🤖 "
-            }${escaparHtml(
-              chat.ultimoMensaje ||
-              ""
-            )}
+        ? "👤 "
+        : "🤖 "
+      }${escaparHtml(
+        chat.ultimoMensaje ||
+        ""
+      )}
           </span>
 
           ${badge}
@@ -2980,7 +3523,7 @@ async function abrirChat(
         chatsActuales.find(
           actual =>
             actual.telefono ===
-              telefono
+            telefono
         );
 
       if (item) {
@@ -3040,31 +3583,30 @@ function pintarMensajesChat(
 
     const saliente =
       mensaje.direccion ===
-        "SALIENTE";
+      "SALIENTE";
 
 
     burbuja.className =
-      `burbuja ${
-        saliente
-          ? "saliente"
-          : "entrante"
+      `burbuja ${saliente
+        ? "saliente"
+        : "entrante"
       }`;
 
 
     burbuja.innerHTML = `
       <div>
         ${escaparHtml(
-          mensaje.contenido ||
-          `[${mensaje.tipo}]`
-        )}
+      mensaje.contenido ||
+      `[${mensaje.tipo}]`
+    )}
       </div>
 
       <span class="burbuja-hora">
         ${escaparHtml(
-          formatearHoraChat(
-            mensaje.fechaCreacion
-          )
-        )}
+      formatearHoraChat(
+        mensaje.fechaCreacion
+      )
+    )}
       </span>
     `;
 
@@ -3195,7 +3737,7 @@ btnControlChat.addEventListener(
       chatsActuales.find(
         chat =>
           chat.telefono ===
-            telefonoChatActivo
+          telefonoChatActivo
       );
 
 
@@ -3345,6 +3887,8 @@ setInterval(
   ========================================
 */
 
+cargarSesionAdmin();
+
 cargarCarreras();
 
 
@@ -3367,6 +3911,20 @@ setInterval(
     }
   },
   30000
+);
+
+
+setInterval(
+  () => {
+    if (
+      panelMapa.classList.contains(
+        "activo"
+      )
+    ) {
+      cargarMapaTaxistas();
+    }
+  },
+  10000
 );
 
 

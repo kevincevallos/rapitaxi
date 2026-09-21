@@ -1019,3 +1019,230 @@ export async function cambiarEstadoEnLineaTaxistaController(
         });
     }
 }
+
+/*
+  ========================================
+  ADMIN - MAPA DE TAXISTAS
+  ========================================
+*/
+export async function mapaTaxistasAdminController(
+    _req: Request,
+    res: Response
+) {
+    try {
+        const ttlSegundos =
+            Math.max(
+                30,
+                Number(
+                    process.env.TAXISTA_ONLINE_TTL_SECONDS ||
+                    90
+                ) || 90
+            );
+
+        const limiteOnline =
+            Date.now() -
+            ttlSegundos * 1000;
+
+        const taxistas =
+            await prisma.taxista.findMany({
+                orderBy: {
+                    codigo: "asc",
+                },
+                select: {
+                    id: true,
+                    codigo: true,
+                    nombre: true,
+                    placa: true,
+                    vehiculo: true,
+                    colorVehiculo: true,
+                    cooperativa: true,
+                    telefono: true,
+                    activo: true,
+                    ultimaLatitud: true,
+                    ultimaLongitud: true,
+                    fechaUltimaUbicacion: true,
+                    dispositivos: {
+                        select: {
+                            activo: true,
+                            enLinea: true,
+                            fechaActualizacion: true,
+                        },
+                    },
+                    carreras: {
+                        where: {
+                            fechaFin: null,
+                            estado: {
+                                in: [
+                                    "ASIGNADA",
+                                    "EN_CAMINO",
+                                    "CERCA",
+                                    "LLEGO",
+                                ],
+                            },
+                        },
+                        orderBy: {
+                            fechaAceptacion: "desc",
+                        },
+                        take: 1,
+                        select: {
+                            id: true,
+                            numero: true,
+                            estado: true,
+                            nombreCliente: true,
+                            referencia: true,
+                            fechaAceptacion: true,
+                        },
+                    },
+                },
+            });
+
+        const respuesta =
+            taxistas.map(
+                taxista => {
+                    const dispositivo =
+                        taxista.dispositivos[0];
+
+                    const fechaGps =
+                        taxista.fechaUltimaUbicacion;
+
+                    const gpsReciente =
+                        Boolean(
+                            fechaGps &&
+                            new Date(
+                                fechaGps
+                            ).getTime() >= limiteOnline
+                        );
+
+                    const enLineaReal =
+                        Boolean(
+                            taxista.activo &&
+                            dispositivo?.activo &&
+                            dispositivo?.enLinea &&
+                            gpsReciente
+                        );
+
+                    const carreraActiva =
+                        taxista.carreras[0] ||
+                        null;
+
+                    let estadoMapa:
+                        | "DISPONIBLE"
+                        | "OCUPADO"
+                        | "OFFLINE"
+                        | "DESACTIVADO";
+
+                    if (!taxista.activo) {
+                        estadoMapa =
+                            "DESACTIVADO";
+
+                    } else if (!enLineaReal) {
+                        estadoMapa =
+                            "OFFLINE";
+
+                    } else if (carreraActiva) {
+                        estadoMapa =
+                            "OCUPADO";
+
+                    } else {
+                        estadoMapa =
+                            "DISPONIBLE";
+                    }
+
+                    const segundosSinGps =
+                        fechaGps
+                            ? Math.max(
+                                0,
+                                Math.floor(
+                                    (
+                                        Date.now() -
+                                        new Date(
+                                            fechaGps
+                                        ).getTime()
+                                    ) / 1000
+                                )
+                            )
+                            : null;
+
+                    return {
+                        id: taxista.id,
+                        codigo: taxista.codigo,
+                        nombre: taxista.nombre,
+                        placa: taxista.placa,
+                        vehiculo: taxista.vehiculo,
+                        colorVehiculo:
+                            taxista.colorVehiculo,
+                        cooperativa:
+                            taxista.cooperativa,
+                        telefono:
+                            taxista.telefono,
+                        activo:
+                            taxista.activo,
+                        enLineaDeclarado:
+                            Boolean(
+                                dispositivo?.activo &&
+                                dispositivo?.enLinea
+                            ),
+                        enLineaReal,
+                        estadoMapa,
+                        latitud:
+                            taxista.ultimaLatitud,
+                        longitud:
+                            taxista.ultimaLongitud,
+                        fechaUltimaUbicacion:
+                            fechaGps,
+                        segundosSinGps,
+                        carreraActiva,
+                    };
+                }
+            );
+
+        const resumen = {
+            disponibles:
+                respuesta.filter(
+                    item =>
+                        item.estadoMapa ===
+                        "DISPONIBLE"
+                ).length,
+            ocupados:
+                respuesta.filter(
+                    item =>
+                        item.estadoMapa ===
+                        "OCUPADO"
+                ).length,
+            offline:
+                respuesta.filter(
+                    item =>
+                        item.estadoMapa ===
+                        "OFFLINE"
+                ).length,
+            desactivados:
+                respuesta.filter(
+                    item =>
+                        item.estadoMapa ===
+                        "DESACTIVADO"
+                ).length,
+            total:
+                respuesta.length,
+        };
+
+        return res.json({
+            success: true,
+            ttlSegundos,
+            resumen,
+            taxistas:
+                respuesta,
+        });
+
+    } catch (error) {
+        console.error(
+            "Error cargando mapa de taxistas:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message:
+                "No se pudo cargar el mapa de taxistas.",
+        });
+    }
+}

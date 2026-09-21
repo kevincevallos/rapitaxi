@@ -76,6 +76,10 @@ model Taxista {
   activo        Boolean  @default(true)
   fechaRegistro DateTime @default(now())
 
+  ultimaLatitud          Float?
+  ultimaLongitud         Float?
+  fechaUltimaUbicacion   DateTime?
+
   titularPichincha String?
   cuentaPichincha  String?
 

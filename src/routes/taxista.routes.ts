@@ -8,6 +8,7 @@ import {
   registrarPushTokenTaxistaController,
   validarSesionTaxistaController,
   cambiarEstadoEnLineaTaxistaController,
+  mapaTaxistasAdminController,
 } from "../controllers/taxista.controller";
 
 const router = Router();
@@ -38,6 +39,11 @@ router.patch(
 /*
   ADMIN
 */
+
+router.get(
+  "/admin/mapa",
+  mapaTaxistasAdminController
+);
 
 router.get(
   "/",

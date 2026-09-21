@@ -28,10 +28,14 @@ export type AggregateTaxista = {
 
 export type TaxistaAvgAggregateOutputType = {
   id: number | null
+  ultimaLatitud: number | null
+  ultimaLongitud: number | null
 }
 
 export type TaxistaSumAggregateOutputType = {
   id: number | null
+  ultimaLatitud: number | null
+  ultimaLongitud: number | null
 }
 
 export type TaxistaMinAggregateOutputType = {
@@ -45,6 +49,9 @@ export type TaxistaMinAggregateOutputType = {
   telefono: string | null
   activo: boolean | null
   fechaRegistro: Date | null
+  ultimaLatitud: number | null
+  ultimaLongitud: number | null
+  fechaUltimaUbicacion: Date | null
   titularPichincha: string | null
   cuentaPichincha: string | null
   titularGuayaquil: string | null
@@ -62,6 +69,9 @@ export type TaxistaMaxAggregateOutputType = {
   telefono: string | null
   activo: boolean | null
   fechaRegistro: Date | null
+  ultimaLatitud: number | null
+  ultimaLongitud: number | null
+  fechaUltimaUbicacion: Date | null
   titularPichincha: string | null
   cuentaPichincha: string | null
   titularGuayaquil: string | null
@@ -79,6 +89,9 @@ export type TaxistaCountAggregateOutputType = {
   telefono: number
   activo: number
   fechaRegistro: number
+  ultimaLatitud: number
+  ultimaLongitud: number
+  fechaUltimaUbicacion: number
   titularPichincha: number
   cuentaPichincha: number
   titularGuayaquil: number
@@ -89,10 +102,14 @@ export type TaxistaCountAggregateOutputType = {
 
 export type TaxistaAvgAggregateInputType = {
   id?: true
+  ultimaLatitud?: true
+  ultimaLongitud?: true
 }
 
 export type TaxistaSumAggregateInputType = {
   id?: true
+  ultimaLatitud?: true
+  ultimaLongitud?: true
 }
 
 export type TaxistaMinAggregateInputType = {
@@ -106,6 +123,9 @@ export type TaxistaMinAggregateInputType = {
   telefono?: true
   activo?: true
   fechaRegistro?: true
+  ultimaLatitud?: true
+  ultimaLongitud?: true
+  fechaUltimaUbicacion?: true
   titularPichincha?: true
   cuentaPichincha?: true
   titularGuayaquil?: true
@@ -123,6 +143,9 @@ export type TaxistaMaxAggregateInputType = {
   telefono?: true
   activo?: true
   fechaRegistro?: true
+  ultimaLatitud?: true
+  ultimaLongitud?: true
+  fechaUltimaUbicacion?: true
   titularPichincha?: true
   cuentaPichincha?: true
   titularGuayaquil?: true
@@ -140,6 +163,9 @@ export type TaxistaCountAggregateInputType = {
   telefono?: true
   activo?: true
   fechaRegistro?: true
+  ultimaLatitud?: true
+  ultimaLongitud?: true
+  fechaUltimaUbicacion?: true
   titularPichincha?: true
   cuentaPichincha?: true
   titularGuayaquil?: true
@@ -244,6 +270,9 @@ export type TaxistaGroupByOutputType = {
   telefono: string | null
   activo: boolean
   fechaRegistro: Date
+  ultimaLatitud: number | null
+  ultimaLongitud: number | null
+  fechaUltimaUbicacion: Date | null
   titularPichincha: string | null
   cuentaPichincha: string | null
   titularGuayaquil: string | null
@@ -284,6 +313,9 @@ export type TaxistaWhereInput = {
   telefono?: Prisma.StringNullableFilter<"Taxista"> | string | null
   activo?: Prisma.BoolFilter<"Taxista"> | boolean
   fechaRegistro?: Prisma.DateTimeFilter<"Taxista"> | Date | string
+  ultimaLatitud?: Prisma.FloatNullableFilter<"Taxista"> | number | null
+  ultimaLongitud?: Prisma.FloatNullableFilter<"Taxista"> | number | null
+  fechaUltimaUbicacion?: Prisma.DateTimeNullableFilter<"Taxista"> | Date | string | null
   titularPichincha?: Prisma.StringNullableFilter<"Taxista"> | string | null
   cuentaPichincha?: Prisma.StringNullableFilter<"Taxista"> | string | null
   titularGuayaquil?: Prisma.StringNullableFilter<"Taxista"> | string | null
@@ -304,6 +336,9 @@ export type TaxistaOrderByWithRelationInput = {
   telefono?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUltimaUbicacion?: Prisma.SortOrderInput | Prisma.SortOrder
   titularPichincha?: Prisma.SortOrderInput | Prisma.SortOrder
   cuentaPichincha?: Prisma.SortOrderInput | Prisma.SortOrder
   titularGuayaquil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,6 +362,9 @@ export type TaxistaWhereUniqueInput = Prisma.AtLeast<{
   telefono?: Prisma.StringNullableFilter<"Taxista"> | string | null
   activo?: Prisma.BoolFilter<"Taxista"> | boolean
   fechaRegistro?: Prisma.DateTimeFilter<"Taxista"> | Date | string
+  ultimaLatitud?: Prisma.FloatNullableFilter<"Taxista"> | number | null
+  ultimaLongitud?: Prisma.FloatNullableFilter<"Taxista"> | number | null
+  fechaUltimaUbicacion?: Prisma.DateTimeNullableFilter<"Taxista"> | Date | string | null
   titularPichincha?: Prisma.StringNullableFilter<"Taxista"> | string | null
   cuentaPichincha?: Prisma.StringNullableFilter<"Taxista"> | string | null
   titularGuayaquil?: Prisma.StringNullableFilter<"Taxista"> | string | null
@@ -347,6 +385,9 @@ export type TaxistaOrderByWithAggregationInput = {
   telefono?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrderInput | Prisma.SortOrder
+  fechaUltimaUbicacion?: Prisma.SortOrderInput | Prisma.SortOrder
   titularPichincha?: Prisma.SortOrderInput | Prisma.SortOrder
   cuentaPichincha?: Prisma.SortOrderInput | Prisma.SortOrder
   titularGuayaquil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -372,6 +413,9 @@ export type TaxistaScalarWhereWithAggregatesInput = {
   telefono?: Prisma.StringNullableWithAggregatesFilter<"Taxista"> | string | null
   activo?: Prisma.BoolWithAggregatesFilter<"Taxista"> | boolean
   fechaRegistro?: Prisma.DateTimeWithAggregatesFilter<"Taxista"> | Date | string
+  ultimaLatitud?: Prisma.FloatNullableWithAggregatesFilter<"Taxista"> | number | null
+  ultimaLongitud?: Prisma.FloatNullableWithAggregatesFilter<"Taxista"> | number | null
+  fechaUltimaUbicacion?: Prisma.DateTimeNullableWithAggregatesFilter<"Taxista"> | Date | string | null
   titularPichincha?: Prisma.StringNullableWithAggregatesFilter<"Taxista"> | string | null
   cuentaPichincha?: Prisma.StringNullableWithAggregatesFilter<"Taxista"> | string | null
   titularGuayaquil?: Prisma.StringNullableWithAggregatesFilter<"Taxista"> | string | null
@@ -388,6 +432,9 @@ export type TaxistaCreateInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -408,6 +455,9 @@ export type TaxistaUncheckedCreateInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -427,6 +477,9 @@ export type TaxistaUpdateInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -447,6 +500,9 @@ export type TaxistaUncheckedUpdateInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -467,6 +523,9 @@ export type TaxistaCreateManyInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -483,6 +542,9 @@ export type TaxistaUpdateManyMutationInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -500,6 +562,9 @@ export type TaxistaUncheckedUpdateManyInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -522,6 +587,9 @@ export type TaxistaCountOrderByAggregateInput = {
   telefono?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrder
+  fechaUltimaUbicacion?: Prisma.SortOrder
   titularPichincha?: Prisma.SortOrder
   cuentaPichincha?: Prisma.SortOrder
   titularGuayaquil?: Prisma.SortOrder
@@ -530,6 +598,8 @@ export type TaxistaCountOrderByAggregateInput = {
 
 export type TaxistaAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrder
 }
 
 export type TaxistaMaxOrderByAggregateInput = {
@@ -543,6 +613,9 @@ export type TaxistaMaxOrderByAggregateInput = {
   telefono?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrder
+  fechaUltimaUbicacion?: Prisma.SortOrder
   titularPichincha?: Prisma.SortOrder
   cuentaPichincha?: Prisma.SortOrder
   titularGuayaquil?: Prisma.SortOrder
@@ -560,6 +633,9 @@ export type TaxistaMinOrderByAggregateInput = {
   telefono?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   fechaRegistro?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrder
+  fechaUltimaUbicacion?: Prisma.SortOrder
   titularPichincha?: Prisma.SortOrder
   cuentaPichincha?: Prisma.SortOrder
   titularGuayaquil?: Prisma.SortOrder
@@ -568,6 +644,8 @@ export type TaxistaMinOrderByAggregateInput = {
 
 export type TaxistaSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  ultimaLatitud?: Prisma.SortOrder
+  ultimaLongitud?: Prisma.SortOrder
 }
 
 export type TaxistaScalarRelationFilter = {
@@ -633,6 +711,9 @@ export type TaxistaCreateWithoutCarrerasInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -652,6 +733,9 @@ export type TaxistaUncheckedCreateWithoutCarrerasInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -686,6 +770,9 @@ export type TaxistaUpdateWithoutCarrerasInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -705,6 +792,9 @@ export type TaxistaUncheckedUpdateWithoutCarrerasInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -723,6 +813,9 @@ export type TaxistaCreateWithoutDispositivosInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -742,6 +835,9 @@ export type TaxistaUncheckedCreateWithoutDispositivosInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -776,6 +872,9 @@ export type TaxistaUpdateWithoutDispositivosInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -795,6 +894,9 @@ export type TaxistaUncheckedUpdateWithoutDispositivosInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -813,6 +915,9 @@ export type TaxistaCreateWithoutSuscripcionesWebPushInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -832,6 +937,9 @@ export type TaxistaUncheckedCreateWithoutSuscripcionesWebPushInput = {
   telefono?: string | null
   activo?: boolean
   fechaRegistro?: Date | string
+  ultimaLatitud?: number | null
+  ultimaLongitud?: number | null
+  fechaUltimaUbicacion?: Date | string | null
   titularPichincha?: string | null
   cuentaPichincha?: string | null
   titularGuayaquil?: string | null
@@ -866,6 +974,9 @@ export type TaxistaUpdateWithoutSuscripcionesWebPushInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -885,6 +996,9 @@ export type TaxistaUncheckedUpdateWithoutSuscripcionesWebPushInput = {
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   fechaRegistro?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ultimaLatitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  ultimaLongitud?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  fechaUltimaUbicacion?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   titularPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cuentaPichincha?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titularGuayaquil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -953,6 +1067,9 @@ export type TaxistaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   telefono?: boolean
   activo?: boolean
   fechaRegistro?: boolean
+  ultimaLatitud?: boolean
+  ultimaLongitud?: boolean
+  fechaUltimaUbicacion?: boolean
   titularPichincha?: boolean
   cuentaPichincha?: boolean
   titularGuayaquil?: boolean
@@ -974,6 +1091,9 @@ export type TaxistaSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   telefono?: boolean
   activo?: boolean
   fechaRegistro?: boolean
+  ultimaLatitud?: boolean
+  ultimaLongitud?: boolean
+  fechaUltimaUbicacion?: boolean
   titularPichincha?: boolean
   cuentaPichincha?: boolean
   titularGuayaquil?: boolean
@@ -991,6 +1111,9 @@ export type TaxistaSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   telefono?: boolean
   activo?: boolean
   fechaRegistro?: boolean
+  ultimaLatitud?: boolean
+  ultimaLongitud?: boolean
+  fechaUltimaUbicacion?: boolean
   titularPichincha?: boolean
   cuentaPichincha?: boolean
   titularGuayaquil?: boolean
@@ -1008,13 +1131,16 @@ export type TaxistaSelectScalar = {
   telefono?: boolean
   activo?: boolean
   fechaRegistro?: boolean
+  ultimaLatitud?: boolean
+  ultimaLongitud?: boolean
+  fechaUltimaUbicacion?: boolean
   titularPichincha?: boolean
   cuentaPichincha?: boolean
   titularGuayaquil?: boolean
   cuentaGuayaquil?: boolean
 }
 
-export type TaxistaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "codigo" | "nombre" | "placa" | "vehiculo" | "colorVehiculo" | "cooperativa" | "telefono" | "activo" | "fechaRegistro" | "titularPichincha" | "cuentaPichincha" | "titularGuayaquil" | "cuentaGuayaquil", ExtArgs["result"]["taxista"]>
+export type TaxistaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "codigo" | "nombre" | "placa" | "vehiculo" | "colorVehiculo" | "cooperativa" | "telefono" | "activo" | "fechaRegistro" | "ultimaLatitud" | "ultimaLongitud" | "fechaUltimaUbicacion" | "titularPichincha" | "cuentaPichincha" | "titularGuayaquil" | "cuentaGuayaquil", ExtArgs["result"]["taxista"]>
 export type TaxistaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   carreras?: boolean | Prisma.Taxista$carrerasArgs<ExtArgs>
   dispositivos?: boolean | Prisma.Taxista$dispositivosArgs<ExtArgs>
@@ -1042,6 +1168,9 @@ export type $TaxistaPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     telefono: string | null
     activo: boolean
     fechaRegistro: Date
+    ultimaLatitud: number | null
+    ultimaLongitud: number | null
+    fechaUltimaUbicacion: Date | null
     titularPichincha: string | null
     cuentaPichincha: string | null
     titularGuayaquil: string | null
@@ -1482,6 +1611,9 @@ export interface TaxistaFieldRefs {
   readonly telefono: Prisma.FieldRef<"Taxista", 'String'>
   readonly activo: Prisma.FieldRef<"Taxista", 'Boolean'>
   readonly fechaRegistro: Prisma.FieldRef<"Taxista", 'DateTime'>
+  readonly ultimaLatitud: Prisma.FieldRef<"Taxista", 'Float'>
+  readonly ultimaLongitud: Prisma.FieldRef<"Taxista", 'Float'>
+  readonly fechaUltimaUbicacion: Prisma.FieldRef<"Taxista", 'DateTime'>
   readonly titularPichincha: Prisma.FieldRef<"Taxista", 'String'>
   readonly cuentaPichincha: Prisma.FieldRef<"Taxista", 'String'>
   readonly titularGuayaquil: Prisma.FieldRef<"Taxista", 'String'>
