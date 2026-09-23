@@ -1,25 +1,109 @@
 import { prisma } from "../config/prisma";
 
+
 type MensajePush = {
     to: string;
     title: string;
     body: string;
-    sound: "default";
+    sound: string;
     priority: "high";
-    channelId: string;
     data: {
         tipo: string;
         numero: number;
         token: string;
+        distanciaKm?: number | null;
+        etaMinutos?: number | null;
     };
 };
+
+
+function calcularDistanciaKm(
+    latitudOrigen: number,
+    longitudOrigen: number,
+    latitudDestino: number,
+    longitudDestino: number
+) {
+    const radioTierraKm = 6371;
+
+    const aRadianes =
+        (grados: number) =>
+            grados * Math.PI / 180;
+
+    const diferenciaLatitud =
+        aRadianes(
+            latitudDestino - latitudOrigen
+        );
+
+    const diferenciaLongitud =
+        aRadianes(
+            longitudDestino - longitudOrigen
+        );
+
+    const latitudOrigenRad =
+        aRadianes(latitudOrigen);
+
+    const latitudDestinoRad =
+        aRadianes(latitudDestino);
+
+    const haversine =
+        Math.sin(diferenciaLatitud / 2) ** 2 +
+        Math.cos(latitudOrigenRad) *
+        Math.cos(latitudDestinoRad) *
+        Math.sin(diferenciaLongitud / 2) ** 2;
+
+    const angulo =
+        2 *
+        Math.atan2(
+            Math.sqrt(haversine),
+            Math.sqrt(1 - haversine)
+        );
+
+    return radioTierraKm * angulo;
+}
+
+
+function calcularEtaMinutos(
+    distanciaKm: number
+) {
+    const velocidadKmHora =
+        25;
+
+    const minutos =
+        distanciaKm /
+        velocidadKmHora *
+        60;
+
+    return Math.max(
+        1,
+        Math.ceil(minutos)
+    );
+}
+
+
+function formatearDistancia(
+    distanciaKm: number
+) {
+    if (distanciaKm < 1) {
+        return `${Math.max(
+            1,
+            Math.round(
+                distanciaKm * 1000
+            )
+        )} m de ti`;
+    }
+
+    return `${distanciaKm.toFixed(1)} km de ti`;
+}
 
 
 export async function enviarPushNuevaCarrera(
     numero: number,
     tokenCarrera: string,
     referencia: string,
-    formaPago: string
+    formaPago: string,
+    nombreCliente: string,
+    latitudCliente: number,
+    longitudCliente: number
 ) {
 
     try {
@@ -28,7 +112,6 @@ export async function enviarPushNuevaCarrera(
             await prisma.dispositivoTaxista.findMany({
                 where: {
                     activo: true,
-                    
                     enLinea: true,
 
                     expoPushToken: {
@@ -42,24 +125,20 @@ export async function enviarPushNuevaCarrera(
 
                 select: {
                     expoPushToken: true,
+
+                    taxista: {
+                        select: {
+                            ultimaLatitud: true,
+                            ultimaLongitud: true,
+                            fechaUltimaUbicacion: true,
+                        },
+                    },
                 },
             });
 
 
-        const tokens =
-            dispositivos
-                .map(
-                    (item) =>
-                        item.expoPushToken
-                )
-                .filter(
-                    (token): token is string =>
-                        Boolean(token)
-                );
-
-
         if (
-            tokens.length === 0
+            dispositivos.length === 0
         ) {
 
             console.log(
@@ -67,7 +146,6 @@ export async function enviarPushNuevaCarrera(
             );
 
             return;
-
         }
 
 
@@ -78,48 +156,140 @@ export async function enviarPushNuevaCarrera(
                 .trim()
                 .slice(
                     0,
-                    90
+                    70
+                );
+
+        const nombreCorto =
+            String(
+                nombreCliente ||
+                "Cliente"
+            )
+                .trim()
+                .slice(
+                    0,
+                    40
                 );
 
 
         const mensajes: MensajePush[] =
-            tokens.map(
-                (expoPushToken) => ({
-                    to:
-                        expoPushToken,
+            dispositivos
+                .filter(
+                    item =>
+                        Boolean(
+                            item.expoPushToken
+                        )
+                )
+                .map(
+                    item => {
+                        const latitudTaxista =
+                            item.taxista
+                                .ultimaLatitud;
 
-                    title:
-                        `🚕 Nueva carrera #${numero}`,
+                        const longitudTaxista =
+                            item.taxista
+                                .ultimaLongitud;
 
-                    body:
-                        `${referenciaCorta} · ${formaPago}`,
+                        const fechaGps =
+                            item.taxista
+                                .fechaUltimaUbicacion;
 
-                    sound:
-                        "default",
+                        const gpsUtil =
+                            Boolean(
+                                fechaGps &&
+                                Date.now() -
+                                new Date(
+                                    fechaGps
+                                ).getTime() <=
+                                5 * 60 * 1000
+                            );
 
-                    priority:
-                        "high",
+                        let distanciaKm:
+                            number | null =
+                            null;
 
-                    channelId:
-                        "carreras",
+                        let etaMinutos:
+                            number | null =
+                            null;
 
-                    data: {
-                        tipo:
-                            "NUEVA_CARRERA",
+                        if (
+                            typeof latitudTaxista ===
+                            "number" &&
+                            typeof longitudTaxista ===
+                            "number" &&
+                            gpsUtil &&
+                            Number.isFinite(
+                                latitudCliente
+                            ) &&
+                            Number.isFinite(
+                                longitudCliente
+                            )
+                        ) {
+                            distanciaKm =
+                                calcularDistanciaKm(
+                                    latitudTaxista,
+                                    longitudTaxista,
+                                    latitudCliente,
+                                    longitudCliente
+                                );
 
-                        numero,
+                            etaMinutos =
+                                calcularEtaMinutos(
+                                    distanciaKm
+                                );
+                        }
 
-                        token:
-                            tokenCarrera,
-                    },
-                })
-            );
+                        const distanciaTexto =
+                            distanciaKm !== null &&
+                            etaMinutos !== null
+                                ? `A ${formatearDistancia(
+                                    distanciaKm
+                                )} • aprox. ${etaMinutos} min`
+                                : "Distancia disponible al abrir Rapitaxi";
+
+                        return {
+                            to:
+                                item.expoPushToken!,
+
+                            title:
+                                `🚕 Nueva solicitud #${numero}`,
+
+                            body:
+                                `${nombreCorto} · ${distanciaTexto}\n` +
+                                `${referenciaCorta} · ${formaPago}`,
+
+                            sound:
+                                "un_rapi.wav",
+
+                            priority:
+                                "high",
+
+                            data: {
+                                tipo:
+                                    "NUEVA_CARRERA",
+
+                                numero,
+
+                                token:
+                                    tokenCarrera,
+
+                                distanciaKm:
+                                    distanciaKm !== null
+                                        ? Math.round(
+                                            distanciaKm *
+                                            100
+                                        ) / 100
+                                        : null,
+
+                                etaMinutos,
+                            },
+                        };
+                    }
+                );
 
 
         /*
           Expo admite lotes de hasta 100 mensajes.
         */
-
         for (
             let i = 0;
             i < mensajes.length;
@@ -170,15 +340,13 @@ export async function enviarPushNuevaCarrera(
                 );
 
                 continue;
-
             }
 
 
             console.log(
-                `Push enviado para carrera #${numero}:`,
+                `Push personalizado enviado para carrera #${numero}:`,
                 data
             );
-
         }
 
     } catch (error) {
@@ -189,14 +357,9 @@ export async function enviarPushNuevaCarrera(
         );
 
         /*
-          IMPORTANTE:
-          nunca lanzamos error aquí.
-
           Si Expo Push falla, la carrera igualmente
           debe crearse y el polling de la APK seguirá
           encontrándola.
         */
-
     }
-
 }

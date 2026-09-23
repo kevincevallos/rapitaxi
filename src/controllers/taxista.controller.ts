@@ -1113,12 +1113,16 @@ export async function mapaTaxistasAdminController(
                             ).getTime() >= limiteOnline
                         );
 
+                    /*
+                      El estado operativo depende del switch
+                      EN LÍNEA del taxista, no de la frescura
+                      del GPS. El GPS se informa por separado.
+                    */
                     const enLineaReal =
                         Boolean(
                             taxista.activo &&
                             dispositivo?.activo &&
-                            dispositivo?.enLinea &&
-                            gpsReciente
+                            dispositivo?.enLinea
                         );
 
                     const carreraActiva =
@@ -1135,17 +1139,22 @@ export async function mapaTaxistasAdminController(
                         estadoMapa =
                             "DESACTIVADO";
 
-                    } else if (!enLineaReal) {
-                        estadoMapa =
-                            "OFFLINE";
-
                     } else if (carreraActiva) {
+                        /*
+                          Una carrera activa siempre prevalece:
+                          se muestra amarillo aunque el GPS sea
+                          antiguo o el dispositivo tarde en refrescar.
+                        */
                         estadoMapa =
                             "OCUPADO";
 
-                    } else {
+                    } else if (enLineaReal) {
                         estadoMapa =
                             "DISPONIBLE";
+
+                    } else {
+                        estadoMapa =
+                            "OFFLINE";
                     }
 
                     const segundosSinGps =
@@ -1183,6 +1192,7 @@ export async function mapaTaxistasAdminController(
                                 dispositivo?.enLinea
                             ),
                         enLineaReal,
+                        gpsReciente,
                         estadoMapa,
                         latitud:
                             taxista.ultimaLatitud,

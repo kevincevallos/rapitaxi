@@ -1070,9 +1070,42 @@ function pintarListaTaxistasMapa(
   const ordenados =
     [...taxistas]
       .sort(
-        (a, b) =>
-          (orden[a.estadoMapa] ?? 9) -
-          (orden[b.estadoMapa] ?? 9)
+        (a, b) => {
+          const diferenciaEstado =
+            (orden[a.estadoMapa] ?? 9) -
+            (orden[b.estadoMapa] ?? 9);
+
+          if (diferenciaEstado !== 0) {
+            return diferenciaEstado;
+          }
+
+          /*
+            Dentro del mismo estado mostramos primero
+            el GPS más reciente. Los que nunca enviaron
+            ubicación quedan al final de su grupo.
+          */
+          const gpsA =
+            typeof a.segundosSinGps === "number"
+              ? a.segundosSinGps
+              : Number.POSITIVE_INFINITY;
+
+          const gpsB =
+            typeof b.segundosSinGps === "number"
+              ? b.segundosSinGps
+              : Number.POSITIVE_INFINITY;
+
+          if (gpsA !== gpsB) {
+            return gpsA - gpsB;
+          }
+
+          return String(
+            a.codigo || ""
+          ).localeCompare(
+            String(
+              b.codigo || ""
+            )
+          );
+        }
       );
 
   if (ordenados.length === 0) {
@@ -1300,7 +1333,7 @@ async function cargarMapaTaxistas() {
           minute: "2-digit",
           second: "2-digit",
         }
-      )} · Online = GPS recibido en los últimos ${data.ttlSegundos} s`;
+      )} · Online = switch EN LÍNEA activo · GPS se muestra por separado`;
 
     pintarListaTaxistasMapa(
       data.taxistas || []

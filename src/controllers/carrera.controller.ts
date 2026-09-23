@@ -62,6 +62,27 @@ function calcularDistanciaKm(
 }
 
 
+function calcularEtaAproximadaMinutos(
+  distanciaKm: number
+) {
+  /*
+    ETA previo a aceptar.
+
+    Es una estimación urbana y NO una ruta GPS exacta.
+    Usamos 25 km/h como promedio conservador para Chone.
+    Después de aceptar, la navegación sigue usando la ruta real.
+  */
+  const velocidadPromedioKmH = 25;
+
+  return Math.max(
+    1,
+    Math.ceil(
+      (distanciaKm / velocidadPromedioKmH) * 60
+    )
+  );
+}
+
+
 async function guardarUltimaUbicacionTaxista(
   codigoTaxista: string,
   latitud: number,
@@ -505,8 +526,61 @@ export async function listarCarrerasDisponiblesAppController(
           fechaCreacion: true,
           latitud: true,
           longitud: true,
+          nombreCliente: true,
+          whatsappCliente: true,
         },
       });
+
+
+    /*
+      Historial real del cliente.
+      Contamos únicamente carreras COMPLETADAS anteriores.
+      No exponemos el teléfono al taxista.
+    */
+    const telefonosClientes =
+      Array.from(
+        new Set(
+          carreras
+            .map(
+              carrera =>
+                carrera.whatsappCliente
+            )
+            .filter(Boolean)
+        )
+      );
+
+
+    const historialClientes =
+      telefonosClientes.length > 0
+        ? await prisma.carrera.groupBy({
+            by: [
+              "whatsappCliente",
+            ],
+
+            where: {
+              whatsappCliente: {
+                in: telefonosClientes,
+              },
+
+              estado: "COMPLETADA",
+            },
+
+            _count: {
+              _all: true,
+            },
+          })
+        : [];
+
+
+    const viajesPorCliente =
+      new Map<string, number>(
+        historialClientes.map(
+          item => [
+            item.whatsappCliente,
+            item._count._all,
+          ]
+        )
+      );
 
 
     const carrerasConDistancia =
@@ -515,6 +589,10 @@ export async function listarCarrerasDisponiblesAppController(
           carrera => {
 
             let distanciaKm:
+              number | null =
+              null;
+
+            let etaMinutos:
               number | null =
               null;
 
@@ -538,6 +616,11 @@ export async function listarCarrerasDisponiblesAppController(
                 Math.round(
                   distancia * 100
                 ) / 100;
+
+              etaMinutos =
+                calcularEtaAproximadaMinutos(
+                  distanciaKm
+                );
             }
 
 
@@ -560,7 +643,31 @@ export async function listarCarrerasDisponiblesAppController(
               fechaCreacion:
                 carrera.fechaCreacion,
 
+              nombreCliente:
+                carrera.nombreCliente,
+
+              viajesCliente:
+                viajesPorCliente.get(
+                  carrera.whatsappCliente
+                ) ?? 0,
+
+              tipoCliente:
+                (
+                  viajesPorCliente.get(
+                    carrera.whatsappCliente
+                  ) ?? 0
+                ) >= 3
+                  ? "Cliente frecuente"
+                  : (
+                      viajesPorCliente.get(
+                        carrera.whatsappCliente
+                      ) ?? 0
+                    ) >= 1
+                    ? "Cliente recurrente"
+                    : "Cliente nuevo",
+
               distanciaKm,
+              etaMinutos,
             };
           }
         )
@@ -1600,23 +1707,20 @@ export async function obtenerDashboardAdminController(
         carrerasAnteriores
       );
 
-    const limiteConexion =
-      Date.now() -
-      90 * 1000;
-
     const taxistasEnLinea =
       taxistasParaConexion.filter(
         taxista => {
           const dispositivo =
             taxista.dispositivos[0];
 
+          /*
+            "En línea" representa disponibilidad operativa.
+            La antigüedad del GPS se controla por separado
+            en el mapa y no desconecta al conductor.
+          */
           return Boolean(
             dispositivo?.activo &&
-            dispositivo?.enLinea &&
-            taxista.fechaUltimaUbicacion &&
-            new Date(
-              taxista.fechaUltimaUbicacion
-            ).getTime() >= limiteConexion
+            dispositivo?.enLinea
           );
         }
       ).length;

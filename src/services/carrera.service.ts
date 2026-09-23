@@ -201,7 +201,10 @@ export async function crearCarrera(
             carrera.numero,
             carrera.token,
             carrera.referencia,
-            carrera.formaPago
+            carrera.formaPago,
+            carrera.nombreCliente,
+            carrera.latitud,
+            carrera.longitud
         ),
 
         enviarWebPushNuevaCarrera(
@@ -258,19 +261,69 @@ export async function crearCarrera(
 export async function obtenerCarreraPublica(
     token: string
 ) {
-    return prisma.carrera.findUnique({
-        where: {
-            token,
-        },
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                token,
+            },
 
-        select: {
-            numero: true,
-            referencia: true,
-            formaPago: true,
-            estado: true,
-            fechaCreacion: true,
-        },
-    });
+            select: {
+                numero: true,
+                referencia: true,
+                formaPago: true,
+                estado: true,
+                fechaCreacion: true,
+                nombreCliente: true,
+                whatsappCliente: true,
+            },
+        });
+
+
+    if (!carrera) {
+        return null;
+    }
+
+
+    const viajesCliente =
+        await prisma.carrera.count({
+            where: {
+                whatsappCliente:
+                    carrera.whatsappCliente,
+
+                estado:
+                    "COMPLETADA",
+            },
+        });
+
+
+    return {
+        numero:
+            carrera.numero,
+
+        referencia:
+            carrera.referencia,
+
+        formaPago:
+            carrera.formaPago,
+
+        estado:
+            carrera.estado,
+
+        fechaCreacion:
+            carrera.fechaCreacion,
+
+        nombreCliente:
+            carrera.nombreCliente,
+
+        viajesCliente,
+
+        tipoCliente:
+            viajesCliente >= 3
+                ? "Cliente frecuente"
+                : viajesCliente >= 1
+                    ? "Cliente recurrente"
+                    : "Cliente nuevo",
+    };
 }
 
 
