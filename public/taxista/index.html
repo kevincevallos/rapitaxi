@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="/taxista/apple-touch-icon.png">
     <link rel="manifest" href="/taxista/manifest.webmanifest">
     <link rel="icon" type="image/png" href="/taxista/icon-192.png">
-    <link rel="stylesheet" href="/taxista/app.css?v=2.0.0">
+    <link rel="stylesheet" href="/taxista/app.css?v=2.1.0">
     <title>Rapitaxi Taxista</title>
 </head>
 
@@ -181,40 +181,69 @@
 
                     <!-- CARRERA ACTIVA, MISMO MAPA -->
                     <section class="carrera-activa-panel oculto" id="carreraActiva">
-                        <div class="sheet-handle"></div>
-                        <div class="sheet-cabecera">
-                            <div>
-                                <span class="sheet-label">CARRERA</span>
-                                <strong class="sheet-numero" id="tituloCarreraActiva">#---</strong>
-                            </div>
-                            <span class="sheet-estado" id="estadoCarreraActiva">ASIGNADA</span>
-                        </div>
-
-                        <div class="sheet-destino">
-                            <div class="sheet-pin">📍</div>
-                            <div class="sheet-destino-texto">
-                                <span class="sheet-label">PUNTO DE RECOGIDA</span>
-                                <strong id="referenciaActiva">---</strong>
+                        <div class="sheet-zona-arrastre" id="sheetZonaArrastre">
+                            <div class="sheet-handle"></div>
+                            <div class="sheet-cabecera">
+                                <div>
+                                    <span class="sheet-label">CARRERA ACTIVA</span>
+                                    <strong class="sheet-numero" id="tituloCarreraActiva">#---</strong>
+                                </div>
+                                <span class="sheet-estado" id="estadoCarreraActiva">ASIGNADA</span>
                             </div>
                         </div>
 
-                        <div class="sheet-meta">
-                            <span class="sheet-label">FORMA DE PAGO</span>
-                            <strong id="pagoActivo">---</strong>
-                        </div>
+                        <div class="sheet-contenido" id="sheetContenido">
+                            <div class="sheet-estado-banner" id="sheetEstadoBanner">
+                                <div class="sheet-estado-icono" id="sheetEstadoIcono">➤</div>
+                                <div class="sheet-estado-textos">
+                                    <strong id="sheetEstadoTitulo">En camino al punto de recogida</strong>
+                                    <span id="referenciaActiva">---</span>
+                                </div>
+                            </div>
 
-                        <button type="button" class="accion-principal" id="botonLlegue">LLEGUÉ AL PUNTO</button>
-                        <button type="button" class="accion-principal accion-finalizar oculto"
-                            id="botonFinalizar">FINALIZAR CARRERA</button>
+                            <div class="sheet-cliente-fila">
+                                <div class="sheet-cliente-avatar">👤</div>
+                                <div class="sheet-cliente-datos">
+                                    <strong id="nombreClienteActivo">Cliente Rapitaxi</strong>
+                                    <span id="telefonoClienteActivo"></span>
+                                </div>
+                                <button type="button" class="sheet-contacto sheet-contacto-whatsapp"
+                                    id="botonWhatsapp" aria-label="Abrir WhatsApp">💬</button>
+                                <button type="button" class="sheet-contacto sheet-contacto-llamada"
+                                    id="botonLlamar" aria-label="Llamar al cliente">☎</button>
+                            </div>
 
-                        <div class="acciones-secundarias">
-                            <button type="button" class="accion-secundaria accion-whatsapp"
-                                id="botonWhatsapp"><span>💬</span><strong>CLIENTE</strong></button>
-                            <button type="button" class="accion-secundaria accion-maps"
-                                id="botonMaps"><span>🧭</span><strong>GOOGLE MAPS</strong></button>
-                        </div>
+                            <div class="sheet-meta">
+                                <span class="sheet-label">MÉTODO DE PAGO</span>
+                                <strong id="pagoActivo">---</strong>
+                            </div>
 
-                        <div class="sheet-aviso">Mantén Rapitaxi abierta durante la carrera para compartir tu ubicación.
+                            <button type="button" class="accion-principal" id="botonLlegue">LLEGUÉ</button>
+                            <button type="button" class="accion-principal accion-finalizar oculto"
+                                id="botonFinalizar">FINALIZAR VIAJE</button>
+
+                            <button type="button" class="accion-cancelar" id="botonCancelarViaje">Cancelar viaje</button>
+
+                            <div class="cancelacion-panel oculto" id="cancelacionPanel">
+                                <strong class="cancelacion-titulo">¿Por qué cancelas el viaje?</strong>
+                                <button type="button" class="cancelacion-opcion" data-motivo="CLIENTE_NO_SALIO">
+                                    <span class="cancelacion-radio"></span><span>Cliente nunca salió</span>
+                                </button>
+                                <button type="button" class="cancelacion-opcion" data-motivo="CLIENTE_NO_RESPONDIO">
+                                    <span class="cancelacion-radio"></span><span>Cliente nunca respondió</span>
+                                </button>
+                                <button type="button" class="cancelacion-opcion" data-motivo="OTRO">
+                                    <span class="cancelacion-radio"></span><span>Otro motivo</span>
+                                </button>
+                                <button type="button" class="cancelacion-confirmar" id="botonConfirmarCancelacion" disabled>
+                                    Confirmar cancelación
+                                </button>
+                                <button type="button" class="cancelacion-volver" id="botonVolverCancelacion">Volver</button>
+                            </div>
+
+                            <div class="sheet-aviso" id="sheetAviso">
+                                Mantén Rapitaxi abierta durante la carrera para compartir tu ubicación.
+                            </div>
                         </div>
                     </section>
 
@@ -224,7 +253,7 @@
             </div>
         </section>
     </main>
-    <script src="/taxista/app.js?v=2.0.0"></script>
+    <script src="/taxista/app.js?v=2.1.0"></script>
 </body>
 
 </html>

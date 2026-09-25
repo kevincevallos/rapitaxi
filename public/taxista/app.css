@@ -1111,3 +1111,298 @@ button {
 .dashboard-aceptar { flex:0.58; width:auto; background:#21a957; color:#fff; }
 .dashboard-rechazar:active, .dashboard-aceptar:active { transform:scale(.985); }
 .dashboard-oferta .paginacion { margin-top:8px; }
+
+/* =========================================================
+   PWA 2.1 · flujo de carrera activa sincronizado con Android
+   ========================================================= */
+
+.dashboard-panel-inferior {
+    transition: transform .28s cubic-bezier(.2,.8,.2,1);
+    will-change: transform;
+}
+
+.dashboard-panel-inferior.arrastrando,
+.dashboard-panel-inferior.sin-transicion {
+    transition: none !important;
+}
+
+.dashboard-panel-inferior.activa-colapsada {
+    overflow: hidden;
+}
+
+.sheet-zona-arrastre {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+}
+
+.sheet-zona-arrastre:active {
+    cursor: grabbing;
+}
+
+.sheet-contenido {
+    margin-top: 10px;
+}
+
+.sheet-estado-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 11px;
+    border-radius: 16px;
+    background: #f0e8ff;
+}
+
+.sheet-estado-banner.viaje-en-curso {
+    background: #e8f7ed;
+}
+
+.sheet-estado-icono {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #5a22a8;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.sheet-estado-banner.viaje-en-curso .sheet-estado-icono {
+    background: #21a957;
+}
+
+.sheet-estado-textos {
+    min-width: 0;
+    flex: 1;
+}
+
+.sheet-estado-textos strong {
+    display: block;
+    color: #281737;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.sheet-estado-textos span {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #786f80;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.sheet-cliente-fila {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 10px;
+}
+
+.sheet-cliente-avatar {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 19px;
+    background: #efe7f8;
+    font-size: 18px;
+}
+
+.sheet-cliente-datos {
+    min-width: 0;
+    flex: 1;
+}
+
+.sheet-cliente-datos strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #281737;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.sheet-cliente-datos span {
+    display: block;
+    margin-top: 2px;
+    color: #8a8091;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.sheet-contacto {
+    width: 39px;
+    height: 39px;
+    flex: 0 0 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.sheet-contacto-whatsapp {
+    background: #e8f7ed;
+    color: #168445;
+}
+
+.sheet-contacto-llamada {
+    background: #eee5f8;
+    color: #5a22a8;
+}
+
+.accion-principal {
+    min-height: 54px;
+    font-size: 14px;
+}
+
+.accion-finalizar {
+    background: #d33d3d;
+    color: #fff;
+    border: 0;
+    box-shadow: 0 7px 18px rgba(211,61,61,.18);
+}
+
+.accion-cancelar {
+    width: 100%;
+    min-height: 42px;
+    margin-top: 8px;
+    border-radius: 14px;
+    background: #fff1f1;
+    color: #bd3434;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.cancelacion-panel {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 16px;
+    background: #faf7fb;
+    border: 1px solid #eee7f1;
+}
+
+.cancelacion-titulo {
+    display: block;
+    margin-bottom: 8px;
+    color: #281737;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.cancelacion-opcion {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 0 10px;
+    margin-top: 6px;
+    border-radius: 12px;
+    background: #fff;
+    color: #43374c;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.cancelacion-opcion.seleccionada {
+    background: #f0e8ff;
+    color: #5a22a8;
+}
+
+.cancelacion-radio {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
+    border: 2px solid #b8aebf;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.cancelacion-opcion.seleccionada .cancelacion-radio {
+    border: 5px solid #5a22a8;
+}
+
+.cancelacion-confirmar {
+    width: 100%;
+    min-height: 46px;
+    margin-top: 10px;
+    border-radius: 14px;
+    background: #c83838;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.cancelacion-confirmar:disabled {
+    opacity: .45;
+}
+
+.cancelacion-volver {
+    width: 100%;
+    min-height: 38px;
+    margin-top: 5px;
+    background: transparent;
+    color: #6f6576;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.dashboard-cliente-distancia {
+    color: #3e2a70 !important;
+    font-size: 14px !important;
+    line-height: 18px;
+    font-weight: 900 !important;
+}
+
+.estado-ruta-web {
+    top: calc(148px + env(safe-area-inset-top));
+    padding: 7px 12px;
+    font-size: 10px;
+}
+
+@media(max-height:700px) {
+    .dashboard-cliente-distancia {
+        font-size: 13px !important;
+    }
+
+    .sheet-estado-banner {
+        padding-top: 8px;
+        padding-bottom: 8px;
+    }
+
+    .sheet-aviso {
+        display: block;
+        font-size: 8px;
+    }
+}
+
+@media(max-width:360px) {
+    .dashboard-cliente-distancia {
+        font-size: 13px !important;
+    }
+
+    .sheet-cliente-datos strong {
+        font-size: 13px;
+    }
+
+    .sheet-contacto {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+}
+

@@ -265,6 +265,11 @@ const zonaCarreras =
         ".zona-carreras"
     );
 
+const dashboardPanel =
+    document.getElementById(
+        "dashboardPanel"
+    );
+
 const botonAceptar =
     document.getElementById(
         "botonAceptar"
@@ -310,14 +315,74 @@ const gpsPunto =
         "gpsPunto"
     );
 
-const botonMaps =
-    document.getElementById(
-        "botonMaps"
-    );
-
 const botonWhatsapp =
     document.getElementById(
         "botonWhatsapp"
+    );
+
+const botonLlamar =
+    document.getElementById(
+        "botonLlamar"
+    );
+
+const botonCancelarViaje =
+    document.getElementById(
+        "botonCancelarViaje"
+    );
+
+const cancelacionPanel =
+    document.getElementById(
+        "cancelacionPanel"
+    );
+
+const botonConfirmarCancelacion =
+    document.getElementById(
+        "botonConfirmarCancelacion"
+    );
+
+const botonVolverCancelacion =
+    document.getElementById(
+        "botonVolverCancelacion"
+    );
+
+const sheetZonaArrastre =
+    document.getElementById(
+        "sheetZonaArrastre"
+    );
+
+const sheetContenido =
+    document.getElementById(
+        "sheetContenido"
+    );
+
+const sheetEstadoBanner =
+    document.getElementById(
+        "sheetEstadoBanner"
+    );
+
+const sheetEstadoIcono =
+    document.getElementById(
+        "sheetEstadoIcono"
+    );
+
+const sheetEstadoTitulo =
+    document.getElementById(
+        "sheetEstadoTitulo"
+    );
+
+const nombreClienteActivo =
+    document.getElementById(
+        "nombreClienteActivo"
+    );
+
+const telefonoClienteActivo =
+    document.getElementById(
+        "telefonoClienteActivo"
+    );
+
+const sheetAviso =
+    document.getElementById(
+        "sheetAviso"
     );
 
 const botonLlegue =
@@ -351,6 +416,31 @@ let marcandoLlegada =
 
 let finalizandoCarrera =
     false;
+
+let cancelandoCarrera =
+    false;
+
+let motivoCancelacionActual =
+    null;
+
+let panelExpandidoWeb =
+    true;
+
+let timerColapsarPanel =
+    null;
+
+let panelCarreraId =
+    null;
+
+let panelAutoAbiertoCercaId =
+    null;
+
+let panelArrastreInicioY =
+    null;
+
+let panelArrastreInicioOffset =
+    0;
+
 /*
   UI GENERAL
 */
@@ -854,7 +944,14 @@ function decodificarPolyline(encoded) {
 }
 
 async function calcularRuta(latTaxi, lngTaxi, forzar = false) {
-    if (!mapaGoogle || !carreraActivaActual || !taxistaActual) return;
+    if (
+        !mapaGoogle ||
+        !carreraActivaActual ||
+        !taxistaActual ||
+        carreraActivaActual.estado === "LLEGO"
+    ) {
+        return;
+    }
     const ahora = Date.now();
     if (!forzar && ahora - ultimaRutaCalculada < 120000) return;
     ultimaRutaCalculada = ahora;
@@ -959,8 +1056,43 @@ async function procesarUbicacion(posicion) {
     actualizarCamaraNavegacion(latitud, longitud, heading);
 
     if (carreraActivaActual) {
-        calcularRuta(latitud, longitud);
-        enviarUbicacionBackend(latitud, longitud);
+        if (
+            carreraActivaActual.estado !== "LLEGO"
+        ) {
+            const distanciaMetros =
+                calcularDistanciaMetrosLocal(
+                    latitud,
+                    longitud,
+                    Number(carreraActivaActual.latitud),
+                    Number(carreraActivaActual.longitud)
+                );
+
+            if (
+                distanciaMetros <= 100 &&
+                panelAutoAbiertoCercaId !== carreraActivaActual.id
+            ) {
+                panelAutoAbiertoCercaId =
+                    carreraActivaActual.id;
+
+                expandirPanelWeb(true);
+            }
+
+            calcularRuta(
+                latitud,
+                longitud
+            );
+        } else {
+            limpiarRutaGoogle();
+
+            if (estadoRutaWeb) {
+                ocultar(estadoRutaWeb);
+            }
+        }
+
+        enviarUbicacionBackend(
+            latitud,
+            longitud
+        );
     }
 }
 
@@ -1053,6 +1185,179 @@ function reactivarGpsCarrera() {
     iniciarGpsCarrera();
 }
 
+
+function calcularDistanciaMetrosLocal(
+    latitudOrigen,
+    longitudOrigen,
+    latitudDestino,
+    longitudDestino
+) {
+    const radioTierraMetros = 6371000;
+    const aRadianes = grados => grados * Math.PI / 180;
+
+    const dLat = aRadianes(latitudDestino - latitudOrigen);
+    const dLng = aRadianes(longitudDestino - longitudOrigen);
+    const lat1 = aRadianes(latitudOrigen);
+    const lat2 = aRadianes(latitudDestino);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(dLng / 2) ** 2;
+
+    return (
+        radioTierraMetros *
+        2 *
+        Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1 - a)
+        )
+    );
+}
+
+function offsetPanelColapsado() {
+    if (!dashboardPanel) return 0;
+
+    return Math.max(
+        0,
+        dashboardPanel.getBoundingClientRect().height - 72
+    );
+}
+
+function expandirPanelWeb(animar = true) {
+    if (!dashboardPanel || !carreraActivaActual) return;
+
+    panelExpandidoWeb = true;
+    dashboardPanel.classList.remove("activa-colapsada");
+
+    if (!animar) {
+        dashboardPanel.classList.add("sin-transicion");
+    }
+
+    dashboardPanel.style.transform = "translateY(0px)";
+
+    if (!animar) {
+        requestAnimationFrame(() => {
+            dashboardPanel.classList.remove("sin-transicion");
+        });
+    }
+}
+
+function colapsarPanelWeb(animar = true) {
+    if (
+        !dashboardPanel ||
+        !carreraActivaActual ||
+        cancelacionPanel?.classList.contains("oculto") === false
+    ) {
+        return;
+    }
+
+    const offset = offsetPanelColapsado();
+
+    if (offset <= 0) return;
+
+    panelExpandidoWeb = false;
+    dashboardPanel.classList.add("activa-colapsada");
+
+    if (!animar) {
+        dashboardPanel.classList.add("sin-transicion");
+    }
+
+    dashboardPanel.style.transform =
+        `translateY(${offset}px)`;
+
+    if (!animar) {
+        requestAnimationFrame(() => {
+            dashboardPanel.classList.remove("sin-transicion");
+        });
+    }
+}
+
+function programarAutoColapsoPanel(carreraId) {
+    if (timerColapsarPanel) {
+        clearTimeout(timerColapsarPanel);
+        timerColapsarPanel = null;
+    }
+
+    timerColapsarPanel = setTimeout(() => {
+        if (
+            carreraActivaActual?.id === carreraId &&
+            carreraActivaActual?.estado !== "LLEGO"
+        ) {
+            colapsarPanelWeb(true);
+        }
+    }, 5000);
+}
+
+function resetearCancelacionUI() {
+    motivoCancelacionActual = null;
+    cancelacionPanel?.classList.add("oculto");
+    botonCancelarViaje?.classList.remove("oculto");
+
+    document
+        .querySelectorAll(".cancelacion-opcion")
+        .forEach(opcion => {
+            opcion.classList.remove("seleccionada");
+        });
+
+    if (botonConfirmarCancelacion) {
+        botonConfirmarCancelacion.disabled = true;
+        botonConfirmarCancelacion.textContent =
+            "Confirmar cancelación";
+    }
+}
+
+function seleccionarMotivoCancelacion(motivo) {
+    motivoCancelacionActual = motivo;
+
+    document
+        .querySelectorAll(".cancelacion-opcion")
+        .forEach(opcion => {
+            opcion.classList.toggle(
+                "seleccionada",
+                opcion.dataset.motivo === motivo
+            );
+        });
+
+    if (botonConfirmarCancelacion) {
+        botonConfirmarCancelacion.disabled =
+            !motivoCancelacionActual;
+    }
+}
+
+function limpiarVisualCarreraTerminada() {
+    if (timerColapsarPanel) {
+        clearTimeout(timerColapsarPanel);
+        timerColapsarPanel = null;
+    }
+
+    panelCarreraId = null;
+    panelAutoAbiertoCercaId = null;
+    panelExpandidoWeb = true;
+
+    if (dashboardPanel) {
+        dashboardPanel.style.transform = "translateY(0px)";
+        dashboardPanel.classList.remove("activa-colapsada");
+    }
+
+    resetearCancelacionUI();
+
+    limpiarRutaGoogle();
+
+    if (marcadorCliente) {
+        marcadorCliente.setMap(null);
+    }
+
+    carreraMapaId = 0;
+    ultimaRutaCalculada = 0;
+
+    if (estadoRutaWeb) {
+        estadoRutaWeb.innerHTML = "";
+        ocultar(estadoRutaWeb);
+    }
+}
+
 /*
   CARRERA ACTIVA
 */
@@ -1075,7 +1380,7 @@ function estadoHumanoWeb(
             return "CERCA";
 
         case "LLEGO":
-            return "EN PUNTO";
+            return "VIAJE EN CURSO";
 
         default:
             return estado ||
@@ -1089,22 +1394,16 @@ function estadoHumanoWeb(
 function renderCarreraActiva() {
 
     if (!carreraActivaActual) {
+        limpiarVisualCarreraTerminada();
 
         ocultar(carreraActiva);
         mostrar(zonaCarreras);
-
-        if (estadoRutaWeb) {
-            ocultar(estadoRutaWeb);
-        }
 
         if (gpsChip) {
             ocultar(gpsChip);
         }
 
-        if (
-            ultimaUbicacion &&
-            carreraMapaId !== 0
-        ) {
+        if (ultimaUbicacion) {
             crearMapaCarrera(
                 ultimaUbicacion.latitud,
                 ultimaUbicacion.longitud
@@ -1117,12 +1416,25 @@ function renderCarreraActiva() {
     ocultar(zonaCarreras);
     mostrar(carreraActiva);
 
-    if (estadoRutaWeb) {
-        mostrar(estadoRutaWeb);
-    }
-
     if (gpsChip) {
         mostrar(gpsChip);
+    }
+
+    const carreraId =
+        carreraActivaActual.id;
+
+    const esNuevaCarreraPanel =
+        panelCarreraId !== carreraId;
+
+    if (esNuevaCarreraPanel) {
+        panelCarreraId = carreraId;
+        panelAutoAbiertoCercaId = null;
+        resetearCancelacionUI();
+
+        requestAnimationFrame(() => {
+            expandirPanelWeb(false);
+            programarAutoColapsoPanel(carreraId);
+        });
     }
 
     tituloCarreraActiva.textContent =
@@ -1134,22 +1446,98 @@ function renderCarreraActiva() {
         );
 
     referenciaActiva.textContent =
-        carreraActivaActual.referencia ||
-        "Sin referencia";
+        carreraActivaActual.estado === "LLEGO"
+            ? "Cliente a bordo"
+            : (
+                carreraActivaActual.referencia ||
+                "Sin referencia"
+            );
 
     pagoActivo.textContent =
         carreraActivaActual.formaPago ||
         "No especificado";
 
+    if (nombreClienteActivo) {
+        nombreClienteActivo.textContent =
+            carreraActivaActual.nombreCliente ||
+            "Cliente Rapitaxi";
+    }
+
+    if (telefonoClienteActivo) {
+        const telefono =
+            String(
+                carreraActivaActual.telefonoCliente ||
+                ""
+            ).replace(/\D/g, "");
+
+        telefonoClienteActivo.textContent =
+            telefono
+                ? `+${telefono}`
+                : "";
+    }
+
     const estado =
         carreraActivaActual.estado;
 
-    if (estado === "LLEGO") {
+    const yaLlego =
+        estado === "LLEGO";
+
+    if (sheetEstadoBanner) {
+        sheetEstadoBanner.classList.toggle(
+            "viaje-en-curso",
+            yaLlego
+        );
+    }
+
+    if (sheetEstadoIcono) {
+        sheetEstadoIcono.textContent =
+            yaLlego
+                ? "🚕"
+                : "➤";
+    }
+
+    if (sheetEstadoTitulo) {
+        sheetEstadoTitulo.textContent =
+            yaLlego
+                ? "Viaje en curso"
+                : "En camino al punto de recogida";
+    }
+
+    if (sheetAviso) {
+        sheetAviso.textContent =
+            yaLlego
+                ? "Finaliza el viaje al dejar al pasajero para volver a recibir solicitudes."
+                : "Mantén Rapitaxi abierta durante la carrera para compartir tu ubicación.";
+    }
+
+    if (yaLlego) {
         ocultar(botonLlegue);
         mostrar(botonFinalizar);
+
+        limpiarRutaGoogle();
+
+        if (marcadorCliente) {
+            marcadorCliente.setMap(null);
+        }
+
+        if (estadoRutaWeb) {
+            ocultar(estadoRutaWeb);
+        }
+
+        ultimaRutaCalculada = 0;
+
+        if (esNuevaCarreraPanel) {
+            requestAnimationFrame(() => {
+                expandirPanelWeb(true);
+            });
+        }
     } else {
         mostrar(botonLlegue);
         ocultar(botonFinalizar);
+
+        if (estadoRutaWeb) {
+            mostrar(estadoRutaWeb);
+        }
     }
 
     iniciarGpsCarrera();
@@ -1159,18 +1547,20 @@ function renderCarreraActiva() {
         carreraMapaId !== carreraActivaActual.id
     ) {
         ultimaRutaCalculada = 0;
+
         crearMapaCarrera(
             ultimaUbicacion.latitud,
             ultimaUbicacion.longitud
         );
-        calcularRuta(
-            ultimaUbicacion.latitud,
-            ultimaUbicacion.longitud,
-            true
-        );
+
+        if (!yaLlego) {
+            calcularRuta(
+                ultimaUbicacion.latitud,
+                ultimaUbicacion.longitud,
+                true
+            );
+        }
     }
-
-
 }
 
 
@@ -2376,6 +2766,10 @@ async function marcarLlegada() {
             true
         );
 
+        expandirPanelWeb(
+            true
+        );
+
 
         window.alert(
             "Llegada registrada. El cliente fue notificado."
@@ -2402,10 +2796,125 @@ async function marcarLlegada() {
             false;
 
         botonLlegue.textContent =
-            "📍 LLEGUÉ AL PUNTO DE RECOGIDA";
+            "LLEGUÉ";
 
     }
 
+}
+
+
+/*
+  ======================================
+  CANCELAR VIAJE DESDE TAXISTA
+  ======================================
+*/
+
+async function cancelarCarreraTaxistaWeb() {
+
+    if (
+        cancelandoCarrera ||
+        !carreraActivaActual ||
+        !taxistaActual ||
+        !motivoCancelacionActual
+    ) {
+        return;
+    }
+
+    try {
+        cancelandoCarrera = true;
+
+        botonConfirmarCancelacion.disabled =
+            true;
+
+        botonConfirmarCancelacion.textContent =
+            "CANCELANDO...";
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/carreras/app/${carreraActivaActual.id}/cancelar`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
+
+                    body:
+                        JSON.stringify({
+                            codigoTaxista:
+                                String(
+                                    taxistaActual.codigo
+                                ).padStart(
+                                    3,
+                                    "0"
+                                ),
+
+                            motivo:
+                                motivoCancelacionActual,
+                        }),
+                }
+            );
+
+        const data =
+            await response
+                .json()
+                .catch(
+                    () => null
+                );
+
+        if (!response.ok) {
+            window.alert(
+                data?.message ||
+                "No fue posible cancelar la carrera."
+            );
+
+            return;
+        }
+
+        detenerPollingCarreraActiva();
+
+        carreraActivaActual =
+            null;
+
+        limpiarVisualCarreraTerminada();
+        renderCarreraActiva();
+
+        if (enLinea) {
+            await cargarCarreras(
+                true
+            );
+
+            iniciarPollingCarreras();
+        }
+
+        window.alert(
+            "Carrera cancelada. Ya puedes recibir una nueva solicitud."
+        );
+
+    } catch (error) {
+        console.log(
+            "Error cancelando carrera:",
+            error
+        );
+
+        window.alert(
+            "No fue posible cancelar la carrera. Intenta nuevamente."
+        );
+
+    } finally {
+        cancelandoCarrera =
+            false;
+
+        if (botonConfirmarCancelacion) {
+            botonConfirmarCancelacion.disabled =
+                !motivoCancelacionActual;
+
+            botonConfirmarCancelacion.textContent =
+                "Confirmar cancelación";
+        }
+    }
 }
 
 
@@ -2546,7 +3055,7 @@ async function finalizarCarrera() {
             false;
 
         botonFinalizar.textContent =
-            "FINALIZAR CARRERA";
+            "FINALIZAR VIAJE";
 
     }
 
@@ -3105,33 +3614,6 @@ carreraSiguiente.addEventListener(
 
     }
 );
-botonMaps.addEventListener(
-    "click",
-    () => {
-
-        const url =
-            carreraActivaActual
-                ?.enlaceGoogleMaps;
-
-
-        if (!url) {
-
-            window.alert(
-                "Google Maps no está disponible."
-            );
-
-            return;
-
-        }
-
-
-        window.location.href =
-            url;
-
-    }
-);
-
-
 botonWhatsapp.addEventListener(
     "click",
     () => {
@@ -3157,6 +3639,204 @@ botonWhatsapp.addEventListener(
 
     }
 );
+
+
+botonLlamar?.addEventListener(
+    "click",
+    () => {
+        const telefono =
+            String(
+                carreraActivaActual
+                    ?.telefonoCliente ||
+                ""
+            ).replace(/\D/g, "");
+
+        const url =
+            carreraActivaActual
+                ?.enlaceTelefonoCliente ||
+            (
+                telefono
+                    ? `tel:+${telefono}`
+                    : ""
+            );
+
+        if (!url) {
+            window.alert(
+                "El teléfono del cliente no está disponible."
+            );
+
+            return;
+        }
+
+        window.location.href =
+            url;
+    }
+);
+
+
+botonCancelarViaje?.addEventListener(
+    "click",
+    () => {
+        if (!carreraActivaActual) {
+            return;
+        }
+
+        expandirPanelWeb(true);
+        cancelacionPanel?.classList.remove(
+            "oculto"
+        );
+
+        botonCancelarViaje.classList.add(
+            "oculto"
+        );
+
+        motivoCancelacionActual =
+            null;
+
+        seleccionarMotivoCancelacion(
+            null
+        );
+    }
+);
+
+
+document
+    .querySelectorAll(".cancelacion-opcion")
+    .forEach(opcion => {
+        opcion.addEventListener(
+            "click",
+            () => {
+                seleccionarMotivoCancelacion(
+                    opcion.dataset.motivo
+                );
+            }
+        );
+    });
+
+
+botonVolverCancelacion?.addEventListener(
+    "click",
+    () => {
+        resetearCancelacionUI();
+    }
+);
+
+
+botonConfirmarCancelacion?.addEventListener(
+    "click",
+    () => {
+        cancelarCarreraTaxistaWeb();
+    }
+);
+
+
+if (sheetZonaArrastre) {
+    sheetZonaArrastre.addEventListener(
+        "pointerdown",
+        event => {
+            if (
+                !carreraActivaActual ||
+                cancelacionPanel?.classList.contains("oculto") === false
+            ) {
+                return;
+            }
+
+            panelArrastreInicioY =
+                event.clientY;
+
+            panelArrastreInicioOffset =
+                panelExpandidoWeb
+                    ? 0
+                    : offsetPanelColapsado();
+
+            sheetZonaArrastre.setPointerCapture?.(
+                event.pointerId
+            );
+
+            dashboardPanel?.classList.add(
+                "arrastrando"
+            );
+        }
+    );
+
+    sheetZonaArrastre.addEventListener(
+        "pointermove",
+        event => {
+            if (
+                panelArrastreInicioY === null ||
+                !dashboardPanel
+            ) {
+                return;
+            }
+
+            const delta =
+                event.clientY -
+                panelArrastreInicioY;
+
+            const maximo =
+                offsetPanelColapsado();
+
+            const siguiente =
+                Math.min(
+                    maximo,
+                    Math.max(
+                        0,
+                        panelArrastreInicioOffset +
+                        delta
+                    )
+                );
+
+            dashboardPanel.style.transform =
+                `translateY(${siguiente}px)`;
+        }
+    );
+
+    const finalizarArrastrePanel =
+        event => {
+            if (
+                panelArrastreInicioY === null
+            ) {
+                return;
+            }
+
+            const delta =
+                event.clientY -
+                panelArrastreInicioY;
+
+            dashboardPanel?.classList.remove(
+                "arrastrando"
+            );
+
+            panelArrastreInicioY =
+                null;
+
+            if (delta > 35) {
+                colapsarPanelWeb(true);
+                return;
+            }
+
+            if (delta < -35) {
+                expandirPanelWeb(true);
+                return;
+            }
+
+            if (panelExpandidoWeb) {
+                expandirPanelWeb(true);
+            } else {
+                colapsarPanelWeb(true);
+            }
+        };
+
+    sheetZonaArrastre.addEventListener(
+        "pointerup",
+        finalizarArrastrePanel
+    );
+
+    sheetZonaArrastre.addEventListener(
+        "pointercancel",
+        finalizarArrastrePanel
+    );
+}
 
 if (botonActivarUbicacion) {
     botonActivarUbicacion.addEventListener("click", () => {
