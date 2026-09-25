@@ -45,7 +45,6 @@ let carreraMapaId = null;
 let carrerasRechazadas = new Set();
 let idsCarrerasConocidas = new Set();
 let sonidoNuevaCarrera = null;
-let audioDesbloqueado = false;
 
 /*
   STORAGE
@@ -582,28 +581,6 @@ function textoPagoCorto(formaPago) {
     if (/guayaquil/i.test(texto)) return "Transf. Guayaquil";
     return texto || "No indicado";
 }
-
-function desbloquearAudioNuevaCarrera() {
-    if (audioDesbloqueado) return;
-    try {
-        sonidoNuevaCarrera = sonidoNuevaCarrera || new Audio("/taxista/sounds/un_rapi.wav");
-        sonidoNuevaCarrera.preload = "auto";
-        sonidoNuevaCarrera.volume = 1;
-        sonidoNuevaCarrera.muted = true;
-        const intento = sonidoNuevaCarrera.play();
-        if (intento && typeof intento.then === "function") {
-            intento.then(() => {
-                sonidoNuevaCarrera.pause();
-                sonidoNuevaCarrera.currentTime = 0;
-                sonidoNuevaCarrera.muted = false;
-                audioDesbloqueado = true;
-            }).catch(() => { });
-        }
-    } catch { }
-}
-
-document.addEventListener("pointerdown", desbloquearAudioNuevaCarrera, { once: true });
-document.addEventListener("touchstart", desbloquearAudioNuevaCarrera, { once: true, passive: true });
 
 function reproducirSonidoNuevaCarrera() {
     try {
