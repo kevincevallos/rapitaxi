@@ -13,8 +13,7 @@
     <link rel="apple-touch-icon" href="/taxista/apple-touch-icon.png">
     <link rel="manifest" href="/taxista/manifest.webmanifest">
     <link rel="icon" type="image/png" href="/taxista/icon-192.png">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="/taxista/app.css">
+    <link rel="stylesheet" href="/taxista/app.css?v=2.0.0">
     <title>Rapitaxi Taxista</title>
 </head>
 
@@ -138,27 +137,44 @@
 
                         <div class="dashboard-oferta oculto" id="carreraCard">
                             <div class="dashboard-oferta-header">
-                                <div class="dashboard-oferta-etiqueta-fila">
-                                    <span class="oferta-punto"></span>
-                                    <span class="dashboard-oferta-etiqueta">NUEVA SOLICITUD</span>
-                                </div>
+                                <span class="dashboard-oferta-etiqueta">Nueva solicitud</span>
                                 <strong class="dashboard-oferta-numero" id="numeroCarrera">#---</strong>
                             </div>
 
-                            <span class="dashboard-oferta-label">RECOGER EN</span>
-                            <strong class="dashboard-oferta-referencia" id="referenciaCarrera">---</strong>
-                            <div class="dashboard-oferta-separador"></div>
-                            <span class="dashboard-oferta-label">FORMA DE PAGO</span>
-                            <strong class="dashboard-oferta-pago" id="pagoCarrera">---</strong>
+                            <div class="dashboard-cliente-fila">
+                                <div class="dashboard-cliente-avatar">👤</div>
+                                <div class="dashboard-cliente-info">
+                                    <strong class="dashboard-cliente-nombre" id="nombreClienteCarrera">Cliente Rapitaxi</strong>
+                                    <div class="dashboard-cliente-meta-fila">
+                                        <span class="dashboard-cliente-badge" id="metaClienteCarrera">Cliente nuevo · 0 viajes</span>
+                                        <span class="dashboard-cliente-distancia" id="distanciaCarrera">-- min · Calculando...</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <button class="dashboard-aceptar" id="botonAceptar" type="button"
-                                onclick="aceptarCarrera()">ACEPTAR CARRERA</button>
+                            <div class="dashboard-trayecto-fila">
+                                <span class="dashboard-trayecto-pin">📍</span>
+                                <div class="dashboard-trayecto-texto">
+                                    <strong class="dashboard-oferta-referencia" id="referenciaCarrera">---</strong>
+                                    <span class="dashboard-trayecto-ciudad">Chone, Ecuador</span>
+                                </div>
+                            </div>
+
+                            <div class="dashboard-oferta-separador"></div>
+                            <div class="dashboard-pago-fila">
+                                <span class="dashboard-pago-label">Método de pago</span>
+                                <div class="dashboard-pago-valor"><span class="dashboard-pago-icono">$</span><strong class="dashboard-oferta-pago" id="pagoCarrera">---</strong></div>
+                            </div>
+
+                            <div class="dashboard-botones-fila">
+                                <button class="dashboard-rechazar" id="botonRechazar" type="button">Rechazar</button>
+                                <button class="dashboard-aceptar" id="botonAceptar" type="button">Aceptar</button>
+                            </div>
 
                             <div class="paginacion oculto" id="paginacion">
                                 <button id="carreraAnterior" type="button" class="boton-paginacion">‹ ANTERIOR</button>
                                 <span id="textoPaginacion">1 de 1</span>
-                                <button id="carreraSiguiente" type="button" class="boton-paginacion">SIGUIENTE
-                                    ›</button>
+                                <button id="carreraSiguiente" type="button" class="boton-paginacion">SIGUIENTE ›</button>
                             </div>
                         </div>
                     </section>
@@ -208,8 +224,7 @@
             </div>
         </section>
     </main>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="/taxista/app.js"></script>
+    <script src="/taxista/app.js?v=2.0.0"></script>
 </body>
 
 </html>

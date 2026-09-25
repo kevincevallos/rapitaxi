@@ -8,42 +8,44 @@
 const API_BASE_URL =
     window.location.origin;
 
-const CARTO_API_KEY =
-    "cb1_3gxd_1_a292bfb7894ca1d819a42be0";
+const GOOGLE_MAPS_WEB_API_KEY =
+    "AIzaSyCLbTCVv-e_pddJvQoU4haU-VcODm_E5Qg";
 
+const GOOGLE_MAPS_DARK_STYLE = [
+    { elementType: "geometry", stylers: [{ color: "#1D1B22" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#B8B2C0" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#1D1B22" }] },
+    { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#5A5261" }] },
+    { featureType: "poi", elementType: "geometry", stylers: [{ color: "#242129" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#91899A" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#3A3542" }] },
+    { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#29252F" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#D5D0DA" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#554C60" }] },
+    { featureType: "transit", elementType: "geometry", stylers: [{ color: "#28242E" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#111720" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#6D7582" }] },
+];
 
 /*
 MAPA / GPS
 */
 
-let mapaCarreraLeaflet =
-    null;
-
-let marcadorTaxi =
-    null;
-
-let marcadorCliente =
-    null;
-
-let lineaRuta =
-    null;
-
-let gpsWatchId =
-    null;
-
-let ultimaUbicacion =
-    null;
-
-let ultimoEnvioGps =
-    0;
-
-let ultimaRutaCalculada =
-    0;
-
-let carreraMapaId =
-    null;
-
-
+let googleMapsPromise = null;
+let mapaGoogle = null;
+let marcadorTaxi = null;
+let marcadorCliente = null;
+let lineaRutaBorde = null;
+let lineaRuta = null;
+let gpsWatchId = null;
+let ultimaUbicacion = null;
+let ultimoEnvioGps = 0;
+let ultimaRutaCalculada = 0;
+let carreraMapaId = null;
+let carrerasRechazadas = new Set();
+let idsCarrerasConocidas = new Set();
+let sonidoNuevaCarrera = null;
+let audioDesbloqueado = false;
 
 /*
   STORAGE
@@ -233,6 +235,11 @@ const pagoCarrera =
     document.getElementById(
         "pagoCarrera"
     );
+
+const nombreClienteCarrera = document.getElementById("nombreClienteCarrera");
+const metaClienteCarrera = document.getElementById("metaClienteCarrera");
+const distanciaCarrera = document.getElementById("distanciaCarrera");
+const botonRechazar = document.getElementById("botonRechazar");
 
 const paginacion =
     document.getElementById(
@@ -559,1048 +566,488 @@ function ocultarEstadosCarreras() {
 }
 
 
+function textoDistanciaCarrera(distanciaKm) {
+    if (typeof distanciaKm !== "number" || !Number.isFinite(distanciaKm)) {
+        return "Calculando...";
+    }
+    if (distanciaKm < 1) {
+        return `${Math.max(1, Math.round(distanciaKm * 1000))} m`;
+    }
+    return `${distanciaKm.toFixed(1)} km`;
+}
+
+function textoPagoCorto(formaPago) {
+    const texto = String(formaPago || "");
+    if (/pichincha/i.test(texto)) return "Transf. Pichincha";
+    if (/guayaquil/i.test(texto)) return "Transf. Guayaquil";
+    return texto || "No indicado";
+}
+
+function desbloquearAudioNuevaCarrera() {
+    if (audioDesbloqueado) return;
+    try {
+        sonidoNuevaCarrera = sonidoNuevaCarrera || new Audio("/taxista/sounds/un_rapi.wav");
+        sonidoNuevaCarrera.preload = "auto";
+        sonidoNuevaCarrera.volume = 1;
+        sonidoNuevaCarrera.muted = true;
+        const intento = sonidoNuevaCarrera.play();
+        if (intento && typeof intento.then === "function") {
+            intento.then(() => {
+                sonidoNuevaCarrera.pause();
+                sonidoNuevaCarrera.currentTime = 0;
+                sonidoNuevaCarrera.muted = false;
+                audioDesbloqueado = true;
+            }).catch(() => {});
+        }
+    } catch {}
+}
+
+document.addEventListener("pointerdown", desbloquearAudioNuevaCarrera, { once: true });
+document.addEventListener("touchstart", desbloquearAudioNuevaCarrera, { once: true, passive: true });
+
+function reproducirSonidoNuevaCarrera() {
+    try {
+        sonidoNuevaCarrera = sonidoNuevaCarrera || new Audio("/taxista/sounds/un_rapi.wav");
+        sonidoNuevaCarrera.currentTime = 0;
+        sonidoNuevaCarrera.muted = false;
+        sonidoNuevaCarrera.play().catch(() => {});
+    } catch {}
+}
+
 function renderCarreras() {
-
     ocultarEstadosCarreras();
-
-
-    contadorCarreras.textContent =
-        String(
-            carreras.length
-        );
-
+    contadorCarreras.textContent = String(carreras.length);
 
     if (!enLinea) {
-
-        mostrar(
-            estadoOffline
-        );
-
+        mostrar(estadoOffline);
         return;
-
     }
 
-
-    if (
-        carreras.length === 0
-    ) {
-
-        mostrar(
-            sinCarreras
-        );
-
+    if (carreras.length === 0) {
+        mostrar(sinCarreras);
         return;
-
     }
 
-
-    if (
-        indiceCarrera >=
-        carreras.length
-    ) {
-
-        indiceCarrera =
-            0;
-
-    }
-
-
-    const carrera =
-        carreras[
-        indiceCarrera
-        ];
-
-
+    if (indiceCarrera >= carreras.length) indiceCarrera = 0;
+    const carrera = carreras[indiceCarrera];
     if (!carrera) {
-
-        mostrar(
-            sinCarreras
-        );
-
+        mostrar(sinCarreras);
         return;
-
     }
 
+    numeroCarrera.textContent = `#${carrera.numero}`;
+    nombreClienteCarrera.textContent = carrera.nombreCliente || "Cliente Rapitaxi";
+    const viajes = Number(carrera.viajesCliente ?? 0);
+    metaClienteCarrera.textContent = `${carrera.tipoCliente || "Cliente nuevo"} · ${viajes} ${viajes === 1 ? "viaje" : "viajes"}`;
+    distanciaCarrera.textContent = `${typeof carrera.etaMinutos === "number" ? `${carrera.etaMinutos} min` : "-- min"} · ${textoDistanciaCarrera(carrera.distanciaKm)}`;
+    referenciaCarrera.textContent = carrera.referencia || "Sin referencia";
+    pagoCarrera.textContent = textoPagoCorto(carrera.formaPago);
 
-    numeroCarrera.textContent =
-        `#${carrera.numero}`;
+    mostrar(carreraCard);
 
-    referenciaCarrera.textContent =
-        carrera.referencia ||
-        "Sin referencia";
-
-    pagoCarrera.textContent =
-        carrera.formaPago ||
-        "No especificado";
-
-
-    mostrar(
-        carreraCard
-    );
-
-
-    if (
-        carreras.length > 1
-    ) {
-
-        mostrar(
-            paginacion
-        );
-
-        textoPaginacion.textContent =
-            `${indiceCarrera + 1} de ${carreras.length}`;
-
+    if (carreras.length > 1) {
+        mostrar(paginacion);
+        textoPaginacion.textContent = `${indiceCarrera + 1} de ${carreras.length}`;
     } else {
-
-        ocultar(
-            paginacion
-        );
-
+        ocultar(paginacion);
     }
 
+    carreraAnterior.disabled = indiceCarrera === 0;
+    carreraSiguiente.disabled = indiceCarrera === carreras.length - 1;
+}
 
-    carreraAnterior.disabled =
-        indiceCarrera === 0;
-
-    carreraSiguiente.disabled =
-        indiceCarrera ===
-        carreras.length - 1;
-
+function rechazarCarreraLocal() {
+    const carrera = carreras[indiceCarrera];
+    if (!carrera) return;
+    carrerasRechazadas.add(carrera.id);
+    carreras = carreras.filter(item => item.id !== carrera.id);
+    indiceCarrera = 0;
+    renderCarreras();
 }
 
 /*
   ======================================
-  MAPA + GPS IPHONE
+  GOOGLE MAPS + GPS IPHONE
   ======================================
 */
 
-
-function actualizarEstadoGps(
-    estado,
-    texto
-) {
-
-    gpsTexto.textContent =
-        texto;
-
-
-    gpsPunto.classList.remove(
-        "activo",
-        "error"
-    );
-
-
-    if (
-        estado === "activo"
-    ) {
-
-        gpsPunto.classList.add(
-            "activo"
-        );
-
-    }
-
-
-    if (
-        estado === "error"
-    ) {
-
-        gpsPunto.classList.add(
-            "error"
-        );
-
-    }
-
+function actualizarEstadoGps(estado, texto) {
+    gpsTexto.textContent = texto;
+    gpsPunto.classList.remove("activo", "error");
+    if (estado === "activo") gpsPunto.classList.add("activo");
+    if (estado === "error") gpsPunto.classList.add("error");
 }
 
+function cargarGoogleMaps() {
+    if (window.google?.maps) return Promise.resolve(window.google.maps);
+    if (googleMapsPromise) return googleMapsPromise;
 
-/*
-  ICONOS
-*/
+    googleMapsPromise = new Promise((resolve, reject) => {
+        if (!GOOGLE_MAPS_WEB_API_KEY || GOOGLE_MAPS_WEB_API_KEY.includes("PEGA_AQUI")) {
+            reject(new Error("Falta configurar GOOGLE_MAPS_WEB_API_KEY en /taxista/app.js"));
+            return;
+        }
 
-function crearIconoTaxi(
-    heading = 0
-) {
+        const callback = "__rapitaxiGoogleMapsReady";
+        window[callback] = () => {
+            delete window[callback];
+            resolve(window.google.maps);
+        };
 
-    const rotacion =
-        Number.isFinite(
-            Number(heading)
-        )
-            ? Number(heading)
-            : 0;
-
-
-    return L.divIcon({
-
-        className:
-            "marcador-personalizado",
-
-        html:
-            `
-        <div class="taxi-wrapper-web">
-
-          <div
-            class="taxi-marker-web"
-            style="transform: rotate(${rotacion}deg)"
-          >
-            🚕
-          </div>
-
-        </div>
-      `,
-
-        iconSize:
-            [54, 54],
-
-        iconAnchor:
-            [27, 27],
-
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_WEB_API_KEY)}&v=weekly&loading=async&callback=${callback}`;
+        script.async = true;
+        script.defer = true;
+        script.onerror = () => reject(new Error("No se pudo cargar Google Maps JavaScript API"));
+        document.head.appendChild(script);
     });
 
+    return googleMapsPromise;
 }
 
-
-function crearIconoCliente() {
-
-    return L.divIcon({
-
-        className:
-            "marcador-personalizado",
-
-        html:
-            `
-        <div class="cliente-wrapper-web">
-
-          <div class="cliente-marker-web">
-
-            <div class="cliente-centro-web"></div>
-
-          </div>
-
-        </div>
-      `,
-
-        iconSize:
-            [46, 54],
-
-        iconAnchor:
-            [23, 48],
-
-    });
-
+function iconoTaxiGoogle(heading = 0) {
+    return {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 18,
+        fillColor: "#F2C94C",
+        fillOpacity: 1,
+        strokeColor: "#FFFFFF",
+        strokeWeight: 4,
+        rotation: Number.isFinite(Number(heading)) ? Number(heading) : 0,
+    };
 }
 
+function iconoClienteGoogle() {
+    return {
+        path: "M12 2C7.58 2 4 5.58 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.42-3.58-8-8-8z",
+        scale: 1.45,
+        fillColor: "#6D28D9",
+        fillOpacity: 1,
+        strokeColor: "#FFFFFF",
+        strokeWeight: 2.5,
+        anchor: new google.maps.Point(12, 22),
+    };
+}
 
-/*
-  DESTRUIR MAPA
-*/
+function limpiarRutaGoogle() {
+    lineaRutaBorde?.setMap(null);
+    lineaRuta?.setMap(null);
+    lineaRutaBorde = null;
+    lineaRuta = null;
+}
 
 function destruirMapaCarrera() {
-
-    if (
-        mapaCarreraLeaflet
-    ) {
-
-        mapaCarreraLeaflet.remove();
-
-        mapaCarreraLeaflet =
-            null;
-
-    }
-
-
-    marcadorTaxi =
-        null;
-
-    marcadorCliente =
-        null;
-
-    lineaRuta =
-        null;
-
-    carreraMapaId =
-        null;
-
+    limpiarRutaGoogle();
+    marcadorTaxi?.setMap(null);
+    marcadorCliente?.setMap(null);
+    marcadorTaxi = null;
+    marcadorCliente = null;
+    mapaGoogle = null;
+    carreraMapaId = null;
+    if (mapaCarreraElemento) mapaCarreraElemento.innerHTML = "";
 }
 
+async function crearMapaCarrera(latTaxi, lngTaxi) {
+    try {
+        await cargarGoogleMaps();
 
-/*
-  CREAR MAPA
-*/
-
-function crearMapaCarrera(
-    latTaxi,
-    lngTaxi
-) {
-
-    destruirMapaCarrera();
-
-    mapaCarreraLeaflet =
-        L.map(
-            mapaCarreraElemento,
-            {
-                zoomControl: false,
-                attributionControl: true,
-                preferCanvas: true,
-            }
-        );
-
-    L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=" +
-        CARTO_API_KEY,
-        {
-            attribution:
-                '&copy; OpenStreetMap contributors, &copy; CARTO',
-            subdomains: "abcd",
-            maxZoom: 20,
+        const posicionTaxi = { lat: latTaxi, lng: lngTaxi };
+        if (!mapaGoogle) {
+            mapaGoogle = new google.maps.Map(mapaCarreraElemento, {
+                center: posicionTaxi,
+                zoom: 16,
+                styles: GOOGLE_MAPS_DARK_STYLE,
+                disableDefaultUI: true,
+                clickableIcons: false,
+                gestureHandling: "greedy",
+                backgroundColor: "#17111F",
+            });
         }
-    ).addTo(mapaCarreraLeaflet);
 
-    marcadorTaxi =
-        L.marker(
-            [latTaxi, lngTaxi],
-            {
-                icon: crearIconoTaxi(
-                    ultimaUbicacion?.heading || 0
-                ),
+        if (!marcadorTaxi) {
+            marcadorTaxi = new google.maps.Marker({
+                map: mapaGoogle,
+                position: posicionTaxi,
+                icon: iconoTaxiGoogle(ultimaUbicacion?.heading || 0),
+                label: { text: "🚕", fontSize: "22px" },
+                optimized: false,
+                zIndex: 1000,
+            });
+        } else {
+            marcadorTaxi.setPosition(posicionTaxi);
+        }
+
+        if (carreraActivaActual) {
+            const posicionCliente = {
+                lat: Number(carreraActivaActual.latitud),
+                lng: Number(carreraActivaActual.longitud),
+            };
+
+            if (!marcadorCliente) {
+                marcadorCliente = new google.maps.Marker({
+                    map: mapaGoogle,
+                    position: posicionCliente,
+                    icon: iconoClienteGoogle(),
+                    zIndex: 900,
+                });
+            } else {
+                marcadorCliente.setMap(mapaGoogle);
+                marcadorCliente.setPosition(posicionCliente);
             }
-        ).addTo(mapaCarreraLeaflet);
 
-    if (carreraActivaActual) {
-
-        const latCliente =
-            Number(
-                carreraActivaActual.latitud
-            );
-
-        const lngCliente =
-            Number(
-                carreraActivaActual.longitud
-            );
-
-        marcadorCliente =
-            L.marker(
-                [latCliente, lngCliente],
-                {
-                    icon: crearIconoCliente(),
-                }
-            ).addTo(mapaCarreraLeaflet);
-
-        const bounds =
-            L.latLngBounds([
-                [latTaxi, lngTaxi],
-                [latCliente, lngCliente],
-            ]);
-
-        mapaCarreraLeaflet.fitBounds(
-            bounds,
-            {
-                padding: [58, 58],
-                maxZoom: 16,
+            if (carreraMapaId !== carreraActivaActual.id) {
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend(posicionTaxi);
+                bounds.extend(posicionCliente);
+                mapaGoogle.fitBounds(bounds, 70);
             }
-        );
+            carreraMapaId = carreraActivaActual.id;
+        } else {
+            marcadorCliente?.setMap(null);
+            limpiarRutaGoogle();
+            mapaGoogle.setCenter(posicionTaxi);
+            mapaGoogle.setZoom(16);
+            carreraMapaId = 0;
+        }
 
-        carreraMapaId =
-            carreraActivaActual.id;
-
-    } else {
-
-        mapaCarreraLeaflet.setView(
-            [latTaxi, lngTaxi],
-            16
-        );
-
-        carreraMapaId = 0;
-
-    }
-
-    if (mapaCargando) {
         ocultar(mapaCargando);
-    }
-
-    setTimeout(
-        () => {
-            mapaCarreraLeaflet
-                ?.invalidateSize();
-        },
-        180
-    );
-
-}
-
-
-/*
-  RUTA OSRM
-*/
-
-async function calcularRuta(
-    latTaxi,
-    lngTaxi
-) {
-    if (
-        estadoRutaWeb
-    ) {
-
-        estadoRutaWeb.innerHTML =
-            'Calculando <strong>ruta...</strong>';
-
-    }
-
-    if (
-        !mapaCarreraLeaflet ||
-        !carreraActivaActual
-    ) {
-
-        return;
-
-    }
-
-
-    const ahora =
-        Date.now();
-
-
-    /*
-      No recalculamos la ruta
-      constantemente.
-    */
-
-    if (
-        ahora -
-        ultimaRutaCalculada <
-        15000
-    ) {
-
-        return;
-
-    }
-
-
-    ultimaRutaCalculada =
-        ahora;
-
-
-    const latCliente =
-        Number(
-            carreraActivaActual.latitud
-        );
-
-    const lngCliente =
-        Number(
-            carreraActivaActual.longitud
-        );
-
-
-    try {
-
-        const url =
-            "https://router.project-osrm.org/route/v1/driving/" +
-            `${lngTaxi},${latTaxi};` +
-            `${lngCliente},${latCliente}` +
-            "?overview=full&geometries=geojson&steps=true";
-
-
-        const response =
-            await fetch(
-                url
-            );
-
-
-        const data =
-            await response.json();
-
-
-        const coordenadas =
-            data?.routes?.[0]
-                ?.geometry
-                ?.coordinates;
-
-
-        if (
-            !Array.isArray(
-                coordenadas
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        const puntos =
-            coordenadas.map(
-                punto => [
-                    punto[1],
-                    punto[0]
-                ]
-            );
-
-
-        if (
-            lineaRuta
-        ) {
-
-            mapaCarreraLeaflet.removeLayer(
-                lineaRuta
-            );
-
-        }
-
-
-        /*
-          Borde claro
-        */
-
-        L.polyline(
-            puntos,
-            {
-                weight:
-                    9,
-
-                opacity:
-                    0.85,
-
-                color:
-                    "#ffffff",
-            }
-        )
-            .addTo(
-                mapaCarreraLeaflet
-            );
-
-
-        /*
-          Ruta morada
-        */
-
-        lineaRuta =
-            L.polyline(
-                puntos,
-                {
-                    weight:
-                        5,
-
-                    opacity:
-                        1,
-
-                    color:
-                        "#7B3FE4",
-                }
-            )
-                .addTo(
-                    mapaCarreraLeaflet
-                );
-
-        const ruta =
-            data?.routes?.[0];
-
-
-        if (
-            estadoRutaWeb &&
-            ruta
-        ) {
-
-            const distanciaKm =
-                Number(
-                    ruta.distance || 0
-                ) / 1000;
-
-
-            const minutos =
-                Math.max(
-                    1,
-                    Math.round(
-                        Number(
-                            ruta.duration || 0
-                        ) / 60
-                    )
-                );
-
-
-            estadoRutaWeb.innerHTML =
-                `<strong>${distanciaKm.toFixed(1)} km</strong> · ${minutos} min`;
-
-        }
     } catch (error) {
-
-        console.log(
-            "No se pudo calcular ruta:",
-            error
-        );
-
+        console.error("Google Maps:", error);
+        if (textoMapaCargando) textoMapaCargando.textContent = "No se pudo cargar Google Maps";
     }
-
 }
 
-
-/*
-  ENVIAR GPS AL BACKEND
-*/
-
-async function enviarUbicacionBackend(
-    latitud,
-    longitud
-) {
-
-    if (
-        !carreraActivaActual ||
-        !taxistaActual
-    ) {
-
-        return;
-
+function actualizarCamaraNavegacion(latitud, longitud, heading) {
+    if (!mapaGoogle) return;
+    const centro = { lat: latitud, lng: longitud };
+    mapaGoogle.panTo(centro);
+    if (carreraActivaActual) {
+        if ((mapaGoogle.getZoom() || 0) < 17) mapaGoogle.setZoom(17);
+        try {
+            if (typeof heading === "number" && Number.isFinite(heading) && heading >= 0) {
+                mapaGoogle.setHeading(heading);
+            }
+            mapaGoogle.setTilt(45);
+        } catch {}
     }
+}
 
-
-    const ahora =
-        Date.now();
-
-
-    /*
-      Máximo un envío aprox.
-      cada 12 segundos.
-    */
-
-    if (
-        ahora -
-        ultimoEnvioGps <
-        12000
-    ) {
-
-        return;
-
+function decodificarPolyline(encoded) {
+    if (!encoded) return [];
+    const puntos = [];
+    let index = 0, lat = 0, lng = 0;
+    while (index < encoded.length) {
+        let b, shift = 0, result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        const dlat = (result & 1) ? ~(result >> 1) : (result >> 1);
+        lat += dlat;
+        shift = 0; result = 0;
+        do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        const dlng = (result & 1) ? ~(result >> 1) : (result >> 1);
+        lng += dlng;
+        puntos.push({ lat: lat / 1e5, lng: lng / 1e5 });
     }
+    return puntos;
+}
 
+async function calcularRuta(latTaxi, lngTaxi, forzar = false) {
+    if (!mapaGoogle || !carreraActivaActual || !taxistaActual) return;
+    const ahora = Date.now();
+    if (!forzar && ahora - ultimaRutaCalculada < 120000) return;
+    ultimaRutaCalculada = ahora;
 
-    ultimoEnvioGps =
-        ahora;
-
+    if (estadoRutaWeb) estadoRutaWeb.innerHTML = 'Calculando <strong>ruta...</strong>';
 
     try {
+        const codigo = String(taxistaActual.codigo).padStart(3, "0");
+        const url = `${API_BASE_URL}/api/carreras/app/${carreraActivaActual.id}/ruta` +
+            `?codigoTaxista=${encodeURIComponent(codigo)}` +
+            `&latitud=${encodeURIComponent(String(latTaxi))}` +
+            `&longitud=${encodeURIComponent(String(lngTaxi))}`;
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/api/carreras/app/${carreraActivaActual.id}/ubicacion`,
-                {
-                    method:
-                        "POST",
+        const response = await fetch(url, { cache: "no-store" });
+        const data = await response.json().catch(() => null);
+        if (!response.ok || !data?.ruta) throw new Error(data?.message || "Ruta no disponible");
 
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
+        const ruta = data.ruta;
+        const puntos = decodificarPolyline(ruta.encodedPolyline);
+        if (puntos.length > 1) {
+            limpiarRutaGoogle();
+            lineaRutaBorde = new google.maps.Polyline({
+                map: mapaGoogle,
+                path: puntos,
+                strokeColor: "#FFFFFF",
+                strokeOpacity: 0.78,
+                strokeWeight: 9,
+                geodesic: true,
+            });
+            lineaRuta = new google.maps.Polyline({
+                map: mapaGoogle,
+                path: puntos,
+                strokeColor: "#6D28D9",
+                strokeOpacity: 1,
+                strokeWeight: 6,
+                geodesic: true,
+            });
+        }
 
-                    body:
-                        JSON.stringify({
-                            codigoTaxista:
-                                String(
-                                    taxistaActual.codigo
-                                ).padStart(
-                                    3,
-                                    "0"
-                                ),
+        const metros = Number(ruta.distanciaMetros || 0);
+        const distanciaTexto = metros > 0 && metros < 1000
+            ? `${Math.round(metros)} m`
+            : `${Number(ruta.distanciaKm || 0).toFixed(1)} km`;
+        const minutos = Math.max(1, Number(ruta.etaMinutos || 1));
+        if (estadoRutaWeb) estadoRutaWeb.innerHTML = `<strong>${minutos} min</strong> · ${distanciaTexto}`;
+        actualizarCamaraNavegacion(latTaxi, lngTaxi, ultimaUbicacion?.heading);
+    } catch (error) {
+        console.log("No se pudo calcular ruta Google:", error);
+        if (estadoRutaWeb) estadoRutaWeb.innerHTML = 'Ruta <strong>no disponible</strong>';
+    }
+}
 
-                            latitud,
+async function enviarUbicacionBackend(latitud, longitud) {
+    if (!carreraActivaActual || !taxistaActual) return;
+    const ahora = Date.now();
+    if (ahora - ultimoEnvioGps < 12000) return;
+    ultimoEnvioGps = ahora;
 
-                            longitud,
-                        }),
-                }
-            );
-
-
-        const data =
-            await response
-                .json()
-                .catch(
-                    () => null
-                );
-
-
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/carreras/app/${carreraActivaActual.id}/ubicacion`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    codigoTaxista: String(taxistaActual.codigo).padStart(3, "0"),
+                    latitud,
+                    longitud,
+                }),
+            }
+        );
+        const data = await response.json().catch(() => null);
         if (!response.ok) {
-
-            console.log(
-                "GPS rechazado:",
-                data
-            );
-
+            console.log("GPS rechazado:", data);
             return;
-
         }
-
-
-        /*
-          El backend puede indicarnos
-          que ya no debemos seguir
-          compartiendo ubicación.
-        */
-
-        if (
-            data
-                ?.seguimientoAproximacionActivo ===
-            false
-        ) {
-
-            detenerGpsCarrera();
-
-            actualizarEstadoGps(
-                "normal",
-                "Seguimiento completado"
-            );
-
-            return;
-
+        if (data?.seguimientoAproximacionActivo === false) {
+            actualizarEstadoGps("activo", "UBICACIÓN ACTIVA");
         }
-
-
-        /*
-          Recuperamos el estado actualizado:
-          ASIGNADA → EN_CAMINO → CERCA...
-        */
-
-        await consultarCarreraActiva(
-            false
-        );
-
-
+        await consultarCarreraActiva(false);
     } catch (error) {
-
-        console.log(
-            "Error enviando GPS:",
-            error
-        );
-
+        console.log("Error enviando GPS:", error);
     }
-
 }
 
-
-/*
-  UBICACIÓN RECIBIDA
-*/
-
-async function procesarUbicacion(
-    posicion
-) {
-
-    if (!taxistaActual) {
-        return;
-    }
-
-    const latitud =
-        posicion.coords.latitude;
-
-    const longitud =
-        posicion.coords.longitude;
-
-    const heading =
-        posicion.coords.heading;
-
-    ultimaUbicacion = {
-        latitud,
-        longitud,
-        heading,
-    };
-
+async function procesarUbicacion(posicion) {
+    if (!taxistaActual) return;
+    const latitud = posicion.coords.latitude;
+    const longitud = posicion.coords.longitude;
+    const heading = posicion.coords.heading;
+    ultimaUbicacion = { latitud, longitud, heading };
     ocultarSolicitudUbicacion();
+    actualizarEstadoGps("activo", "UBICACIÓN ACTIVA");
 
-    actualizarEstadoGps(
-        "activo",
-        "UBICACIÓN ACTIVA"
-    );
+    await crearMapaCarrera(latitud, longitud);
 
-    const mapaObjetivoId =
-        carreraActivaActual
-            ? carreraActivaActual.id
-            : 0;
-
-    if (
-        !mapaCarreraLeaflet ||
-        carreraMapaId !== mapaObjetivoId
-    ) {
-
-        crearMapaCarrera(
-            latitud,
-            longitud
-        );
-
-    } else if (marcadorTaxi) {
-
-        marcadorTaxi.setLatLng(
-            [latitud, longitud]
-        );
-
-        if (
-            typeof heading === "number" &&
-            Number.isFinite(heading)
-        ) {
-            marcadorTaxi.setIcon(
-                crearIconoTaxi(heading)
-            );
-        }
-
+    if (marcadorTaxi) {
+        marcadorTaxi.setPosition({ lat: latitud, lng: longitud });
+        if (window.google?.maps) marcadorTaxi.setIcon(iconoTaxiGoogle(heading));
     }
 
-    if (mapaCargando) {
-        ocultar(mapaCargando);
-    }
+    actualizarCamaraNavegacion(latitud, longitud, heading);
 
     if (carreraActivaActual) {
-
-        calcularRuta(
-            latitud,
-            longitud
-        );
-
-        enviarUbicacionBackend(
-            latitud,
-            longitud
-        );
-
+        calcularRuta(latitud, longitud);
+        enviarUbicacionBackend(latitud, longitud);
     }
-
 }
 
-
-/*
-  ERROR GPS
-*/
-
-function errorGps(
-    error
-) {
-
-    console.log(
-        "Error GPS:",
-        error
-    );
-
-
-    let mensaje =
-        "No fue posible obtener tu ubicación.";
-
-
-    if (
-        error.code ===
-        1
-    ) {
-
-        mensaje =
-            "Permiso de ubicación desactivado.";
-
-    }
-
-
-    actualizarEstadoGps(
-        "error",
-        mensaje
-    );
-
+function errorGps(error) {
+    console.log("Error GPS:", error);
+    let mensaje = "No fue posible obtener tu ubicación.";
+    if (error.code === 1) mensaje = "Permiso de ubicación desactivado.";
+    actualizarEstadoGps("error", mensaje);
 }
-
-
-/*
-  INICIAR GPS
-*/
 
 function mostrarBotonUbicacion(mensaje = "Toca para permitir tu ubicación") {
-
-    if (textoMapaCargando) {
-        textoMapaCargando.textContent = mensaje;
-    }
-
+    if (textoMapaCargando) textoMapaCargando.textContent = mensaje;
     spinnerUbicacion?.classList.add("oculto");
     botonActivarUbicacion?.classList.remove("oculto");
     ayudaUbicacion?.classList.remove("oculto");
     mapaCargando?.classList.remove("oculto");
 }
 
-
 function ocultarSolicitudUbicacion() {
-
     if (timerMostrarBotonUbicacion) {
         clearTimeout(timerMostrarBotonUbicacion);
         timerMostrarBotonUbicacion = null;
     }
-
     botonActivarUbicacion?.classList.add("oculto");
     ayudaUbicacion?.classList.add("oculto");
     spinnerUbicacion?.classList.remove("oculto");
-
-    if (ultimaUbicacion) {
-        mapaCargando?.classList.add("oculto");
-    }
+    if (ultimaUbicacion) mapaCargando?.classList.add("oculto");
 }
 
-
 function iniciarWatchGps() {
-
-    if (gpsWatchId !== null || !navigator.geolocation) {
-        return;
-    }
-
+    if (gpsWatchId !== null || !navigator.geolocation || (!enLinea && !carreraActivaActual)) return;
     gpsWatchId = navigator.geolocation.watchPosition(
-        (posicion) => {
-            ocultarSolicitudUbicacion();
-            procesarUbicacion(posicion);
-        },
-        (error) => {
+        posicion => { ocultarSolicitudUbicacion(); procesarUbicacion(posicion); },
+        error => {
             errorGps(error);
-
-            if (error?.code === 1) {
-                mostrarBotonUbicacion("Rapitaxi necesita permiso de ubicación");
-            }
+            if (error?.code === 1) mostrarBotonUbicacion("Rapitaxi necesita permiso de ubicación");
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 20000,
-            maximumAge: 5000,
-        }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 }
     );
 }
 
-
 function solicitarUbicacion(porUsuario = false) {
-
     if (!navigator.geolocation) {
         actualizarEstadoGps("error", "Este dispositivo no permite GPS.");
         mostrarBotonUbicacion("GPS no disponible en este dispositivo");
         return;
     }
-
-    if (textoMapaCargando) {
-        textoMapaCargando.textContent = porUsuario
-            ? "Autorizando ubicación..."
-            : "Ubicando tu taxi...";
-    }
-
+    if (!enLinea && !carreraActivaActual) return;
+    if (textoMapaCargando) textoMapaCargando.textContent = porUsuario ? "Autorizando ubicación..." : "Ubicando tu taxi...";
     spinnerUbicacion?.classList.remove("oculto");
-
     navigator.geolocation.getCurrentPosition(
-        (posicion) => {
-            ocultarSolicitudUbicacion();
-            procesarUbicacion(posicion);
-            iniciarWatchGps();
-        },
-        (error) => {
+        posicion => { ocultarSolicitudUbicacion(); procesarUbicacion(posicion); iniciarWatchGps(); },
+        error => {
             errorGps(error);
-
-            // iOS instalado como PWA puede necesitar que la primera
-            // solicitud se produzca directamente desde un toque.
-            if (porUsuario || error?.code === 1 || error?.code === 2 || error?.code === 3) {
-                mostrarBotonUbicacion(
-                    error?.code === 1
-                        ? "Permite la ubicación para continuar"
-                        : "No pudimos obtener tu ubicación. Toca para reintentar"
-                );
+            if (porUsuario || [1,2,3].includes(error?.code)) {
+                mostrarBotonUbicacion(error?.code === 1 ? "Permite la ubicación para continuar" : "No pudimos obtener tu ubicación. Toca para reintentar");
             }
         },
-        {
-            // La primera posición no necesita alta precisión: esto hace
-            // más confiable la autorización inicial en iPhone. El watch
-            // posterior sí usa alta precisión.
-            enableHighAccuracy: porUsuario ? false : true,
-            timeout: porUsuario ? 12000 : 15000,
-            maximumAge: porUsuario ? 60000 : 3000,
-        }
+        { enableHighAccuracy: !porUsuario, timeout: porUsuario ? 12000 : 15000, maximumAge: porUsuario ? 60000 : 3000 }
     );
 }
 
-
 function iniciarGpsCarrera() {
-
-    if (gpsWatchId !== null) {
-        return;
-    }
-
+    if ((!enLinea && !carreraActivaActual) || gpsWatchId !== null) return;
     actualizarEstadoGps("normal", "Solicitando ubicación...");
-
     solicitarUbicacion(false);
-
-    // Si iOS no muestra el diálogo al iniciar automáticamente,
-    // ofrecemos una acción explícita. El toque cuenta como gesto
-    // del usuario y permite a WebKit abrir el permiso correctamente.
     if (!ultimaUbicacion) {
-        if (timerMostrarBotonUbicacion) {
-            clearTimeout(timerMostrarBotonUbicacion);
-        }
-
+        clearTimeout(timerMostrarBotonUbicacion);
         timerMostrarBotonUbicacion = setTimeout(() => {
-            if (!ultimaUbicacion && gpsWatchId === null) {
-                mostrarBotonUbicacion();
-            }
+            if (!ultimaUbicacion && gpsWatchId === null) mostrarBotonUbicacion();
         }, 1800);
     }
 }
 
-
-/*
-  DETENER GPS
-*/
-
-function detenerGpsCarrera() {
-
-    if (
-        gpsWatchId !==
-        null
-    ) {
-
-        navigator
-            .geolocation
-            .clearWatch(
-                gpsWatchId
-            );
-
-        gpsWatchId =
-            null;
-
+function detenerGpsCarrera(limpiarUbicacion = false) {
+    if (gpsWatchId !== null) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
     }
-
-
-    ultimaUbicacion =
-        null;
-
+    if (limpiarUbicacion) ultimaUbicacion = null;
 }
 
-
-/*
-  REANUDAR AL VOLVER A RAPITAXI
-*/
-
 function reactivarGpsCarrera() {
-
-    if (
-        !carreraActivaActual
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-      Pedimos una posición nueva
-      inmediatamente al volver.
-    */
-
-    navigator.geolocation
-        ?.getCurrentPosition(
-            procesarUbicacion,
-            errorGps,
-            {
-                enableHighAccuracy:
-                    true,
-
-                timeout:
-                    15000,
-
-                maximumAge:
-                    0,
-            }
-        );
-
-
+    if (!taxistaActual || (!enLinea && !carreraActivaActual)) return;
+    navigator.geolocation?.getCurrentPosition(
+        procesarUbicacion,
+        errorGps,
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
     iniciarGpsCarrera();
-
 }
 
 /*
@@ -1715,17 +1162,11 @@ function renderCarreraActiva() {
         );
         calcularRuta(
             ultimaUbicacion.latitud,
-            ultimaUbicacion.longitud
+            ultimaUbicacion.longitud,
+            true
         );
     }
 
-    setTimeout(
-        () => {
-            mapaCarreraLeaflet
-                ?.invalidateSize();
-        },
-        120
-    );
 
 }
 
@@ -2120,99 +1561,55 @@ async function aceptarCarrera() {
   CARGAR CARRERAS
 */
 
-async function cargarCarreras(
-    mostrarCarga = false
-) {
-
-    if (
-        !taxistaActual ||
-        !enLinea
-    ) {
-
-        carreras =
-            [];
-
-        indiceCarrera =
-            0;
-
+async function cargarCarreras(mostrarCarga = false) {
+    if (!taxistaActual || !enLinea) {
+        carreras = [];
+        indiceCarrera = 0;
         renderCarreras();
-
         return;
-
     }
-
 
     try {
-
         if (mostrarCarga) {
-
             ocultarEstadosCarreras();
-
-            mostrar(
-                cargandoCarreras
-            );
-
+            mostrar(cargandoCarreras);
         }
 
+        let url = `${API_BASE_URL}/api/carreras/app/disponibles`;
+        if (ultimaUbicacion) {
+            const codigo = String(taxistaActual.codigo).padStart(3, "0");
+            url += `?codigoTaxista=${encodeURIComponent(codigo)}` +
+                `&latitud=${encodeURIComponent(String(ultimaUbicacion.latitud))}` +
+                `&longitud=${encodeURIComponent(String(ultimaUbicacion.longitud))}`;
+        }
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/api/carreras/app/disponibles`,
-                {
-                    cache:
-                        "no-store",
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
+        const response = await fetch(url, { cache: "no-store" });
+        const data = await response.json();
         if (!response.ok) {
-
-            console.log(
-                "Error cargando carreras:",
-                data
-            );
-
+            console.log("Error cargando carreras:", data);
             return;
-
         }
 
-
-        carreras =
-            Array.isArray(
-                data?.carreras
-            )
-                ? data.carreras
-                : [];
-
-
-        if (
-            indiceCarrera >=
-            carreras.length
-        ) {
-
-            indiceCarrera =
-                0;
-
+        const recibidas = Array.isArray(data?.carreras) ? data.carreras : [];
+        const idsDisponibles = new Set(recibidas.map(c => c.id));
+        for (const id of Array.from(carrerasRechazadas)) {
+            if (!idsDisponibles.has(id)) carrerasRechazadas.delete(id);
         }
 
+        const nuevas = recibidas.filter(c => !idsCarrerasConocidas.has(c.id));
+        idsCarrerasConocidas = idsDisponibles;
+        carreras = recibidas.filter(c => !carrerasRechazadas.has(c.id));
 
+        if (nuevas.length > 0 && document.visibilityState === "visible") {
+            reproducirSonidoNuevaCarrera();
+        }
+
+        if (indiceCarrera >= carreras.length) indiceCarrera = 0;
         renderCarreras();
-
     } catch (error) {
-
-        console.log(
-            "Error consultando carreras:",
-            error
-        );
-
+        console.log("Error consultando carreras:", error);
     }
-
 }
-
 
 /*
   POLLING
@@ -2357,8 +1754,8 @@ async function cambiarEstadoEnLinea(
 
         actualizarUIEnLinea();
 
-
         if (enLinea) {
+            iniciarGpsCarrera();
 
             await cargarCarreras(
                 true
@@ -2369,6 +1766,7 @@ async function cambiarEstadoEnLinea(
         } else {
 
             detenerPollingCarreras();
+            detenerGpsCarrera(false);
 
             carreras =
                 [];
@@ -2411,7 +1809,7 @@ async function cambiarEstadoEnLinea(
 */
 
 function limpiarSesionLocal() {
-    detenerGpsCarrera();
+    detenerGpsCarrera(true);
     destruirMapaCarrera();
     detenerPollingCarreraActiva();
 
@@ -3152,32 +2550,10 @@ async function finalizarCarrera() {
 }
 
 function centrarMapaEnTaxi() {
-
-    if (
-        !mapaCarreraLeaflet ||
-        !ultimaUbicacion
-    ) {
-
-        return;
-
-    }
-
-
-    mapaCarreraLeaflet.flyTo(
-        [
-            ultimaUbicacion.latitud,
-            ultimaUbicacion.longitud
-        ],
-        Math.max(
-            mapaCarreraLeaflet.getZoom(),
-            16
-        ),
-        {
-            animate: true,
-            duration: 0.6,
-        }
-    );
-
+    if (!mapaGoogle || !ultimaUbicacion) return;
+    mapaGoogle.panTo({ lat: ultimaUbicacion.latitud, lng: ultimaUbicacion.longitud });
+    mapaGoogle.setZoom(Math.max(mapaGoogle.getZoom() || 0, carreraActivaActual ? 17 : 16));
+    actualizarCamaraNavegacion(ultimaUbicacion.latitud, ultimaUbicacion.longitud, ultimaUbicacion.heading);
 }
 
 /*
@@ -3611,6 +2987,9 @@ botonNotificaciones
         activarNotificaciones
     );
 
+botonAceptar?.addEventListener("click", aceptarCarrera);
+botonRechazar?.addEventListener("click", rechazarCarreraLocal);
+
 botonCentrar.addEventListener(
     "click",
     centrarMapaEnTaxi
@@ -3784,6 +3163,15 @@ if (botonActivarUbicacion) {
     });
 }
 
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", event => {
+        if (event?.data?.tipo === "NUEVA_CARRERA") {
+            if (document.visibilityState === "visible") reproducirSonidoNuevaCarrera();
+            if (taxistaActual && enLinea && !carreraActivaActual) cargarCarreras(false);
+        }
+    });
+}
 
 /*
   VISIBILIDAD

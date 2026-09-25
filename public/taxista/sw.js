@@ -1,5 +1,5 @@
 const VERSION =
-  "rapitaxi-taxista-push-1.0.0";
+  "rapitaxi-taxista-push-2.0.0";
 
 self.addEventListener(
   "install",
@@ -86,11 +86,14 @@ self.addEventListener(
 
 
     event.waitUntil(
-      self.registration
-        .showNotification(
-          title,
-          options
-        )
+      Promise.all([
+        self.registration.showNotification(title, options),
+        self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(clientes => {
+          for (const cliente of clientes) {
+            cliente.postMessage({ tipo: "NUEVA_CARRERA", data: data?.data || {} });
+          }
+        }),
+      ])
     );
 
   }
