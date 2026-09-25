@@ -20,6 +20,10 @@ import {
   prisma,
 } from "../config/prisma";
 
+import {
+  obtenerReferenciaGoogle,
+  calcularRutaGoogle,
+} from "../services/google-maps.service";
 
 function calcularDistanciaKm(
   latitudOrigen: number,
@@ -376,6 +380,23 @@ export async function crearCarreraController(
       });
     }
 
+    const latitudNumero =
+      Number(latitud);
+
+    const longitudNumero =
+      Number(longitud);
+
+
+    const referenciaGoogle =
+      await obtenerReferenciaGoogle(
+        latitudNumero,
+        longitudNumero
+      );
+
+
+    const referenciaFinal =
+      referenciaGoogle ||
+      String(referencia);
 
     const carrera =
       await crearCarrera({
@@ -386,13 +407,13 @@ export async function crearCarreraController(
           String(whatsappCliente),
 
         latitud:
-          Number(latitud),
+          latitudNumero,
 
         longitud:
-          Number(longitud),
+          longitudNumero,
 
         referencia:
-          String(referencia),
+          referenciaFinal,
 
         formaPago:
           String(formaPago),
@@ -553,22 +574,22 @@ export async function listarCarrerasDisponiblesAppController(
     const historialClientes =
       telefonosClientes.length > 0
         ? await prisma.carrera.groupBy({
-            by: [
-              "whatsappCliente",
-            ],
+          by: [
+            "whatsappCliente",
+          ],
 
-            where: {
-              whatsappCliente: {
-                in: telefonosClientes,
-              },
-
-              estado: "COMPLETADA",
+          where: {
+            whatsappCliente: {
+              in: telefonosClientes,
             },
 
-            _count: {
-              _all: true,
-            },
-          })
+            estado: "COMPLETADA",
+          },
+
+          _count: {
+            _all: true,
+          },
+        })
         : [];
 
 
@@ -659,10 +680,10 @@ export async function listarCarrerasDisponiblesAppController(
                 ) >= 3
                   ? "Cliente frecuente"
                   : (
-                      viajesPorCliente.get(
-                        carrera.whatsappCliente
-                      ) ?? 0
-                    ) >= 1
+                    viajesPorCliente.get(
+                      carrera.whatsappCliente
+                    ) ?? 0
+                  ) >= 1
                     ? "Cliente recurrente"
                     : "Cliente nuevo",
 
@@ -2051,5 +2072,173 @@ export async function obtenerSeguimientoPublicoController(
       message:
         "No se pudo cargar el seguimiento.",
     });
+  }
+}
+
+export async function obtenerRutaGoogleTaxistaController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const carreraId =
+      Number(
+        req.params.id
+      );
+
+    const codigoTaxista =
+      String(
+        req.query.codigoTaxista ||
+        ""
+      )
+        .replace(/\D/g, "")
+        .padStart(3, "0");
+
+    const latitud =
+      Number(
+        req.query.latitud
+      );
+
+    const longitud =
+      Number(
+        req.query.longitud
+      );
+
+
+    if (
+      !Number.isInteger(
+        carreraId
+      ) ||
+      carreraId <= 0 ||
+      !codigoTaxista ||
+      codigoTaxista === "000" ||
+      !Number.isFinite(
+        latitud
+      ) ||
+      !Number.isFinite(
+        longitud
+      )
+    ) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message:
+            "Datos de ruta inválidos.",
+        });
+    }
+
+
+    const taxista =
+      await prisma.taxista
+        .findUnique({
+          where: {
+            codigo:
+              codigoTaxista,
+          },
+
+          select: {
+            id: true,
+            activo: true,
+          },
+        });
+
+
+    if (
+      !taxista ||
+      !taxista.activo
+    ) {
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message:
+            "Taxista no autorizado.",
+        });
+    }
+
+
+    const carrera =
+      await prisma.carrera
+        .findUnique({
+          where: {
+            id:
+              carreraId,
+          },
+
+          select: {
+            id: true,
+            taxistaId: true,
+            estado: true,
+            latitud: true,
+            longitud: true,
+          },
+        });
+
+
+    if (!carrera) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message:
+            "Carrera no encontrada.",
+        });
+    }
+
+
+    if (
+      carrera.taxistaId !==
+      taxista.id
+    ) {
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message:
+            "La carrera no pertenece a este taxista.",
+        });
+    }
+
+
+    const ruta =
+      await calcularRutaGoogle(
+        latitud,
+        longitud,
+        carrera.latitud,
+        carrera.longitud
+      );
+
+
+    if (!ruta) {
+      return res
+        .status(502)
+        .json({
+          success: false,
+          message:
+            "Google no pudo calcular la ruta.",
+        });
+    }
+
+
+    return res.json({
+      success:
+        true,
+
+      ruta,
+    });
+
+  } catch (error) {
+    console.error(
+      "Error obteniendo ruta Google:",
+      error
+    );
+
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message:
+          "No se pudo calcular la ruta.",
+      });
   }
 }

@@ -15,6 +15,7 @@ import {
     obtenerSeguimientoPublicoController,
     marcarLlegadaTaxistaController,
     obtenerDashboardAdminController,
+    obtenerRutaGoogleTaxistaController,
 } from "../controllers/carrera.controller";
 
 
@@ -45,6 +46,10 @@ router.get(
     obtenerCarreraActivaTaxistaController
 );
 
+router.get(
+    "/app/:id/ruta",
+    obtenerRutaGoogleTaxistaController
+);
 
 router.post(
     "/app/:id/ubicacion",
@@ -52,8 +57,8 @@ router.post(
 );
 
 router.post(
-  "/app/:id/llegue",
-  marcarLlegadaTaxistaController
+    "/app/:id/llegue",
+    marcarLlegadaTaxistaController
 );
 
 router.post(
