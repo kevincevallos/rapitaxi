@@ -1088,6 +1088,7 @@ export const CarreraScalarFieldEnum = {
   fechaFin: 'fechaFin',
   calificacion: 'calificacion',
   canceladaPor: 'canceladaPor',
+  motivoCancelacion: 'motivoCancelacion',
   clienteId: 'clienteId',
   taxistaId: 'taxistaId',
   cuponCodigo: 'cuponCodigo',

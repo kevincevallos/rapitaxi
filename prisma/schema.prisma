@@ -48,8 +48,9 @@ model Carrera {
   fechaLlegada    DateTime?
   fechaFin        DateTime?
 
-  calificacion String?
-  canceladaPor String?
+  calificacion      String?
+  canceladaPor      String?
+  motivoCancelacion String?
 
   clienteId Int?
   cliente   Cliente? @relation(fields: [clienteId], references: [id])

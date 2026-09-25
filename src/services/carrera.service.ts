@@ -893,6 +893,8 @@ export async function cancelarCarreraAdmin(
                 data: {
                     estado: "CANCELADA",
                     canceladaPor: "ADMIN",
+                    motivoCancelacion:
+                        "CANCELACION_ADMIN",
                     fechaFin: new Date()
                 }
             });
@@ -967,6 +969,221 @@ export async function cancelarCarreraAdmin(
         carreraId: carrera.id,
         numero: carrera.numero,
         estado: "CANCELADA"
+    };
+}
+
+
+export async function cancelarCarreraTaxista(
+    carreraId: number,
+    codigoTaxista: string,
+    motivo: string
+) {
+    const codigo =
+        normalizarCodigoTaxista(
+            codigoTaxista
+        );
+
+    const motivosPermitidos =
+        new Set([
+            "CLIENTE_NO_SALIO",
+            "CLIENTE_NO_RESPONDIO",
+            "OTRO",
+        ]);
+
+    if (
+        !motivosPermitidos.has(
+            String(motivo || "")
+        )
+    ) {
+        throw new Error(
+            "MOTIVO_CANCELACION_INVALIDO"
+        );
+    }
+
+    const taxista =
+        await prisma.taxista.findUnique({
+            where: {
+                codigo,
+            },
+            select: {
+                id: true,
+                activo: true,
+            },
+        });
+
+    if (!taxista) {
+        throw new Error(
+            "TAXISTA_NO_EXISTE"
+        );
+    }
+
+    if (!taxista.activo) {
+        throw new Error(
+            "TAXISTA_INACTIVO"
+        );
+    }
+
+    const carrera =
+        await prisma.carrera.findUnique({
+            where: {
+                id:
+                    carreraId,
+            },
+        });
+
+    if (!carrera) {
+        throw new Error(
+            "CARRERA_NO_EXISTE"
+        );
+    }
+
+    if (
+        carrera.taxistaId !==
+        taxista.id
+    ) {
+        throw new Error(
+            "CARRERA_NO_PERTENECE_TAXISTA"
+        );
+    }
+
+    if (
+        carrera.fechaFin ||
+        carrera.estado ===
+            "COMPLETADA" ||
+        carrera.estado ===
+            "CANCELADA"
+    ) {
+        throw new Error(
+            "CARRERA_YA_CERRADA"
+        );
+    }
+
+    const ahora =
+        new Date();
+
+    await prisma.$transaction(
+        async (tx) => {
+            const resultado =
+                await tx.carrera.updateMany({
+                    where: {
+                        id:
+                            carrera.id,
+                        taxistaId:
+                            taxista.id,
+                        fechaFin:
+                            null,
+                        estado: {
+                            in: [
+                                "ASIGNADA",
+                                "EN_CAMINO",
+                                "CERCA",
+                                "LLEGO",
+                            ],
+                        },
+                    },
+                    data: {
+                        estado:
+                            "CANCELADA",
+                        canceladaPor:
+                            "TAXISTA",
+                        motivoCancelacion:
+                            motivo,
+                        fechaFin:
+                            ahora,
+                    },
+                });
+
+            if (
+                resultado.count === 0
+            ) {
+                throw new Error(
+                    "CARRERA_YA_CERRADA"
+                );
+            }
+
+            await tx.cuponUso.updateMany({
+                where: {
+                    carreraId:
+                        carrera.id,
+                    estado:
+                        "RESERVADO",
+                },
+                data: {
+                    estado:
+                        "LIBERADO",
+                    fechaLiberado:
+                        ahora,
+                    carreraId:
+                        null,
+                },
+            });
+
+            const telefonoCliente =
+                normalizarTelefono(
+                    carrera.whatsappCliente
+                );
+
+            await tx
+                .conversacionWhatsApp
+                .updateMany({
+                    where: {
+                        telefono:
+                            telefonoCliente,
+                        carreraId:
+                            carrera.id,
+                    },
+                    data: {
+                        estado:
+                            "NUEVO",
+                        carreraId:
+                            null,
+                        latitud:
+                            null,
+                        longitud:
+                            null,
+                        referencia:
+                            null,
+                        fechaUbicacion:
+                            null,
+                        cuponPendiente:
+                            null,
+                    },
+                });
+        }
+    );
+
+    const telefonoCliente =
+        normalizarTelefono(
+            carrera.whatsappCliente
+        );
+
+    try {
+        await enviarTextoWhatsApp(
+            telefonoCliente,
+            textoSeguroWhatsApp(
+                `Tu carrera #${carrera.numero} fue cancelada por el taxista. Puedes solicitar otra carrera.`
+            )
+        );
+    } catch (error) {
+        console.error(
+            `Error notificando cancelación de carrera #${carrera.numero}:`,
+            error
+        );
+    }
+
+    return {
+        id:
+            carrera.id,
+        numero:
+            carrera.numero,
+        estado:
+            "CANCELADA" as const,
+        canceladaPor:
+            "TAXISTA",
+        motivoCancelacion:
+            motivo,
+        fechaFin:
+            ahora,
     };
 }
 
@@ -1105,6 +1322,14 @@ export async function obtenerCarreraActivaTaxista(
 
         enlaceWhatsAppCliente:
             `https://wa.me/${telefonoCliente}?text=${mensajeParaCliente}`,
+
+        telefonoCliente,
+
+        enlaceTelefonoCliente:
+            `tel:+${telefonoCliente}`,
+
+        nombreCliente:
+            carrera.nombreCliente,
     };
 }
 
@@ -2048,6 +2273,9 @@ export async function finalizarCarreraTaxista(
                         null,
 
                     referencia:
+                        null,
+
+                    fechaUbicacion:
                         null,
 
                     cuponPendiente:

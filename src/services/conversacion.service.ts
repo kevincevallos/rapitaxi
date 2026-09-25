@@ -169,6 +169,32 @@ function obtenerReferenciaUbicacion(
 }
 
 
+function esReferenciaGenerica(
+    valor: string | null | undefined
+) {
+    const texto =
+        String(valor || "")
+            .trim()
+            .toLowerCase();
+
+    return (
+        !texto ||
+        texto ===
+        "ubicación enviada por whatsapp" ||
+        texto ===
+        "ubicacion enviada por whatsapp"
+    );
+}
+
+function referenciaGpsFallback(
+    latitud: number,
+    longitud: number
+) {
+    return (
+        `Ubicación GPS ${latitud.toFixed(5)}, ${longitud.toFixed(5)}`
+    );
+}
+
 async function obtenerReferenciaProcesada(
     input: MensajeWhatsAppInput
 ) {
@@ -181,15 +207,53 @@ async function obtenerReferenciaProcesada(
         return referenciaOriginal;
     }
 
-    const direccionAutomatica =
+    let direccionAutomatica =
         await obtenerDireccionDesdeCoordenadas(
             input.latitud!,
             input.longitud!
         );
 
-    return (
-        direccionAutomatica ||
-        referenciaOriginal
+    /*
+      Si el proveedor de geocodificación falla
+      puntualmente, hacemos un único reintento.
+      No dejamos que una carrera termine con
+      "Ubicación enviada por WhatsApp".
+    */
+    if (
+        !direccionAutomatica
+    ) {
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    250
+                )
+        );
+
+        direccionAutomatica =
+            await obtenerDireccionDesdeCoordenadas(
+                input.latitud!,
+                input.longitud!
+            );
+    }
+
+    if (
+        direccionAutomatica?.trim()
+    ) {
+        return direccionAutomatica.trim();
+    }
+
+    if (
+        !esReferenciaGenerica(
+            referenciaOriginal
+        )
+    ) {
+        return referenciaOriginal;
+    }
+
+    return referenciaGpsFallback(
+        input.latitud!,
+        input.longitud!
     );
 }
 
@@ -1333,6 +1397,159 @@ async function enviarCarreraEnCurso(
 }
 
 
+async function sincronizarConversacionCarrera(
+    telefono: string,
+    conversacion:
+        | {
+            id: number;
+            telefono: string;
+            estado: any;
+            carreraId: number | null;
+            latitud: number | null;
+            longitud: number | null;
+            referencia: string | null;
+            fechaUbicacion: Date | null;
+            cuponPendiente: string | null;
+            [key: string]: any;
+        }
+        | null
+) {
+    if (!conversacion) {
+        return conversacion;
+    }
+
+    const estadoPuedeTenerCarrera =
+        conversacion.estado ===
+        "BUSCANDO_TAXI" ||
+        conversacion.estado ===
+        "CARRERA_ACTIVA";
+
+    if (!estadoPuedeTenerCarrera) {
+        return conversacion;
+    }
+
+    const estadosActivos = [
+        "BUSCANDO",
+        "ASIGNADA",
+        "EN_CAMINO",
+        "CERCA",
+        "LLEGO",
+    ] as const;
+
+    let carreraActiva = null as any;
+
+    if (
+        conversacion.carreraId
+    ) {
+        carreraActiva =
+            await prisma.carrera.findFirst({
+                where: {
+                    id:
+                        conversacion.carreraId,
+                    whatsappCliente:
+                        telefono,
+                    fechaFin:
+                        null,
+                    estado: {
+                        in:
+                            [...estadosActivos],
+                    },
+                },
+                select: {
+                    id: true,
+                    estado: true,
+                },
+            });
+    }
+
+    if (!carreraActiva) {
+        carreraActiva =
+            await prisma.carrera.findFirst({
+                where: {
+                    whatsappCliente:
+                        telefono,
+                    fechaFin:
+                        null,
+                    estado: {
+                        in:
+                            [...estadosActivos],
+                    },
+                },
+                orderBy: {
+                    fechaCreacion:
+                        "desc",
+                },
+                select: {
+                    id: true,
+                    estado: true,
+                },
+            });
+    }
+
+    if (carreraActiva) {
+        const estadoConversacion =
+            carreraActiva.estado ===
+                "BUSCANDO"
+                ? "BUSCANDO_TAXI"
+                : "CARRERA_ACTIVA";
+
+        if (
+            conversacion.carreraId !==
+            carreraActiva.id ||
+            conversacion.estado !==
+            estadoConversacion
+        ) {
+            return prisma
+                .conversacionWhatsApp
+                .update({
+                    where: {
+                        telefono,
+                    },
+                    data: {
+                        estado:
+                            estadoConversacion,
+                        carreraId:
+                            carreraActiva.id,
+                    },
+                });
+        }
+
+        return conversacion;
+    }
+
+    /*
+      Estado fantasma:
+      la conversación dice que existe una
+      carrera, pero la tabla Carrera ya no
+      tiene ninguna activa para el cliente.
+      La reparamos automáticamente.
+    */
+    return prisma
+        .conversacionWhatsApp
+        .update({
+            where: {
+                telefono,
+            },
+            data: {
+                estado:
+                    "NUEVO",
+                carreraId:
+                    null,
+                latitud:
+                    null,
+                longitud:
+                    null,
+                referencia:
+                    null,
+                fechaUbicacion:
+                    null,
+                cuponPendiente:
+                    null,
+            },
+        });
+}
+
+
 /*
   ========================================
   CALIFICACIÓN OPCIONAL
@@ -1914,6 +2131,20 @@ export async function procesarMensajeWhatsApp(
                 },
             });
 
+    await sincronizarConversacionCarrera(
+        telefono,
+        conversacion
+    );
+
+    conversacion =
+        await prisma
+            .conversacionWhatsApp
+            .findUnique({
+                where: {
+                    telefono,
+                },
+            });
+
     /*
       ======================================
       RAPICUPON EN MENSAJE
@@ -2151,13 +2382,41 @@ export async function procesarMensajeWhatsApp(
 
         /*
           Si escribió cancelar pero ya no
-          había ninguna carrera activa.
+          había ninguna carrera activa,
+          reparamos cualquier estado fantasma.
         */
+
+        if (conversacion) {
+            conversacion =
+                await prisma
+                    .conversacionWhatsApp
+                    .update({
+                        where: {
+                            telefono,
+                        },
+                        data: {
+                            estado:
+                                "NUEVO",
+                            carreraId:
+                                null,
+                            latitud:
+                                null,
+                            longitud:
+                                null,
+                            referencia:
+                                null,
+                            fechaUbicacion:
+                                null,
+                            cuponPendiente:
+                                null,
+                        },
+                    });
+        }
 
         await enviarTextoWhatsApp(
             telefono,
 
-            "No tienes una carrera activa en este momento."
+            "No tienes una carrera activa en este momento. Ya puedes solicitar un nuevo taxi."
         );
 
 
@@ -2708,9 +2967,9 @@ export async function procesarMensajeWhatsApp(
       7. ESTADO NUEVO
       ======================================
   
-      Este es también el estado al que
-      volverá automáticamente después de
-      30 minutos.
+      Este es el estado libre del cliente.
+      La carrera solo se cierra cuando se
+      finaliza o cancela explícitamente.
   
       Si manda ubicación directamente:
       usamos esa ubicación.
@@ -3230,8 +3489,61 @@ export async function procesarMensajeWhatsApp(
 
             /*
               Crear carrera.
+
+              Antes de guardar hacemos una última
+              protección para que nunca llegue al
+              taxista la referencia genérica de
+              WhatsApp.
             */
 
+            let referenciaCarrera =
+                conversacion.referencia;
+
+            if (
+                esReferenciaGenerica(
+                    referenciaCarrera
+                )
+            ) {
+                const direccionRecuperada =
+                    await obtenerDireccionDesdeCoordenadas(
+                        conversacion.latitud,
+                        conversacion.longitud
+                    );
+
+                referenciaCarrera =
+                    direccionRecuperada?.trim() ||
+                    referenciaGpsFallback(
+                        conversacion.latitud,
+                        conversacion.longitud
+                    );
+
+                conversacion =
+                    await prisma
+                        .conversacionWhatsApp
+                        .update({
+                            where: {
+                                telefono,
+                            },
+                            data: {
+                                referencia:
+                                    referenciaCarrera,
+                            },
+                        });
+            }
+            const latitudCarrera =
+                conversacion.latitud;
+
+            const longitudCarrera =
+                conversacion.longitud;
+
+            if (
+                latitudCarrera === null ||
+                longitudCarrera === null
+            ) {
+                throw new Error(
+                    "UBICACION_PERDIDA_ANTES_DE_CREAR_CARRERA"
+                );
+            }
             const carrera =
                 await crearCarrera({
                     nombreCliente:
@@ -3241,14 +3553,13 @@ export async function procesarMensajeWhatsApp(
                         telefono,
 
                     latitud:
-                        conversacion.latitud,
+                        latitudCarrera,
 
                     longitud:
-                        conversacion.longitud,
+                        longitudCarrera,
 
                     referencia:
-                        conversacion.referencia ||
-                        "Ubicación enviada por WhatsApp",
+                        referenciaCarrera!,
 
                     formaPago,
                 });

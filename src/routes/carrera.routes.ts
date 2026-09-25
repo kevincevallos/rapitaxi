@@ -16,6 +16,7 @@ import {
     marcarLlegadaTaxistaController,
     obtenerDashboardAdminController,
     obtenerRutaGoogleTaxistaController,
+    cancelarCarreraTaxistaController,
 } from "../controllers/carrera.controller";
 
 
@@ -64,6 +65,11 @@ router.post(
 router.post(
     "/app/:id/finalizar",
     finalizarCarreraTaxistaController
+);
+
+router.post(
+    "/app/:id/cancelar",
+    cancelarCarreraTaxistaController
 );
 
 

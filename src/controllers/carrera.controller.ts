@@ -14,6 +14,7 @@ import {
   finalizarCarreraTaxista,
   obtenerSeguimientoPublico,
   marcarLlegadaTaxista,
+  cancelarCarreraTaxista,
 } from "../services/carrera.service";
 
 import {
@@ -1067,6 +1068,169 @@ export async function actualizarUbicacionTaxistaController(
   }
 }
 
+
+
+/*
+  ========================================
+  APP TAXISTAS - CANCELAR
+  ========================================
+*/
+
+export async function cancelarCarreraTaxistaController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const carreraId =
+      Number(
+        req.params.id
+      );
+
+    const codigoTaxista =
+      String(
+        req.body.codigoTaxista ||
+        ""
+      );
+
+    const motivo =
+      String(
+        req.body.motivo ||
+        ""
+      );
+
+    if (
+      !Number.isInteger(
+        carreraId
+      ) ||
+      carreraId <= 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "ID de carrera inválido.",
+      });
+    }
+
+    if (!codigoTaxista.trim()) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Falta identificar al taxista.",
+      });
+    }
+
+    if (!motivo.trim()) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Selecciona un motivo de cancelación.",
+      });
+    }
+
+    const carrera =
+      await cancelarCarreraTaxista(
+        carreraId,
+        codigoTaxista,
+        motivo
+      );
+
+    return res.json({
+      success: true,
+      message:
+        "Carrera cancelada correctamente.",
+      carrera,
+    });
+
+  } catch (error: any) {
+    console.error(
+      "Error cancelando carrera desde app:",
+      error
+    );
+
+    if (
+      error?.message ===
+      "CODIGO_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El código del taxista no es válido.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "MOTIVO_CANCELACION_INVALIDO"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "El motivo de cancelación no es válido.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "TAXISTA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "Taxista no encontrado.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "TAXISTA_INACTIVO"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "El taxista está inactivo.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "CARRERA_NO_EXISTE"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "La carrera no existe.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "CARRERA_NO_PERTENECE_TAXISTA"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Esta carrera no pertenece a este taxista.",
+      });
+    }
+
+    if (
+      error?.message ===
+      "CARRERA_YA_CERRADA"
+    ) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "La carrera ya está finalizada o cancelada.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "No se pudo cancelar la carrera.",
+    });
+  }
+}
 
 /*
   ========================================
