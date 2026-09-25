@@ -19,10 +19,6 @@ import {
 } from "./middlewares/admin-auth.middleware";
 
 import {
-  finalizarCarrerasVencidas,
-} from "./services/carrera.service";
-
-import {
   vencerUbicacionesPendientes,
 } from "./services/conversacion.service";
 
@@ -240,107 +236,6 @@ app.get(
   }
 );
 
-
-/*
-  ========================================
-  FINALIZACIÓN AUTOMÁTICA DE CARRERAS
-  ========================================
-
-  Cada 15 segundos revisamos si existen
-  carreras aceptadas hace 30 minutos o más.
-
-  IMPORTANTE:
-
-  No usamos setTimeout individual por
-  carrera.
-
-  Así, si Railway reinicia el servidor,
-  al volver a levantar seguirá revisando
-  la base de datos y completará cualquier
-  carrera pendiente.
-  ========================================
-*/
-
-let procesandoFinalizaciones =
-  false;
-
-
-async function revisarCarrerasVencidas() {
-
-  /*
-    Evita que una ejecución nueva comience
-    mientras la anterior todavía sigue
-    trabajando.
-  */
-
-  if (
-    procesandoFinalizaciones
-  ) {
-    return;
-  }
-
-
-  procesandoFinalizaciones =
-    true;
-
-
-  try {
-
-    const cantidad =
-      await finalizarCarrerasVencidas();
-
-
-    if (
-      cantidad > 0
-    ) {
-      console.log(
-        `✅ ${cantidad} carrera(s) finalizada(s) automáticamente.`
-      );
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Error revisando carreras vencidas:",
-      error
-    );
-
-  } finally {
-
-    procesandoFinalizaciones =
-      false;
-  }
-}
-
-
-/*
-  Ejecutamos una revisión apenas
-  levanta el servidor.
-
-  Esto sirve especialmente después
-  de un reinicio o redeploy.
-*/
-
-setTimeout(
-  () => {
-    revisarCarrerasVencidas();
-  },
-  5000
-);
-
-
-/*
-  Después revisamos cada 15 segundos.
-*/
-
-setInterval(
-  () => {
-    revisarCarrerasVencidas();
-  },
-  15000
-);
-
-
 /*
   ========================================
   SERVIDOR
@@ -402,13 +297,8 @@ setInterval(
 app.listen(
   PORT,
   () => {
-
     console.log(
       `🚖 Rapitaxi ejecutándose en puerto ${PORT}`
-    );
-
-    console.log(
-      "⏱️ Finalización automática de carreras activa: 30 minutos."
     );
   }
 );

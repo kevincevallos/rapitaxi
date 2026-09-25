@@ -2075,6 +2075,21 @@ export async function obtenerSeguimientoPublicoController(
   }
 }
 
+type RutaGoogleCacheItem = {
+  ruta: any;
+  fechaConsulta: number;
+  consultasGoogle: number;
+};
+
+const cacheRutasGoogle =
+  new Map<number, RutaGoogleCacheItem>();
+
+const INTERVALO_RUTA_GOOGLE_MS =
+  10 * 60 * 1000;
+
+const MAX_RUTAS_GOOGLE_POR_CARRERA =
+  4;
+
 export async function obtenerRutaGoogleTaxistaController(
   req: Request,
   res: Response
@@ -2200,6 +2215,44 @@ export async function obtenerRutaGoogleTaxistaController(
     }
 
 
+    const ahora =
+      Date.now();
+
+    const cacheExistente =
+      cacheRutasGoogle.get(
+        carrera.id
+      );
+
+    if (cacheExistente) {
+
+      const tiempoDesdeUltima =
+        ahora -
+        cacheExistente.fechaConsulta;
+
+      const todaviaEnEspera =
+        tiempoDesdeUltima <
+        INTERVALO_RUTA_GOOGLE_MS;
+
+      const llegoAlMaximo =
+        cacheExistente.consultasGoogle >=
+        MAX_RUTAS_GOOGLE_POR_CARRERA;
+
+      if (
+        todaviaEnEspera ||
+        llegoAlMaximo
+      ) {
+        return res.json({
+          success: true,
+          ruta:
+            cacheExistente.ruta,
+          cache: true,
+          consultasGoogle:
+            cacheExistente.consultasGoogle,
+        });
+      }
+    }
+
+
     const ruta =
       await calcularRutaGoogle(
         latitud,
@@ -2220,11 +2273,35 @@ export async function obtenerRutaGoogleTaxistaController(
     }
 
 
+    const consultasGoogle =
+      (
+        cacheExistente
+          ?.consultasGoogle ||
+        0
+      ) + 1;
+
+
+    cacheRutasGoogle.set(
+      carrera.id,
+      {
+        ruta,
+        fechaConsulta:
+          ahora,
+        consultasGoogle,
+      }
+    );
+
+
     return res.json({
       success:
         true,
 
       ruta,
+
+      cache:
+        false,
+
+      consultasGoogle,
     });
 
   } catch (error) {

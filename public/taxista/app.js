@@ -597,9 +597,9 @@ function desbloquearAudioNuevaCarrera() {
                 sonidoNuevaCarrera.currentTime = 0;
                 sonidoNuevaCarrera.muted = false;
                 audioDesbloqueado = true;
-            }).catch(() => {});
+            }).catch(() => { });
         }
-    } catch {}
+    } catch { }
 }
 
 document.addEventListener("pointerdown", desbloquearAudioNuevaCarrera, { once: true });
@@ -610,8 +610,8 @@ function reproducirSonidoNuevaCarrera() {
         sonidoNuevaCarrera = sonidoNuevaCarrera || new Audio("/taxista/sounds/un_rapi.wav");
         sonidoNuevaCarrera.currentTime = 0;
         sonidoNuevaCarrera.muted = false;
-        sonidoNuevaCarrera.play().catch(() => {});
-    } catch {}
+        sonidoNuevaCarrera.play().catch(() => { });
+    } catch { }
 }
 
 function renderCarreras() {
@@ -805,8 +805,17 @@ async function crearMapaCarrera(latTaxi, lngTaxi) {
         } else {
             marcadorCliente?.setMap(null);
             limpiarRutaGoogle();
-            mapaGoogle.setCenter(posicionTaxi);
-            mapaGoogle.setZoom(16);
+
+            /*
+              Sin carrera activa centramos el mapa solo al entrar
+              por primera vez al dashboard. Después el taxista puede
+              mover/zoom libremente aunque siga EN LÍNEA.
+            */
+            if (carreraMapaId !== 0) {
+                mapaGoogle.setCenter(posicionTaxi);
+                mapaGoogle.setZoom(16);
+            }
+
             carreraMapaId = 0;
         }
 
@@ -818,18 +827,35 @@ async function crearMapaCarrera(latTaxi, lngTaxi) {
 }
 
 function actualizarCamaraNavegacion(latitud, longitud, heading) {
-    if (!mapaGoogle) return;
-    const centro = { lat: latitud, lng: longitud };
+    /*
+      El seguimiento automático de cámara solo se usa durante
+      una carrera activa. Sin carrera el marcador del taxi se
+      actualiza, pero el taxista conserva control total del mapa.
+    */
+    if (!mapaGoogle || !carreraActivaActual) return;
+
+    const centro = {
+        lat: latitud,
+        lng: longitud,
+    };
+
     mapaGoogle.panTo(centro);
-    if (carreraActivaActual) {
-        if ((mapaGoogle.getZoom() || 0) < 17) mapaGoogle.setZoom(17);
-        try {
-            if (typeof heading === "number" && Number.isFinite(heading) && heading >= 0) {
-                mapaGoogle.setHeading(heading);
-            }
-            mapaGoogle.setTilt(45);
-        } catch {}
+
+    if ((mapaGoogle.getZoom() || 0) < 17) {
+        mapaGoogle.setZoom(17);
     }
+
+    try {
+        if (
+            typeof heading === "number" &&
+            Number.isFinite(heading) &&
+            heading >= 0
+        ) {
+            mapaGoogle.setHeading(heading);
+        }
+
+        mapaGoogle.setTilt(45);
+    } catch { }
 }
 
 function decodificarPolyline(encoded) {
@@ -1012,7 +1038,7 @@ function solicitarUbicacion(porUsuario = false) {
         posicion => { ocultarSolicitudUbicacion(); procesarUbicacion(posicion); iniciarWatchGps(); },
         error => {
             errorGps(error);
-            if (porUsuario || [1,2,3].includes(error?.code)) {
+            if (porUsuario || [1, 2, 3].includes(error?.code)) {
                 mostrarBotonUbicacion(error?.code === 1 ? "Permite la ubicación para continuar" : "No pudimos obtener tu ubicación. Toca para reintentar");
             }
         },
@@ -3257,29 +3283,29 @@ if (
 }
 
 if (
-  "serviceWorker" in navigator
+    "serviceWorker" in navigator
 ) {
 
-  navigator
-    .serviceWorker
-    .register(
-      "/taxista/sw.js",
-      {
-        scope:
-          "/taxista/",
-      }
-    )
-    .then(
-      () =>
-        actualizarEstadoNotificaciones()
-    )
-    .catch(
-      error =>
-        console.log(
-          "Service Worker:",
-          error
+    navigator
+        .serviceWorker
+        .register(
+            "/taxista/sw.js",
+            {
+                scope:
+                    "/taxista/",
+            }
         )
-    );
+        .then(
+            () =>
+                actualizarEstadoNotificaciones()
+        )
+        .catch(
+            error =>
+                console.log(
+                    "Service Worker:",
+                    error
+                )
+        );
 
 }
 /*
